@@ -1,0 +1,516 @@
+{
+  "chapter": "STAGE 1 / 3",
+  "title": "DESIGN",
+  "start_day": 1,
+  "start_time": "08:00",
+  "start_crew": "nova",
+  "items": {},
+  "cast": {
+    "hamdan": "Minister Hamdan",
+    "aisyah": "Director Aisyah",
+    "jabu": "Chief Jabu",
+    "ling": "Operator Ling",
+    "siti": "Dr. Siti"
+  },
+  "briefing": [
+    [
+      0,
+      "I make sure we don't run out of money before we run out of sky."
+    ],
+    [
+      1,
+      "I make sure it doesn't melt, freeze or fall apart."
+    ],
+    [
+      3,
+      "I make sure the data gets home."
+    ],
+    [
+      2,
+      "I make sure it's worth it."
+    ],
+    [
+      0,
+      "Two years. 2.5 million. One CubeSat to watch Sarawak's rainforest. We decide together."
+    ]
+  ],
+  "chatter": {
+    "nova": [
+      "A reserve is a plan for surprises.",
+      "Let's check what the other departments need."
+    ],
+    "orion": [
+      "Weigh it twice. Then write it down.",
+      "The battery has to carry the night."
+    ],
+    "juno": [
+      "Healthy leaf, dry leaf. That is our question.",
+      "A clear target is worth waiting for."
+    ],
+    "kai": [
+      "A beautiful image still has to get home.",
+      "Clouds above, rain at the dish. We plan for both."
+    ]
+  },
+  "beats": [
+    {
+      "id": "announcement",
+      "objective": "Watch the mission announcement",
+      "trigger": {
+        "type": "start"
+      },
+      "dialogue": [
+        [
+          "hamdan",
+          "Our forests are our future."
+        ],
+        [
+          "hamdan",
+          "Sarawak plans its first satellite by 2030. Today, we start small."
+        ],
+        [
+          "hamdan",
+          "A CubeSat. Shoebox size. It will watch our forests from space."
+        ],
+        [
+          "hamdan",
+          "We have two years and a small budget. We need a team."
+        ],
+        [
+          "hamdan",
+          "Not astronauts. Planners. Engineers. You."
+        ],
+        [
+          "aisyah",
+          "Welcome to Borneo Forest Watch. Our forests are our future."
+        ],
+        [
+          "aisyah",
+          "This pilot and its Minister are fictional. The 2030 plan is our real-world context."
+        ]
+      ],
+      "positions": {
+        "nova": "plot_trajectory",
+        "orion": "assemble_panels",
+        "juno": "calibrate_camera",
+        "kai": "align_antenna"
+      }
+    },
+    {
+      "id": "meet_crew",
+      "objective": "Meet Nadia in Mission Control",
+      "trigger": {
+        "type": "talk",
+        "target": "nova"
+      },
+      "dialogue": [
+        [
+          "nova",
+          "I make sure we don't run out of money before we run out of sky."
+        ],
+        [
+          "orion",
+          "I make sure it doesn't melt, freeze or fall apart."
+        ],
+        [
+          "kai",
+          "I make sure the data gets home."
+        ],
+        [
+          "juno",
+          "I make sure it's worth it."
+        ],
+        [
+          "aisyah",
+          "Each of you sees different gauges. Talk to each other."
+        ]
+      ],
+      "positions": {
+        "nova": "plot_trajectory",
+        "orion": "assemble_panels",
+        "juno": "calibrate_camera",
+        "kai": "align_antenna"
+      }
+    },
+    {
+      "id": "mission_briefing",
+      "objective": "Read the brief at the flight-plan terminal",
+      "trigger": {
+        "type": "use",
+        "spot": "upload_flight_plan",
+        "hold": 1.0
+      },
+      "dialogue": [
+        [
+          "aisyah",
+          "Welcome. Two years in orbit. 2.5 million to build our mission."
+        ],
+        [
+          "aisyah",
+          "Carry an imager. Cover Sarawak. Return at least 70% of the data."
+        ],
+        [
+          "aisyah",
+          "Stay inside the mass limit. Be ready in 24 months."
+        ],
+        [
+          "aisyah",
+          "Talk to each other. All green before launch. Every choice costs something."
+        ],
+        [
+          "aisyah",
+          "Mistakes teach us. Go to your departments, then come back for review."
+        ]
+      ]
+    },
+    {
+      "id": "p1",
+      "objective": "Nadia: choose a launch option",
+      "trigger": {
+        "type": "use",
+        "spot": "plot_trajectory",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "aisyah",
+          "Three ways up. Check the mass, cost and reliability together."
+        ],
+        [
+          "nova",
+          "The launch choice sets the shape of the mission."
+        ]
+      ],
+      "actor": "nova",
+      "decision": "P1"
+    },
+    {
+      "id": "p2",
+      "objective": "Nadia: choose the orbit",
+      "trigger": {
+        "type": "use",
+        "spot": "plot_trajectory",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "aisyah",
+          "With rideshare, the rocket decides the orbit."
+        ],
+        [
+          "nova",
+          "A dedicated launch lets us choose. Either way, check Sarawak coverage and life."
+        ]
+      ],
+      "actor": "nova",
+      "decision": "P2"
+    },
+    {
+      "id": "p3",
+      "objective": "Nadia: set the budget reserve",
+      "trigger": {
+        "type": "use",
+        "spot": "upload_flight_plan",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "nova",
+          "The jar is for surprises. We still have to fit inside 2.5 million."
+        ],
+        [
+          "aisyah",
+          "A little room now can save a difficult choice later."
+        ]
+      ],
+      "actor": "nova",
+      "decision": "P3"
+    },
+    {
+      "id": "e1",
+      "objective": "Daniel: choose the spacecraft bus",
+      "trigger": {
+        "type": "use",
+        "spot": "assemble_panels",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "jabu",
+          "Start with the frame. The imager needs a place to live."
+        ],
+        [
+          "orion",
+          "More room also means more mass and cost."
+        ]
+      ],
+      "actor": "orion",
+      "decision": "E1"
+    },
+    {
+      "id": "panels",
+      "objective": "Daniel: choose the solar array",
+      "trigger": {
+        "type": "use",
+        "spot": "assemble_panels",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "jabu",
+          "Face the panel toward the lamp. Watch the watt meter."
+        ],
+        [
+          "orion",
+          "The array must run the loads and refill the battery."
+        ]
+      ],
+      "actor": "orion",
+      "decision": "E2"
+    },
+    {
+      "id": "e3",
+      "objective": "Daniel: size the eclipse battery",
+      "trigger": {
+        "type": "use",
+        "spot": "divert_power",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "orion",
+          "Thirty-five minutes of shadow. The battery carries the night."
+        ],
+        [
+          "jabu",
+          "Survive the dark, then recharge before the next eclipse."
+        ]
+      ],
+      "actor": "orion",
+      "decision": "E3"
+    },
+    {
+      "id": "e4",
+      "objective": "Daniel: choose propulsion",
+      "trigger": {
+        "type": "use",
+        "spot": "fix_wiring",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "orion",
+          "A thruster takes mass, power and money. It can also help us step aside."
+        ],
+        [
+          "jabu",
+          "Try the debris preview before you choose."
+        ]
+      ],
+      "actor": "orion",
+      "decision": "E4"
+    },
+    {
+      "id": "e5",
+      "objective": "Daniel: choose the mass margin",
+      "trigger": {
+        "type": "use",
+        "spot": "assemble_panels",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "jabu",
+          "Weigh it twice."
+        ],
+        [
+          "orion",
+          "The launch limit is real. A margin leaves room for the final build."
+        ]
+      ],
+      "actor": "orion",
+      "decision": "E5"
+    },
+    {
+      "id": "c1",
+      "objective": "Mei Ling: choose the radio",
+      "trigger": {
+        "type": "use",
+        "spot": "align_antenna",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "ling",
+          "Match the wave. A stronger link has its own costs."
+        ],
+        [
+          "kai",
+          "Our camera makes data. Our radio has to bring it home."
+        ]
+      ],
+      "actor": "kai",
+      "decision": "C1"
+    },
+    {
+      "id": "c2",
+      "objective": "Mei Ling: plan ground-station coverage",
+      "trigger": {
+        "type": "use",
+        "spot": "download_telemetry",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "kai",
+          "Start with Kuching. Check what another dish would add."
+        ],
+        [
+          "ling",
+          "Reach 70% data returned, and keep an eye on the budget."
+        ]
+      ],
+      "actor": "kai",
+      "decision": "C2"
+    },
+    {
+      "id": "c3",
+      "objective": "Mei Ling: schedule the downlink passes",
+      "trigger": {
+        "type": "use",
+        "spot": "download_telemetry",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "ling",
+          "The pass windows are short. The data tank is not endless."
+        ],
+        [
+          "kai",
+          "I'll fit the downlink blocks into the passes before the tank overflows."
+        ]
+      ],
+      "actor": "kai",
+      "decision": "C3"
+    },
+    {
+      "id": "s1",
+      "objective": "Aina: calibrate the required imager",
+      "trigger": {
+        "type": "use",
+        "spot": "calibrate_camera",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "siti",
+          "Healthy leaf, dry leaf. The imager sees the difference."
+        ],
+        [
+          "juno",
+          "Red, near-infrared and thermal help us ask different questions."
+        ],
+        [
+          "siti",
+          "The imager is required. Calibrate it before adding anything else."
+        ]
+      ],
+      "actor": "juno",
+      "decision": "S1"
+    },
+    {
+      "id": "s2",
+      "objective": "Aina: choose the science add-ons",
+      "trigger": {
+        "type": "use",
+        "spot": "calibrate_camera",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "juno",
+          "There is room for ambition, if the bay, mass and power allow it."
+        ],
+        [
+          "siti",
+          "Pack the payload. Check the limits as you go."
+        ]
+      ],
+      "actor": "juno",
+      "decision": "S2"
+    },
+    {
+      "id": "s3",
+      "objective": "Aina: choose an imaging mode",
+      "trigger": {
+        "type": "use",
+        "spot": "calibrate_camera",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "siti",
+          "Wide is coarse. Narrow is sharp. Both have a use."
+        ],
+        [
+          "juno",
+          "We need a useful view of Sarawak, with a plan for clouds."
+        ]
+      ],
+      "actor": "juno",
+      "decision": "S3"
+    },
+    {
+      "id": "s4",
+      "objective": "Aina: plan the imaging calendar",
+      "trigger": {
+        "type": "use",
+        "spot": "calibrate_camera",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "juno",
+          "Let's put the imaging slots in clearer months."
+        ],
+        [
+          "siti",
+          "Respect the data and power caps. Leave room for weather."
+        ]
+      ],
+      "actor": "juno",
+      "decision": "S4"
+    },
+    {
+      "id": "design_complete",
+      "objective": "Bring the design to the Mess Hall",
+      "trigger": {
+        "type": "enter",
+        "room": "mess_hall"
+      },
+      "dialogue": [
+        [
+          "aisyah",
+          "The department choices are on the table. Now they have to fit together."
+        ],
+        [
+          "nova",
+          "Design recorded. Next comes integration review."
+        ],
+        [
+          "kai",
+          "One small satellite. One shared plan. Bring every department to the review."
+        ]
+      ],
+      "positions": {
+        "nova": "mess_hall",
+        "orion": "mess_hall",
+        "juno": "mess_hall",
+        "kai": "mess_hall"
+      },
+      "checkpoint": "design",
+      "ending": true
+    }
+  ]
+}

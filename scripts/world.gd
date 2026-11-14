@@ -1,354 +1,747 @@
 extends Node2D
+## C.R.E.W. ground station: a story-driven top-down pixel game on Earth.
+## You control one of four crewmates at a time (Tab / 1-4). The story in data/story.json
+## moves on as you talk to the crew, use things and carry items; some jobs need a specific
+## crewmate. Look after health, energy and food at the coffee machine, food counter, water
+## cooler, medical cabinet and your bunk. The clock runs and the lights come on at night.
 
-const SPEED := 76.0
-const STATIONS := {
-	"MISSION CONTROL": Vector2(225, 255),
-	"SPACECRAFT LAB": Vector2(480, 260),
-	"LAUNCH PAD": Vector2(735, 270)
-}
-const MISSION_TEXT := {
-	"MISSION CONTROL": "Mission brief received! Build a satellite to observe Earth. Visit the spacecraft lab next.",
-	"SPACECRAFT LAB": "Satellite assembled: camera, solar panels and radio are ready. Head to the launch pad!",
-	"LAUNCH PAD": "Launch successful! Your satellite is now observing Earth. Mission complete!"
-}
-# Station the objective marker points at for each stage; stage 3 (done) hides it.
-const OBJECTIVE_STATIONS := ["MISSION CONTROL", "SPACECRAFT LAB", "LAUNCH PAD"]
-# Sprite sheets drawn in Pixelorama (sources and generator in res://art, ignored by Godot).
-const PLAYER_SHEET := "res://assets/sprites/player_spritesheet.png"
-const MARKER_SHEET := "res://assets/sprites/marker_spritesheet.png"
-const PLAYER_FRAME := Vector2i(16, 24)
-const MARKER_FRAME := Vector2i(12, 14)
-const PLAYER_DIRECTIONS := ["down", "up", "left", "right"] # sheet row order
-const WALK_FPS := 8.0
-const MARKER_FPS := 6.0
-const MARKER_LIFT := Vector2(0, -34)
-# Animated station props, one strip sheet each. "pos" is where the prop's base meets the
-# ground; "solid" is the footprint the player can't walk through.
-const PROPS := {
-	"dish": {"frame": Vector2i(24, 28), "fps": 4.0, "anims": {"sweep": [0, 1, 2, 3]},
-		"pos": Vector2(352, 226), "solid": Rect2(343, 216, 18, 10)},
-	"workbench": {"frame": Vector2i(32, 24), "fps": 8.0, "anims": {"building": [0, 1, 2, 3], "done": [4]},
-		"pos": Vector2(600, 230), "solid": Rect2(586, 218, 28, 10)},
-	"fuel_tanks": {"frame": Vector2i(28, 32), "fps": 4.0, "anims": {"vent": [0, 1, 2, 3]},
-		"pos": Vector2(858, 226), "solid": Rect2(846, 212, 26, 14)},
-}
-const SATELLITE_BUILT_STAGE := 2
-# Rocket on the launch pad (sprite drawn in Pixelorama); it lifts off when the mission completes.
-const ROCKET_SHEET := "res://assets/sprites/rocket_spritesheet.png"
-const FLAME_SHEET := "res://assets/sprites/rocket_flame_spritesheet.png"
-const ROCKET_FRAME := Vector2i(44, 80)
-const FLAME_FRAME := Vector2i(44, 26)
-const ROCKET_POS := Vector2(731, 191) # base of the core stage, on the pad
-const ROCKET_SHAKE_TIME := 1.0
-const ROCKET_RISE := 460.0
-const ROCKET_RISE_TIME := 4.0
-const JINGLE_DELAY := 4.3
-# Sound effects synthesized by art/make_sfx.py.
-const SFX_DIR := "res://assets/audio/"
-const CUES := {"station_near": -2.0, "denied": 0.0, "mission_control": 0.0, "lab_build": 0.0,
-	"launch": 0.0, "mission_complete": 0.0} # cue name -> volume_db
-const STEP_VARIANTS := 4
-const STEP_VOLUME_DB := -3.0
-const STEP_FRAMES := [1, 3] # walk-cycle frames where a foot lands
+enum Phase { INTRO, PLAYING, DIALOGUE, PAUSED, ENDING, ACTIVITY }
 
-var player_pos := Vector2(480, 420)
-var facing := Vector2.DOWN
-var moving := false
-var elapsed := 0.0
-var stage := 0
+const USE_RANGE := 22.0
+const TALK_RANGE := 28.0
+const MINUTES_PER_SECOND := 2.0
+const INTRO_TIME := 2.4
+const ENDING_CARD_DELAY := 5.0
+const CAMERA_SMOOTHING := 7.0
+const EFFECT_HOLD := 1.2
+const NAG_EVERY := 18.0
+const NIGHT_TINT := [  # hour -> CanvasModulate colour, blended between neighbours
+	[0, Color("#4d5a8c")], [5, Color("#5c6796")], [7, Color("#e9dccb")], [9, Color.WHITE],
+	[16, Color.WHITE], [18, Color("#f2c9a0")], [20, Color("#7d79a6")], [22, Color("#4d5a8c")], [24, Color("#4d5a8c")]]
+const STAT_LABELS := {"health": "HEALTH", "energy": "ENERGY", "food": "FOOD"}
+const STAT_COLORS := {"health": Color("#ff8a80"), "energy": Color("#f2c94c"), "food": Color("#f0a060")}
+const NAGS := {"health": "I don't feel so good...", "energy": "So tired... I need coffee.", "food": "I'm starving. Food counter?"}
+
+var map: StationMap
+var story: Story
+var phase := Phase.INTRO
+var paused_from := Phase.PLAYING
 var mission_id := 0
-var dialogue := "Welcome to C.R.E.W! Walk to Mission Control to begin."
-var message_time := 12.0
-var player: AnimatedSprite2D
-var marker: AnimatedSprite2D
-var workbench: AnimatedSprite2D
-var rocket: AnimatedSprite2D
-var rocket_flame: AnimatedSprite2D
-var ground_image: Image
-var sfx := {} # cue name -> AudioStreamPlayer; empty until _ready (tests call _interact without it)
-var step_players := {} # "grass" / "path" -> AudioStreamPlayer
-var last_station := ""
+var campaign: Campaign
+var mission_recorded := false
+var at_meeting := false
+var forest := ForestMission.new()
+var activity: Control
+var decision_done := false
+var checklist_done := false
+var stage_success := true
+var day := 1
+var minutes := 0.0
+var intro_timer := 0.0
+var nag_timer := NAG_EVERY
+var rng := RandomNumberGenerator.new()
+var characters: Array[CrewMember] = []
+var ais: Array[CrewAI] = []
+var stats: Array[CrewStats] = []
+var player: CrewMember
+var player_index := 0
+var dialogue_queue: Array = []
+var ending_pending := false
+var hold := {}              # {"spot", "time", "effect": bool} while holding E on a spot
+var hold_progress := 0.0
+var last_room := ""
+
+var hud: CanvasLayer
 var camera: Camera2D
-var prompt: Label
-var message: Label
-var objective: Label
-var clock_label: Label
-var message_panel: PanelContainer
+var tint: CanvasModulate
+var scenery: StationScenery
+var doors: StationDoors
+var lights: NightLights
+var cues: InteractionCues
 
 func set_mission(value: int) -> void:
-	mission_id = clampi(value, 0, 1)
-	dialogue = "Welcome to C.R.E.W! Your " + ("Earth observation" if mission_id == 0 else "lunar reconnaissance") + " mission starts at Mission Control."
-	message_time = 12.0
-
-func station_at(pos: Vector2) -> String:
-	for station in STATIONS:
-		if pos.distance_to(STATIONS[station]) < 37.0:
-			return station
-	return ""
-
-func is_blocked(pos: Vector2) -> bool:
-	if pos.x < 18 or pos.x > 942 or pos.y < 25 or pos.y > 620:
-		return true
-	for prop in PROPS.values():
-		if prop.solid.has_point(pos):
-			return true
-	return Rect2(136, 112, 178, 120).has_point(pos) or Rect2(391, 116, 178, 120).has_point(pos) or Rect2(655, 133, 168, 91).has_point(pos)
+	mission_id = clampi(value, 0, Campaign.MISSIONS.size() - 1)
+	if story:
+		story = Story.new(Campaign.MISSIONS[mission_id].story)
+		story.payload = Campaign.MISSIONS[mission_id].payload
 
 func _ready() -> void:
+	rng.randomize()
+	map = StationMap.new()
+	story = Story.new(Campaign.MISSIONS[mission_id].story)
+	story.payload = Campaign.MISSIONS[mission_id].payload
 	var ground := Sprite2D.new()
 	ground.texture = load("res://assets/space_center.png")
 	ground.centered = false
+	ground.z_index = -10
 	add_child(ground)
-	ground_image = ground.texture.get_image()
-	y_sort_enabled = true # the player passes behind props when standing above them
-	for prop_name in PROPS:
-		var sprite := _make_prop(prop_name)
-		if prop_name == "workbench":
-			workbench = sprite
-	_make_rocket()
-	_make_audio()
-	marker = AnimatedSprite2D.new()
-	marker.sprite_frames = _strip_frames(MARKER_SHEET, MARKER_FRAME, {"bob": [0, 1, 2, 3]}, MARKER_FPS)
-	marker.z_index = 1
-	add_child(marker)
-	marker.play("bob")
-	player = AnimatedSprite2D.new()
-	player.sprite_frames = _player_frames()
-	player.offset = Vector2(0, -10) # feet sit on the node origin
-	add_child(player)
-	player.frame_changed.connect(_on_player_frame)
+	y_sort_enabled = true
+	scenery = StationScenery.new()
+	add_child(scenery)
+	scenery.build(self, map)
+	doors = StationDoors.new()
+	doors.y_sort_enabled = true
+	add_child(doors)
+	doors.build(map)
+	for i in CrewRoster.CREW.size():
+		var member := CrewMember.new()
+		member.setup(i, map)
+		member.position = map.spawns[i]
+		add_child(member)
+		member.stepped.connect(_on_step.bind(member))
+		characters.append(member)
+		ais.append(CrewAI.new(member, self, rng.randi()))
+		stats.append(CrewStats.new())
+	lights = NightLights.new()
+	add_child(lights)
+	lights.build(map)
+	cues = InteractionCues.new()
+	add_child(cues)
 	camera = Camera2D.new()
-	add_child(camera)
 	camera.limit_left = 0
 	camera.limit_top = 0
-	camera.limit_right = 960
-	camera.limit_bottom = 640
-	_make_ui()
-	_update_view()
+	camera.limit_right = map.size.x
+	camera.limit_bottom = map.size.y
+	camera.position_smoothing_enabled = true
+	camera.position_smoothing_speed = CAMERA_SMOOTHING
+	add_child(camera)
+	tint = CanvasModulate.new()
+	add_child(tint)
+	hud = preload("res://scripts/hud.gd").new()
+	hud.name = "HUD"
+	add_child(hud)
+	hud.setup_minimap(map)
+	start_chapter()
 
+# ── chapter flow ─────────────────────────────────────────────────────────────
+func start_chapter() -> void:
+	mission_recorded = false
+	at_meeting = false
+	story.reset()
+	forest = campaign.forest if campaign != null else ForestMission.new()
+	if campaign != null and not campaign.completed.has(mission_id):
+		story.index = clampi(int(campaign.beats.get(str(mission_id), 0)), 0, story.beats.size() - 1)
+	decision_done = false
+	checklist_done = false
+	stage_success = true
+	day = int(story.data.get("start_day", 1))
+	minutes = float(Story.parse_time(story.data.get("start_time", "08:00")))
+	dialogue_queue.clear()
+	ending_pending = false
+	hold = {}
+	for i in characters.size():
+		characters[i].position = map.spawns[i]
+		characters[i].stop()
+		characters[i].show()
+		stats[i] = CrewStats.new()
+	scenery.reset_rocket()
+	scenery.set_workbench_done(false)
+	_control(campaign.character if campaign != null and campaign.character >= 0 else max(0, CrewRoster.index_of(story.data.get("start_crew", "nova"))))
+	if campaign != null:
+		gather_at_mess_table()
+	camera.position = player.position
+	camera.reset_smoothing()
+	last_room = map.room_at(player.position)
+	hud.hide_dialogue()
+	hud.toggle_help(false)
+	if campaign != null:
+		hud.set_campaign_help()
+	hud.set_round_ui(false)
+	hud.show_card(story.data.get("chapter", ""), story.data.get("title", ""), "H: controls and help")
+	_apply_positions()
+	intro_timer = INTRO_TIME
+	phase = Phase.INTRO
+
+func gather_at_mess_table() -> void:
+	at_meeting = true
+	var table := map.meeting_table
+	var center := table.get_center()
+	var places := [
+		Vector2(center.x, table.position.y - 8),
+		Vector2(table.end.x + 22, center.y + 8),
+		Vector2(center.x, table.end.y + 24),
+		Vector2(table.position.x - 22, center.y + 8),
+	]
+	for i in characters.size():
+		characters[i].position = places[i]
+		characters[i].stop()
+		characters[i].face(center - places[i])
+		ais[i].goal = "~"
+	camera.zoom = Vector2.ONE
+	camera.position = center + Vector2(0, 20)
+	camera.reset_smoothing()
+	camera.force_update_scroll()
+	tint.color = Color.WHITE
+
+func _begin_play() -> void:
+	hud.fade_card(0.6)
+	hud.set_round_ui(true)
+	phase = Phase.PLAYING
+	if mission_id == 0 and story.index == 0:
+		hud.play_hornbill()
+	if story.trigger().get("type", "") == "start":
+		_complete_beat()
+
+## Finishes the current beat: items, dialogue, then sets up the next beat.
+func _complete_beat() -> void:
+	var beat := story.current()
+	if beat.has("decision") and not decision_done:
+		_open_activity(beat.decision)
+		return
+	var checkpoint: String = beat.get("checkpoint", "")
+	if checkpoint == "review" and not forest.review().approved:
+		stage_success = false
+		_show_report()
+		return
+	if checkpoint == "launch":
+		if not checklist_done:
+			_open_activity("checklist")
+			return
+		var launch_result := forest.launch()
+		_save_story_progress()
+		if not launch_result.success:
+			stage_success = false
+			_show_report()
+			return
+	if checkpoint == "report":
+		stage_success = forest.report().ending in ["E1", "E2"]
+	var result := story.complete()
+	decision_done = false
+	checklist_done = false
+	_save_story_progress()
+	if result.gained != "":
+		hud.show_toast(load(story.item_icon(result.gained)), "Got: " + story.item_name(result.gained))
+		scenery.play("lab_build")
+	if story.current().has("set_time"):
+		minutes = float(Story.parse_time(story.current().set_time))
+	if story.current().get("next_day", false):
+		day += 1
+		for s in stats:
+			s.energy = CrewStats.MAX   # a night's sleep
+	_apply_positions()
+	ending_pending = result.ending
+	scenery.set_workbench_done(_beat_done("panels"))
+	dialogue_queue = result.dialogue.duplicate()
+	if dialogue_queue.is_empty():
+		_after_dialogue()
+	else:
+		_next_line()
+
+func _save_story_progress() -> bool:
+	if campaign == null:
+		return true
+	campaign.beats[str(mission_id)] = story.index
+	var saved := campaign.save()
+	if not saved:
+		hud.show_toast(null, "Progress could not be saved. Check free space.")
+	return saved
+
+func _open_activity(id: String) -> void:
+	phase = Phase.ACTIVITY
+	player.stop()
+	activity = preload("res://scripts/mission_activity.gd").new()
+	if id == "checklist":
+		activity.setup_checklist(forest)
+	else:
+		activity.setup(forest, id)
+	activity.finished.connect(_activity_finished)
+	hud.root.add_child(activity)
+
+func _activity_finished(result: Dictionary) -> void:
+	if not result.get("ok", false):
+		return
+	activity.queue_free()
+	hud.root.remove_child(activity)
+	activity = null
+	if result.id == "checklist":
+		checklist_done = true
+	else:
+		decision_done = true
+	_save_story_progress()
+	_complete_beat()
+
+func _beat_done(beat_id: String) -> bool:
+	for i in story.index:
+		if story.beats[i].get("id", "") == beat_id:
+			return true
+	return false
+
+func _apply_positions() -> void:
+	var wanted := story.positions()
+	for i in characters.size():
+		if characters[i] != player:
+			ais[i].set_goal(wanted.get(characters[i].id, ""))
+	if campaign != null:
+		var actor := CrewRoster.index_of(story.current().get("actor", ""))
+		if actor >= 0 and actor != player_index and story.trigger().get("type", "") == "use":
+			ais[actor].set_goal(story.trigger().spot)
+
+func _after_dialogue() -> void:
+	hud.hide_dialogue()
+	if ending_pending:
+		_start_ending()
+		return
+	phase = Phase.PLAYING
+	at_meeting = false
+
+func _next_line() -> void:
+	phase = Phase.DIALOGUE
+	player.stop()
+	hold = {}
+	player.busy = false
+	var line: Array = dialogue_queue.pop_front()
+	var speaker_id: String = player.id if line[0] == "you" else line[0]
+	var idx := CrewRoster.index_of(speaker_id)
+	var speaker_name: String = CrewRoster.speaker_name(speaker_id)
+	var portrait: Texture2D = load(CrewRoster.portrait_path(speaker_id)) if idx >= 0 else null
+	hud.show_line(speaker_name, portrait, line[1])
+	if idx >= 0:
+		characters[idx].say("...", 1.2)
+	scenery.play("station_near")
+
+func _advance_dialogue() -> void:
+	if not hud.line_finished():
+		hud.finish_line()
+	elif dialogue_queue.is_empty():
+		_after_dialogue()
+	else:
+		_next_line()
+
+func _start_ending() -> void:
+	phase = Phase.ENDING
+	hud.set_round_ui(false)
+	cues.point_at(Vector2.INF, false)
+	cues.clear_focus()
+	if mission_id == 1 and forest.state.launch_success:
+		scenery.launch_rocket()
+		hud.play_hornbill()
+	if is_inside_tree():
+		await get_tree().create_timer(ENDING_CARD_DELAY).timeout
+	if phase != Phase.ENDING:
+		return
+	scenery.play("mission_complete")
+	if campaign != null and stage_success:
+		mission_recorded = campaign.finish_mission(mission_id) or campaign.completed.has(mission_id)
+	if mission_id == 2:
+		_show_report()
+		return
+	var message := "DESIGN COMPLETE" if mission_id == 0 else "SIGNAL ACQUIRED!"
+	if not mission_recorded and campaign != null:
+		message = "SAVE FAILED - ENTER TO RETRY"
+	hud.show_card("BORNEO FOREST WATCH", message, "ENTER: mission select / Next: " + ("Review & Launch" if mission_id == 0 else "Operations & Report"))
+
+func _show_report() -> void:
+	phase = Phase.ENDING
+	hud.set_round_ui(false)
+	hud.hide_dialogue()
+	hud.card.hide()
+	activity = preload("res://scripts/transmission.gd").new()
+	activity.setup_report(campaign, forest.report())
+	activity.accepted.connect(_show_report_details)
+	activity.declined.connect(_show_report_details)
+	hud.root.add_child(activity)
+	hud.play_hornbill()
+
+func _show_report_details(_stage := -1) -> void:
+	if is_instance_valid(activity):
+		hud.root.remove_child(activity)
+		activity.queue_free()
+	activity = preload("res://scripts/mission_activity.gd").new()
+	activity.setup_report(forest, forest.report())
+	activity.address_requested.connect(_replay_report_address)
+	activity.finished.connect(func(_result): get_tree().change_scene_to_file("res://scenes/menu.tscn"))
+	hud.root.add_child(activity)
+
+func _replay_report_address() -> void:
+	hud.root.remove_child(activity)
+	activity.queue_free()
+	_show_report()
+
+## Collapsing from no health: wake up in Med Bay two hours later.
+func _faint() -> void:
+	var s := stats[player_index]
+	s.health = 40.0
+	s.energy = maxf(s.energy, 50.0)
+	s.food = maxf(s.food, 40.0)
+	minutes += 120.0
+	player.stop()
+	player.position = map.spots["restock_medkits"].pos + Vector2(0, 14)
+	camera.reset_smoothing()
+	dialogue_queue = [["aisyah", "Easy. Rest, eat and drink some water. We look after each other."]]
+	_next_line()
+
+# ── switching crew ───────────────────────────────────────────────────────────
+func _control(i: int) -> void:
+	if player:
+		player.is_player = false
+		player.busy = false
+		player.speed_scale = 1.0
+	player_index = i
+	player = characters[i]
+	player.is_player = true
+	player.stop()
+	hold = {}
+	var wanted := story.positions()
+	for j in characters.size():
+		if characters[j] != player:
+			ais[j].goal = "~"   # force a fresh goal even if it hasn't changed
+			ais[j].set_goal(wanted.get(characters[j].id, ""))
+
+func switch_to(i: int) -> void:
+	if campaign != null and campaign.locked():
+		if i != player_index and phase == Phase.PLAYING:
+			player.say("Crew locked: %d / 3 missions complete." % campaign.completed.size(), 2.5)
+		return
+	if phase != Phase.PLAYING or i == player_index or i < 0 or i >= characters.size():
+		return
+	_control(i)
+	last_room = map.room_at(player.position)
+	cues.float_text(player.position, player.info.name, player.info.color.lightened(0.3))
+	scenery.play("station_near")
+
+# ── per-frame ────────────────────────────────────────────────────────────────
 func _process(delta: float) -> void:
-	elapsed += delta
-	message_time = maxf(0.0, message_time - delta)
-	var dir := Vector2(float(Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT)) - float(Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT)), float(Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN)) - float(Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP))).normalized()
-	moving = dir != Vector2.ZERO
-	if moving:
-		facing = dir
-		var next_x := player_pos + Vector2(dir.x * SPEED * delta, 0)
-		var next_y := player_pos + Vector2(0, dir.y * SPEED * delta)
-		if not is_blocked(next_x): player_pos.x = next_x.x
-		if not is_blocked(next_y): player_pos.y = next_y.y
-	_update_view()
+	match phase:
+		Phase.INTRO:
+			intro_timer -= delta
+			if intro_timer <= 0.0:
+				_begin_play()
+		Phase.PLAYING:
+			_tick_world(delta)
+			_update_player(delta)
+			_check_enter_trigger()
+			_check_room()
+		Phase.PAUSED:
+			return
+	if phase not in [Phase.ENDING, Phase.ACTIVITY] and not at_meeting:
+		for i in characters.size():
+			if characters[i] != player:
+				ais[i].update(delta)
+	doors.update_doors(delta, characters)
+	camera.position = (map.rocket_pos if phase == Phase.ENDING and mission_id == 1 and stage_success else player.position).round()
+	tint.color = _tint_for(minutes)
+	lights.set_darkness(clampf((1.0 - tint.color.v) * 2.4, 0.0, 1.0))
+	_update_hud()
+
+func _tick_world(delta: float) -> void:
+	var game_minutes := delta * MINUTES_PER_SECOND
+	minutes += game_minutes
+	if minutes >= 24 * 60:
+		minutes -= 24 * 60
+		day += 1
+	var s := stats[player_index]
+	s.tick(game_minutes, player.moving, not hold.is_empty())
+	player.speed_scale = s.speed_factor()
+	nag_timer -= delta
+	if nag_timer <= 0.0:
+		nag_timer = NAG_EVERY
+		var warn := s.warning()
+		if warn != "":
+			player.say(NAGS[warn], 3.0)
+	if s.fainted():
+		_faint()
+
+func _update_player(delta: float) -> void:
+	var dir := Vector2(
+		float(Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT)) - float(Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT)),
+		float(Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN)) - float(Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP)))
+	if not hold.is_empty():
+		_update_hold(delta, dir, _use_key_held())
+		return
+	player.walk(dir, delta)
+
+func _use_key_held() -> bool:
+	return Input.is_key_pressed(KEY_E) or Input.is_key_pressed(KEY_SPACE) or Input.is_key_pressed(KEY_ENTER)
+
+## Advances a hold-to-use action; moving, letting go or walking away cancels it.
+func _update_hold(delta: float, dir: Vector2, holding: bool) -> void:
+	if hold.is_empty():
+		return
+	var spot_pos: Vector2 = map.spots[hold.spot].pos
+	if dir != Vector2.ZERO or not holding or player.position.distance_to(spot_pos) > USE_RANGE + 4.0:
+		hold = {}
+		player.busy = false
+		return
+	player.moving = false
+	player.busy = true
+	hold_progress += delta
+	if hold_progress >= hold.time:
+		var finished := hold
+		hold = {}
+		player.busy = false
+		if finished.effect:
+			_apply_effect(finished.spot)
+		else:
+			_complete_beat()
+
+func _apply_effect(spot_id: String) -> void:
+	var spot: Dictionary = map.spots[spot_id]
+	var effects: Dictionary = spot.effects.duplicate()
+	var gained := stats[player_index].apply(effects)
+	var offset := 0.0
+	for key in gained:
+		if gained[key] >= 1.0:
+			cues.float_text(player.position + Vector2(0, offset), "+%d %s" % [int(gained[key]), STAT_LABELS[key]], STAT_COLORS[key])
+			offset -= 10.0
+	if spot.hours > 0.0:
+		minutes += spot.hours * 60.0
+		hud.show_toast(load("res://assets/ui/items/%s.png" % spot.icon), "Slept %d hours" % int(spot.hours))
+	scenery.play("lab_build")
+
+func _check_enter_trigger() -> void:
+	var t := story.trigger()
+	if t.get("type", "") == "enter" and story.check("enter", map.room_at(player.position), player.id) == Story.Check.OK:
+		_complete_beat()
+
+func _check_room() -> void:
+	var room := map.room_at(player.position)
+	if room != last_room:
+		last_room = room
+		hud.show_room(map.room_name(room))
+
+func _tint_for(m: float) -> Color:
+	var hour := m / 60.0
+	for k in range(NIGHT_TINT.size() - 1):
+		var a: Array = NIGHT_TINT[k]
+		var b: Array = NIGHT_TINT[k + 1]
+		if hour >= a[0] and hour <= b[0]:
+			return a[1].lerp(b[1], (hour - a[0]) / float(b[0] - a[0]))
+	return Color.WHITE
+
+# ── HUD and cues ─────────────────────────────────────────────────────────────
+func _update_hud() -> void:
+	var gauges: String
+	match player_index:
+		0: gauges = "PLAN / %.2f / 2.50 M / %.0f / 24 MONTHS" % [forest.state.cost_m, forest.state.months]
+		1: gauges = "BUS / %.1f / %.1f KG / %.0f / %.0f W / %.0f WH" % [forest.state.mass_kg, forest.state.mass_limit_kg, forest.state.power_w, forest.state.solar_w, forest.state.battery_wh]
+		2: gauges = "SCIENCE / IMAGER %s / SARAWAK %s / THERMAL %s" % ["YES" if forest.state.imager else "NO", "YES" if forest.state.sarawak else "NO", "YES" if forest.state.thermal else "NO"]
+		_: gauges = "LINK / %.0f%% DATA / %s-BAND / BACKUP %s" % [forest.state.data_pct, forest.state.radio, "YES" if forest.state.backup_station else "NO"]
+	hud.show_mission_gauges(gauges)
+	var healths: Array = []
+	for s in stats:
+		healths.append(s.health / CrewStats.MAX)
+	var actor: String = story.current().get("actor", "")
+	hud.show_party(player_index, "%s · %s" % [player.info.name, player.info.role], healths, CrewRoster.index_of(actor))
+	hud.show_stats(stats[player_index])
+	hud.show_clock(day, int(minutes))
+	if mission_id == 2:
+		var quarter: int = ForestMission.definition(story.current().get("decision", "")).get("quarter", 8 if forest.state.quarters.size() == 7 else 1)
+		hud.show_operations_calendar(quarter)
+	hud.show_objective(_objective_text())
+	var icons: Array[String] = []
+	for item in story.inventory:
+		icons.append(story.item_icon(item))
+	hud.show_inventory(icons)
+	var target := objective_position()
+	var dots: Array = []
+	for c in characters:
+		dots.append({"pos": c.position, "color": c.info.color, "is_player": c == player, "facing": c.facing})
+	var screen_center := camera.get_screen_center_position()
+	hud.show_minimap(dots, target, player.position, map.room_name(map.room_at(player.position)))
+	var playing := phase == Phase.PLAYING
+	hud.show_edge_arrow(target - screen_center + Vector2(240, 135) if playing and target != Vector2.INF else Vector2.INF)
+	_update_cues(playing, target)
+
+func _update_cues(playing: bool, target: Vector2) -> void:
+	var t := story.trigger()
+	cues.point_at(target if playing else Vector2.INF, t.get("type", "") == "talk")
+	if not hold.is_empty():
+		cues.show_hold(player.position, hold_progress / hold.time)
+	else:
+		cues.clear_hold()
+	var use := interaction_near() if playing and hold.is_empty() else {}
+	if use.is_empty():
+		cues.clear_focus()
+		hud.show_prompt("", "")
+		return
+	var color := InteractionCues.WHITE
+	var label: String = use.label
+	var locked := false
+	match use.check:
+		Story.Check.OK:
+			color = InteractionCues.GOLD
+		Story.Check.WRONG_ACTOR:
+			color = InteractionCues.RED
+			locked = true
+			label = "Needs %s  (Tab to switch)" % CrewRoster.CREW[CrewRoster.index_of(story.current().actor)].name
+		Story.Check.MISSING_ITEM:
+			color = InteractionCues.RED
+			locked = true
+			label = "Needs the %s" % story.item_name(story.current().needs_item)
+	var is_person: bool = use.kind == "talk"
+	var focus_pos: Vector2 = use.pos + (Vector2(0, -11) if is_person else Vector2(0, -9))
+	cues.show_focus(focus_pos, Vector2(16, 24) if is_person else Vector2(20, 18), color)
+	hud.show_prompt("E", label, locked)
+
+func _objective_text() -> String:
+	var text := story.objective()
+	var actor: String = story.current().get("actor", "")
+	if actor != "" and actor != player.id:
+		text += "  (%s assists)" % CrewRoster.CREW[CrewRoster.index_of(actor)].name if campaign != null else "  (as %s)" % CrewRoster.CREW[CrewRoster.index_of(actor)].name
+	var t := story.trigger()
+	if t.get("type", "") == "talk" and t.get("target", "") == player.id:
+		text += "  (E: review briefing)" if campaign != null else "  (switch crew)"
+	return text
+
+## Where the current objective is, or Vector2.INF if there's nothing to point at.
+func objective_position() -> Vector2:
+	var t := story.trigger()
+	match t.get("type", ""):
+		"talk":
+			var i := CrewRoster.index_of(t.get("target", ""))
+			return characters[i].position if i >= 0 and (characters[i] != player or campaign != null) else Vector2.INF
+		"use":
+			return map.spots[t.spot].pos + Vector2(0, 4) if map.spots.has(t.get("spot", "")) else Vector2.INF
+		"enter":
+			return map.rooms[t.room].floor_rect.get_center() if map.rooms.has(t.get("room", "")) else Vector2.INF
+	return Vector2.INF
+
+# ── interaction ──────────────────────────────────────────────────────────────
+## The thing in reach, preferring the story's target, then useful spots, then people:
+## {kind, target, label, pos, check} or {}.
+func interaction_near() -> Dictionary:
+	var options: Array[Dictionary] = []
+	if campaign != null and story.trigger().get("type", "") == "talk" and story.trigger().get("target", "") == player.id:
+		options.append({"kind": "talk", "target": player.id, "label": "Review " + player.info.name + "'s briefing", "pos": player.position})
+	for c in characters:
+		if c != player and c.position.distance_to(player.position) <= TALK_RANGE:
+			options.append({"kind": "talk", "target": c.id, "label": "Talk to " + c.info.name, "pos": c.position})
+	for id in map.spots:
+		var spot: Dictionary = map.spots[id]
+		if player.position.distance_to(spot.pos) <= USE_RANGE:
+			var label: String = spot.verb if spot.verb != "" else spot.name
+			options.append({"kind": "use", "target": id, "label": label, "pos": spot.pos})
+	var best := {}
+	var best_rank := 99
+	for o in options:
+		o["check"] = story.check(o.kind, o.target, player.id)
+		if campaign != null and o.check == Story.Check.WRONG_ACTOR:
+			# The player requests the specialist's help instead of changing character.
+			o["check"] = story.check(o.kind, o.target, story.current().actor)
+			o.label = "Assist " + CrewRoster.CREW[CrewRoster.index_of(story.current().actor)].name
+		var rank := 3
+		if o.check != Story.Check.NO_MATCH:
+			rank = 0
+		elif o.kind == "use" and not map.spots[o.target].effects.is_empty():
+			rank = 1
+		elif o.kind == "talk":
+			rank = 2
+		if rank < best_rank:
+			best_rank = rank
+			best = o
+	return best
+
+func interact() -> void:
+	var o := interaction_near()
+	if o.is_empty():
+		return
+	if o.kind == "talk":
+		var other := characters[CrewRoster.index_of(o.target)]
+		other.face(player.position - other.position)
+		player.face(other.position - player.position)
+	match o.check:
+		Story.Check.OK:
+			if o.kind == "use" and story.hold_time() > 0.0:
+				_start_hold(o.target, story.hold_time(), false)
+			else:
+				_complete_beat()
+		Story.Check.WRONG_ACTOR:
+			var actor: String = story.current().actor
+			player.say("This is a job for %s. (Tab to switch)" % CrewRoster.CREW[CrewRoster.index_of(actor)].name, 3.0)
+			scenery.play("denied")
+		Story.Check.MISSING_ITEM:
+			player.say("I need the %s first." % story.item_name(story.current().needs_item).to_lower(), 3.0)
+			scenery.play("denied")
+		_:
+			if o.kind == "talk":
+				var lines := story.chatter_for(o.target)
+				if not lines.is_empty():
+					characters[CrewRoster.index_of(o.target)].say(lines[rng.randi_range(0, lines.size() - 1)], 3.0)
+			elif not map.spots[o.target].effects.is_empty():
+				_start_hold(o.target, EFFECT_HOLD, true)
+			else:
+				player.say("Nothing to do here right now.", 2.0)
+
+func _start_hold(spot_id: String, seconds: float, is_effect: bool) -> void:
+	if campaign != null and not is_effect:
+		var actor: String = story.current().get("actor", "")
+		if actor != "" and actor != player.id:
+			characters[CrewRoster.index_of(actor)].say("I'll handle the specialist work. Help me here.", seconds + 1.0)
+		if actor == player.id:
+			seconds *= 0.75
+	hold = {"spot": spot_id, "time": seconds, "effect": is_effect}
+	hold_progress = 0.0
+	player.face(map.spots[spot_id].pos - player.position + Vector2(0, -1))
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode in [KEY_E, KEY_SPACE, KEY_ENTER]:
-		_interact()
-
-func _interact() -> void:
-	var station := station_at(player_pos)
-	var cue := "denied"
-	if station == "":
-		dialogue = "Walk closer to a station and press E."
-	elif station == "MISSION CONTROL":
-		stage = maxi(stage, 1)
-		dialogue = MISSION_TEXT[station] if mission_id == 0 else "Mission brief received! Prepare a probe to map the Moon. Visit the spacecraft lab next."
-		cue = "mission_control"
-	elif station == "SPACECRAFT LAB":
-		if stage < 1:
-			dialogue = "Visit Mission Control first to choose your mission."
-		else:
-			stage = maxi(stage, 2)
-			dialogue = MISSION_TEXT[station]
-			cue = "lab_build"
-	elif stage < 2:
-		dialogue = "Your spacecraft isn't ready yet. Visit the workshop first."
-	else:
-		var first_launch := stage < 3
-		stage = 3
-		dialogue = MISSION_TEXT[station] if mission_id == 0 else "Launch successful! Your probe is on its way to map the Moon. Mission complete!"
-		cue = "launch" if first_launch else "mission_complete"
-		if first_launch:
-			_launch_rocket()
-	message_time = 8.0
-	_play(cue)
-
-func _update_view() -> void:
-	player.position = player_pos.round()
-	var anim := ("walk_" if moving else "idle_") + facing_name(facing)
-	if player.animation != anim:
-		player.play(anim)
-	marker.visible = stage < OBJECTIVE_STATIONS.size()
-	if marker.visible:
-		marker.position = STATIONS[OBJECTIVE_STATIONS[stage]] + MARKER_LIFT
-	var bench_anim := "done" if stage >= SATELLITE_BUILT_STAGE else "building"
-	if workbench.animation != bench_anim:
-		workbench.play(bench_anim)
-	camera.position = player_pos.round()
-	var station := station_at(player_pos)
-	if station != last_station:
-		if station != "":
-			_play("station_near")
-		last_station = station
-	prompt.text = "[E]  " + station if station != "" else "WASD / Arrows: move    E: interact"
-	message.text = dialogue
-	message_panel.visible = message_time > 0.0
-	objective.text = ["1 / 3  Visit mission control", "2 / 3  Build your satellite", "3 / 3  Visit the launch pad", "MISSION COMPLETE  ✦"][stage]
-	var minutes := int(elapsed * 3.0) + 8 * 60
-	clock_label.text = "DAY %d    %02d:%02d" % [1 + minutes / 1440, (minutes / 60) % 24, minutes % 60]
-
-func _make_ui() -> void:
-	var layer := CanvasLayer.new()
-	layer.name = "HUD"
-	add_child(layer)
-	var panel := ColorRect.new()
-	panel.color = Color('#343b3ce8')
-	panel.position = Vector2(8, 8)
-	panel.size = Vector2(213, 36)
-	layer.add_child(panel)
-	objective = _label(layer, Vector2(15, 11), 11, Color('#fff0c9'))
-	clock_label = _label(layer, Vector2(15, 26), 9, Color('#b9ddbc'))
-	prompt = _label(layer, Vector2(10, 247), 10, Color('#fff2d0'))
-	var footer := ColorRect.new()
-	footer.color = Color('#343b3cde')
-	footer.position = Vector2(5, 243)
-	footer.size = Vector2(300, 20)
-	layer.add_child(footer)
-	layer.move_child(footer, prompt.get_index())
-	message_panel = PanelContainer.new()
-	message_panel.position = Vector2(8, 194)
-	message_panel.size = Vector2(464, 43)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color('#fff0c9')
-	style.set_border_width_all(2)
-	style.border_color = Color('#74564b')
-	style.set_content_margin_all(6)
-	message_panel.add_theme_stylebox_override('panel', style)
-	layer.add_child(message_panel)
-	message = Label.new()
-	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	message.add_theme_font_size_override('font_size', 11)
-	message.add_theme_color_override('font_color', Color('#4e403b'))
-	message_panel.add_child(message)
-
-func _label(parent: Node, pos: Vector2, font_size: int, color: Color) -> Label:
-	var label := Label.new()
-	label.position = pos
-	label.add_theme_font_size_override('font_size', font_size)
-	label.add_theme_color_override('font_color', color)
-	parent.add_child(label)
-	return label
-
-func facing_name(dir: Vector2) -> String:
-	if absf(dir.x) > absf(dir.y):
-		return "left" if dir.x < 0.0 else "right"
-	return "up" if dir.y < 0.0 else "down"
-
-func _player_frames() -> SpriteFrames:
-	var sheet: Texture2D = load(PLAYER_SHEET)
-	var frames := SpriteFrames.new()
-	frames.remove_animation("default")
-	for row in PLAYER_DIRECTIONS.size():
-		var dir: String = PLAYER_DIRECTIONS[row]
-		frames.add_animation("walk_" + dir)
-		frames.set_animation_speed("walk_" + dir, WALK_FPS)
-		for col in 4:
-			frames.add_frame("walk_" + dir, _cell(sheet, PLAYER_FRAME, col, row))
-		frames.add_animation("idle_" + dir)
-		frames.add_frame("idle_" + dir, _cell(sheet, PLAYER_FRAME, 0, row))
-	return frames
-
-func _make_rocket() -> void:
-	rocket = AnimatedSprite2D.new()
-	rocket.name = "Rocket"
-	rocket.sprite_frames = _strip_frames(ROCKET_SHEET, ROCKET_FRAME, {"standby": [0, 1]}, 2.0)
-	rocket.offset = Vector2(0, 1 - ROCKET_FRAME.y / 2) # bottom row sits on the node origin
-	rocket.position = ROCKET_POS
-	add_child(rocket)
-	rocket.play("standby")
-	rocket_flame = AnimatedSprite2D.new()
-	rocket_flame.sprite_frames = _strip_frames(FLAME_SHEET, FLAME_FRAME, {"burn": [0, 1, 2]}, 14.0)
-	rocket_flame.centered = false
-	rocket_flame.position = Vector2(-ROCKET_FRAME.x / 2, -2) # plumes start at the engine bells
-	rocket_flame.show_behind_parent = true
-	rocket_flame.hide()
-	rocket.add_child(rocket_flame)
-
-# Ignition shudder, then an accelerating climb out of view; the jingle lands as it leaves.
-func _launch_rocket() -> void:
-	if rocket == null:
+	if is_instance_valid(activity):
 		return
-	rocket.z_index = 2
-	rocket_flame.show()
-	rocket_flame.play("burn")
-	var base_offset := rocket.offset
-	var tween := create_tween()
-	tween.tween_method(func(_t: float): rocket.offset = base_offset + Vector2(randi_range(-1, 1), 0), 0.0, 1.0, ROCKET_SHAKE_TIME)
-	tween.tween_callback(func(): rocket.offset = base_offset)
-	tween.tween_property(rocket, "position:y", ROCKET_POS.y - ROCKET_RISE, ROCKET_RISE_TIME).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tween.tween_callback(rocket.hide)
-	create_tween().tween_callback(_play.bind("mission_complete")).set_delay(JINGLE_DELAY)
+	if not (event is InputEventKey) or not event.pressed or event.echo:
+		return
+	var key: int = event.keycode
+	if key in [KEY_H, KEY_ESCAPE] and phase in [Phase.PLAYING, Phase.DIALOGUE, Phase.PAUSED]:
+		if hud.minimap.visible and key == KEY_ESCAPE:
+			hud.minimap.hide()
+		else:
+			_toggle_pause()
+		get_viewport().set_input_as_handled()
+		return
+	match phase:
+		Phase.DIALOGUE:
+			if key in [KEY_E, KEY_SPACE, KEY_ENTER, KEY_KP_ENTER]:
+				_advance_dialogue()
+		Phase.ENDING:
+			if key in [KEY_ENTER, KEY_KP_ENTER] and hud.card.visible:
+				if campaign != null:
+					if not mission_recorded and not campaign.finish_mission(mission_id):
+						return
+					get_tree().change_scene_to_file("res://scenes/menu.tscn")
+				else:
+					start_chapter()
+		Phase.PLAYING:
+			if key in [KEY_E, KEY_SPACE, KEY_ENTER]:
+				if hold.is_empty():
+					interact()
+			elif key == KEY_TAB:
+				switch_to(posmod(player_index + (-1 if event.shift_pressed else 1), characters.size()))
+			elif key >= KEY_1 and key <= KEY_4:
+				switch_to(key - KEY_1)
+			elif key == KEY_N:
+				hud.toggle_minimap()
+			elif key == KEY_M:
+				if hud.minimap.visible:
+					hud.minimap.hide()
+				else:
+					hud.minimap.show_map(map, "STATION MAP", _map_markers())
+			else:
+				return
+		_:
+			return
+	get_viewport().set_input_as_handled()
 
-func _make_audio() -> void:
-	for cue in CUES:
-		var player_node := AudioStreamPlayer.new()
-		player_node.stream = load(SFX_DIR + cue + ".wav")
-		player_node.volume_db = CUES[cue]
-		add_child(player_node)
-		sfx[cue] = player_node
-	for surface in ["grass", "path"]:
-		var steps := AudioStreamRandomizer.new()
-		steps.random_pitch = 1.12
-		steps.random_volume_offset_db = 2.0
-		for i in STEP_VARIANTS:
-			steps.add_stream(-1, load("%sstep_%s_%d.wav" % [SFX_DIR, surface, i + 1]))
-		var step_node := AudioStreamPlayer.new()
-		step_node.stream = steps
-		step_node.volume_db = STEP_VOLUME_DB
-		add_child(step_node)
-		step_players[surface] = step_node
+func _toggle_pause() -> void:
+	if phase == Phase.PAUSED:
+		phase = paused_from
+		hud.toggle_help(false)
+	else:
+		paused_from = phase
+		phase = Phase.PAUSED
+		player.moving = false
+		hud.toggle_help(true)
 
-func _play(cue: String) -> void:
-	if sfx.has(cue):
-		sfx[cue].play()
+func _map_markers() -> Array:
+	var out: Array = []
+	var target := objective_position()
+	if target != Vector2.INF:
+		out.append({"pos": target, "color": Color("#f2c94c"), "size": 4.0})
+	for id in map.spots:
+		if not map.spots[id].effects.is_empty():
+			out.append({"pos": map.spots[id].pos, "color": Color("#8fd694"), "size": 2.0})
+	for c in characters:
+		out.append({"pos": c.position, "color": c.info.color, "size": 3.5 if c == player else 2.5})
+	return out
 
-func _on_player_frame() -> void:
-	if moving and player.animation.begins_with("walk_") and player.frame in STEP_FRAMES:
-		step_players[surface_at(player_pos)].play()
-
-# Dirt paths are tan (red > green) in the background art; everything walkable else is grass.
-func surface_at(pos: Vector2) -> String:
-	if ground_image == null:
-		return "grass"
-	var p := Vector2i(pos.round()).clamp(Vector2i.ZERO, ground_image.get_size() - Vector2i.ONE)
-	var c := ground_image.get_pixelv(p)
-	return "path" if c.r > c.g else "grass"
-
-func _make_prop(prop_name: String) -> AnimatedSprite2D:
-	var prop: Dictionary = PROPS[prop_name]
-	var sheet_path := "res://assets/sprites/%s_spritesheet.png" % prop_name
-	var sprite := AnimatedSprite2D.new()
-	sprite.name = prop_name.to_pascal_case()
-	sprite.sprite_frames = _strip_frames(sheet_path, prop.frame, prop.anims, prop.fps)
-	# Each sheet ends in a 2px ground shadow; sit that shadow on the node origin.
-	sprite.offset = Vector2(0, 2 - prop.frame.y / 2)
-	sprite.position = prop.pos
-	add_child(sprite)
-	sprite.play(prop.anims.keys()[0])
-	return sprite
-
-# Builds SpriteFrames from a single-row sheet; anims maps names to frame columns.
-func _strip_frames(path: String, size: Vector2i, anims: Dictionary, fps: float) -> SpriteFrames:
-	var sheet: Texture2D = load(path)
-	var frames := SpriteFrames.new()
-	frames.remove_animation("default")
-	for anim in anims:
-		frames.add_animation(anim)
-		frames.set_animation_speed(anim, fps)
-		for col in anims[anim]:
-			frames.add_frame(anim, _cell(sheet, size, col, 0))
-	return frames
-
-func _cell(sheet: Texture2D, size: Vector2i, col: int, row: int) -> AtlasTexture:
-	var tex := AtlasTexture.new()
-	tex.atlas = sheet
-	tex.region = Rect2(Vector2(col * size.x, row * size.y), Vector2(size))
-	return tex
+func _on_step(surface: String, at: Vector2, member: CrewMember) -> void:
+	scenery.puff(at)
+	if member == player:
+		scenery.step(surface)

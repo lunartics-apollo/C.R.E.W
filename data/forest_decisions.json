@@ -1,0 +1,805 @@
+{
+  "P1": {
+    "title": "Three Ways Up",
+    "npc": "Director Aisyah",
+    "prompt": "Choose a launch. Reliability, mass and orbit travel together.",
+    "choices": [
+      {
+        "label": "Reliable rideshare",
+        "detail": "500 km; 6 kg cap. The rocket decides the orbit.",
+        "effects": {
+          "cost_m": 0.22,
+          "launch_limit_kg": 6,
+          "reliability": 0.97
+        }
+      },
+      {
+        "label": "Dedicated launch",
+        "detail": "600 km; more freedom, higher price.",
+        "effects": {
+          "cost_m": 0.95,
+          "launch_limit_kg": 12,
+          "reliability": 0.98,
+          "orbit_km": 600,
+          "life_years": 0.4
+        }
+      },
+      {
+        "label": "Budget low-orbit launch",
+        "detail": "300 km saves money, but life falls below two years.",
+        "effects": {
+          "cost_m": 0.08,
+          "launch_limit_kg": 4,
+          "reliability": 0.8,
+          "orbit_km": 300,
+          "life_years": -1.2
+        }
+      }
+    ],
+    "puzzle": "rocket_fit",
+    "hint": "Keep total spacecraft mass below the launch and bus limits."
+  },
+  "P2": {
+    "title": "Orbit Ring",
+    "npc": "Director Aisyah",
+    "prompt": "Dedicated launches can choose orbit. Rideshare keeps its assigned orbit.",
+    "choices": [
+      {
+        "label": "Sarawak coverage",
+        "detail": "Keep the safe coverage window.",
+        "effects": {
+          "sarawak": true
+        }
+      },
+      {
+        "label": "Low orbit",
+        "detail": "Dedicated only: less drag margin and shorter life.",
+        "effects": {
+          "orbit_km": 350,
+          "life_years": -1.1
+        }
+      },
+      {
+        "label": "High orbit",
+        "detail": "Dedicated only: longer life, smaller images.",
+        "effects": {
+          "orbit_km": 600,
+          "life_years": 0.4,
+          "science_bonus": -1
+        }
+      }
+    ],
+    "hint": "Rideshare orbit is fixed. Change P1 for an independent orbit."
+  },
+  "P3": {
+    "title": "Surprise Jar",
+    "npc": "Director Aisyah",
+    "prompt": "Leave room for surprises inside 2.5 million.",
+    "choices": [
+      {
+        "label": "Keep a reserve",
+        "detail": "Save 0.20 M of headroom.",
+        "effects": {
+          "reserve_m": 0.2
+        }
+      },
+      {
+        "label": "Spend the reserve",
+        "detail": "Extra planning buys a little science.",
+        "effects": {
+          "cost_m": 0.22,
+          "science_bonus": 1
+        }
+      },
+      {
+        "label": "Large reserve",
+        "detail": "Keep 0.40 M free; use simpler hardware.",
+        "effects": {
+          "reserve_m": 0.4,
+          "science_bonus": -1
+        }
+      }
+    ]
+  },
+  "E1": {
+    "title": "The Frame",
+    "npc": "Chief Jabu",
+    "prompt": "Fit the bus around the forest imager.",
+    "choices": [
+      {
+        "label": "6U frame",
+        "detail": "Balanced 6 kg bus.",
+        "effects": {
+          "cost_m": 0.25,
+          "mass_kg": 1.6,
+          "bus_limit_kg": 6
+        }
+      },
+      {
+        "label": "3U frame",
+        "detail": "Cheaper, but the 4 kg bus fills quickly.",
+        "effects": {
+          "cost_m": 0.12,
+          "mass_kg": 1.0,
+          "bus_limit_kg": 4
+        }
+      },
+      {
+        "label": "12U frame",
+        "detail": "Room for extras; costs more.",
+        "effects": {
+          "cost_m": 0.55,
+          "mass_kg": 2.8,
+          "bus_limit_kg": 12
+        }
+      }
+    ]
+  },
+  "E2": {
+    "title": "Sun Test",
+    "npc": "Chief Jabu",
+    "prompt": "Solar power must run the spacecraft and refill the battery.",
+    "choices": [
+      {
+        "label": "Deployable solar",
+        "detail": "28 W total generation.",
+        "effects": {
+          "cost_m": 0.13,
+          "mass_kg": 0.3,
+          "solar_w": 14
+        }
+      },
+      {
+        "label": "Body panels",
+        "detail": "18 W total: little charging margin.",
+        "effects": {
+          "cost_m": 0.06,
+          "mass_kg": 0.12,
+          "solar_w": 4
+        }
+      },
+      {
+        "label": "Large solar",
+        "detail": "38 W total; heavier and dearer.",
+        "effects": {
+          "cost_m": 0.24,
+          "mass_kg": 0.65,
+          "solar_w": 24
+        }
+      }
+    ]
+  },
+  "E3": {
+    "title": "The Dark Box",
+    "npc": "Chief Jabu",
+    "prompt": "Survive 35 minutes of shadow. Refill before the next eclipse.",
+    "choices": [
+      {
+        "label": "40 Wh battery",
+        "detail": "Carries about 20 W with a reserve.",
+        "effects": {
+          "cost_m": 0.12,
+          "mass_kg": 0.45,
+          "battery_wh": 20
+        }
+      },
+      {
+        "label": "20 Wh battery",
+        "detail": "Small pack; a high payload load can exhaust it.",
+        "effects": {
+          "cost_m": 0.04,
+          "mass_kg": 0.2
+        }
+      },
+      {
+        "label": "60 Wh battery",
+        "detail": "Comfortable night margin, more mass.",
+        "effects": {
+          "cost_m": 0.2,
+          "mass_kg": 0.75,
+          "battery_wh": 40
+        }
+      }
+    ],
+    "puzzle": "one_orbit",
+    "hint": "A 35-minute eclipse uses load × 35/60 Wh. Leave a reserve."
+  },
+  "E4": {
+    "title": "Thruster Shelf",
+    "npc": "Chief Jabu",
+    "prompt": "Thrusters are insurance against crowded space.",
+    "choices": [
+      {
+        "label": "Fit thrusters",
+        "detail": "Give the satellite a way to step aside.",
+        "effects": {
+          "cost_m": 0.12,
+          "mass_kg": 0.25,
+          "power_w": 0.5,
+          "thrusters": true
+        }
+      },
+      {
+        "label": "No thrusters",
+        "detail": "Save money and mass; a debris hit can end the mission.",
+        "effects": {
+          "thrusters": false
+        }
+      }
+    ]
+  },
+  "E5": {
+    "title": "Weigh-In",
+    "npc": "Chief Jabu",
+    "prompt": "Weigh it twice. Choose your mass margin.",
+    "choices": [
+      {
+        "label": "Trim the brackets",
+        "detail": "Remove 0.20 kg safely.",
+        "effects": {
+          "cost_m": 0.03,
+          "mass_kg": -0.2
+        }
+      },
+      {
+        "label": "Keep standard hardware",
+        "detail": "No extra trimming cost.",
+        "effects": {}
+      },
+      {
+        "label": "Rush lightweight parts",
+        "detail": "Save more mass but lose three months.",
+        "effects": {
+          "cost_m": 0.15,
+          "mass_kg": -0.45,
+          "months": 3
+        }
+      }
+    ]
+  },
+  "C1": {
+    "title": "Radio Bench",
+    "npc": "Operator Ling",
+    "prompt": "Choose a radio that can send the images home.",
+    "choices": [
+      {
+        "label": "S-band",
+        "detail": "Balanced power and data.",
+        "effects": {
+          "cost_m": 0.12,
+          "mass_kg": 0.25,
+          "power_w": 2,
+          "data_pct": 8,
+          "radio": "S"
+        }
+      },
+      {
+        "label": "X-band",
+        "detail": "Faster, heavier and more demanding.",
+        "effects": {
+          "cost_m": 0.23,
+          "mass_kg": 0.5,
+          "power_w": 4,
+          "data_pct": 16,
+          "radio": "X"
+        }
+      },
+      {
+        "label": "Ka-band",
+        "detail": "Fastest, but rain fades the signal.",
+        "effects": {
+          "cost_m": 0.3,
+          "mass_kg": 0.55,
+          "power_w": 5,
+          "data_pct": 20,
+          "radio": "Ka"
+        }
+      }
+    ]
+  },
+  "C2": {
+    "title": "Wall Map",
+    "npc": "Operator Ling",
+    "prompt": "Kuching is home. Add a backup dish if you can.",
+    "choices": [
+      {
+        "label": "Kuching plus backup",
+        "detail": "A second station protects missed passes.",
+        "effects": {
+          "cost_m": 0.12,
+          "data_pct": 8,
+          "backup_station": true
+        }
+      },
+      {
+        "label": "Kuching only",
+        "detail": "Cheaper; outages and rain cost more data.",
+        "effects": {
+          "cost_m": 0.04,
+          "backup_station": false
+        }
+      },
+      {
+        "label": "Global network",
+        "detail": "Excellent coverage at a higher price.",
+        "effects": {
+          "cost_m": 0.35,
+          "data_pct": 15,
+          "backup_station": true
+        }
+      }
+    ]
+  },
+  "C3": {
+    "title": "Pass Timeline",
+    "npc": "Operator Ling",
+    "prompt": "Place downlinks inside visible passes. Keep the data tank from overflowing.",
+    "choices": [
+      {
+        "label": "Balanced passes",
+        "detail": "Room for forest images and retry passes.",
+        "effects": {
+          "data_pct": 5
+        }
+      },
+      {
+        "label": "Maximum imaging",
+        "detail": "Fill the tank faster than the radio can empty it.",
+        "effects": {
+          "data_pct": -18,
+          "science_bonus": 2
+        }
+      },
+      {
+        "label": "Extra downlinks",
+        "detail": "More delivered data, less time to image.",
+        "effects": {
+          "cost_m": 0.08,
+          "data_pct": 10,
+          "science_bonus": -1
+        }
+      }
+    ],
+    "puzzle": "pass_planner",
+    "hint": "Schedule downlinks before storage fills; keep at least 70% returned."
+  },
+  "S1": {
+    "title": "Magic Eye",
+    "npc": "Dr. Siti",
+    "prompt": "Healthy leaf, dry leaf. The imager sees the difference.",
+    "choices": [
+      {
+        "label": "Forest imager",
+        "detail": "Required primary instrument.",
+        "effects": {
+          "cost_m": 0.2,
+          "mass_kg": 0.55,
+          "power_w": 3,
+          "imager": true
+        }
+      },
+      {
+        "label": "Remove the imager",
+        "detail": "Saves resources but fails the forest mission.",
+        "effects": {
+          "imager": false,
+          "science_bonus": -10
+        }
+      }
+    ]
+  },
+  "S2": {
+    "title": "Instrument Shelf",
+    "npc": "Dr. Siti",
+    "prompt": "Pack useful instruments. Watch mass and power.",
+    "choices": [
+      {
+        "label": "Thermal sensor",
+        "detail": "See through some cloud. Adds 6 W.",
+        "effects": {
+          "cost_m": 0.16,
+          "mass_kg": 0.3,
+          "power_w": 6,
+          "thermal": true,
+          "science_bonus": 3
+        }
+      },
+      {
+        "label": "No add-on",
+        "detail": "Keep the mission simple.",
+        "effects": {
+          "thermal": false
+        }
+      },
+      {
+        "label": "Second imager",
+        "detail": "More science, heavier and power hungry.",
+        "effects": {
+          "cost_m": 0.3,
+          "mass_kg": 0.8,
+          "power_w": 8,
+          "science_bonus": 4,
+          "thermal": false
+        }
+      },
+      {
+        "label": "Full instrument rack",
+        "detail": "Ambitious: 14 W extra can break the power budget.",
+        "effects": {
+          "cost_m": 0.55,
+          "mass_kg": 1.2,
+          "power_w": 14,
+          "science_bonus": 5,
+          "thermal": true
+        }
+      }
+    ],
+    "puzzle": "payload_bay",
+    "hint": "Thermal needs 6 W. Keep both mass and power gauges green."
+  },
+  "S3": {
+    "title": "Frame the Shot",
+    "npc": "Dr. Siti",
+    "prompt": "Wide is coarse. Narrow is sharp. Avoid cloud.",
+    "choices": [
+      {
+        "label": "Wide forest survey",
+        "detail": "Cover Sarawak regularly.",
+        "effects": {
+          "sarawak": true,
+          "science_bonus": 2
+        }
+      },
+      {
+        "label": "Narrow detail",
+        "detail": "Sharp images, fewer locations and more data.",
+        "effects": {
+          "data_pct": -12,
+          "science_bonus": 3
+        }
+      },
+      {
+        "label": "Off-target demonstration",
+        "detail": "A beautiful view outside the required region.",
+        "effects": {
+          "sarawak": false,
+          "science_bonus": -3
+        }
+      }
+    ]
+  },
+  "S4": {
+    "title": "Cloud Calendar",
+    "npc": "Dr. Siti",
+    "prompt": "Put imaging slots in clearer months. Respect power and data caps.",
+    "choices": [
+      {
+        "label": "Clear-month plan",
+        "detail": "Time forest observations around local weather.",
+        "effects": {
+          "science_bonus": 2
+        }
+      },
+      {
+        "label": "Image every pass",
+        "detail": "More data than the radio can carry.",
+        "effects": {
+          "data_pct": -20,
+          "power_w": 3,
+          "science_bonus": 3
+        }
+      },
+      {
+        "label": "Few safe observations",
+        "detail": "Easy downlinks, smaller science return.",
+        "effects": {
+          "data_pct": 5,
+          "science_bonus": -4
+        }
+      }
+    ]
+  },
+  "R1": {
+    "title": "Power vs Science",
+    "npc": "Director Aisyah",
+    "prompt": "Thermal adds 6 W. Keep enough power to recharge after eclipse.",
+    "choices": [
+      {
+        "label": "Stagger the loads",
+        "detail": "Run high-power instruments at different times.",
+        "effects": {
+          "power_w": -1
+        }
+      },
+      {
+        "label": "Run everything",
+        "detail": "Gain science at a power cost.",
+        "effects": {
+          "power_w": 5,
+          "science_bonus": 1
+        }
+      },
+      {
+        "label": "Add charging margin",
+        "detail": "More solar hardware.",
+        "effects": {
+          "cost_m": 0.12,
+          "mass_kg": 0.2,
+          "solar_w": 5
+        }
+      }
+    ]
+  },
+  "R2": {
+    "title": "Mass vs Comms",
+    "npc": "Chief Jabu",
+    "prompt": "The radio shares the launch mass limit with every other part.",
+    "choices": [
+      {
+        "label": "Share the margin",
+        "detail": "Trim the mounting plate.",
+        "effects": {
+          "mass_kg": -0.1
+        }
+      },
+      {
+        "label": "Keep all extras",
+        "detail": "No change; check the mass gauge.",
+        "effects": {}
+      },
+      {
+        "label": "Larger adapter",
+        "detail": "Adds structure, cost and one month.",
+        "effects": {
+          "mass_kg": 0.3,
+          "cost_m": 0.1,
+          "months": 1
+        }
+      }
+    ]
+  },
+  "R3": {
+    "title": "Data vs Comms / EV7",
+    "npc": "Operator Ling",
+    "prompt": "Science requests a second imager. Negotiate a plan the radio can support.",
+    "choices": [
+      {
+        "label": "Prioritize useful images",
+        "detail": "Protect downlinks and keep the primary instrument.",
+        "effects": {
+          "data_pct": 2
+        }
+      },
+      {
+        "label": "Accept second-imager request",
+        "detail": "More science, power, mass and data demand.",
+        "effects": {
+          "cost_m": 0.25,
+          "mass_kg": 0.55,
+          "power_w": 5,
+          "data_pct": -14,
+          "science_bonus": 3
+        }
+      },
+      {
+        "label": "Buy more passes",
+        "detail": "Return more data at higher cost.",
+        "effects": {
+          "cost_m": 0.12,
+          "data_pct": 10
+        }
+      }
+    ]
+  },
+  "P4": {
+    "title": "What Comes First?",
+    "npc": "Director Aisyah",
+    "prompt": "Place the token: Science, Safety or Cost. No wrong answer; a different mission.",
+    "choices": [
+      {
+        "label": "Safety",
+        "detail": "Keep healthy operating margins.",
+        "effects": {
+          "priority": "safety"
+        }
+      },
+      {
+        "label": "Science",
+        "detail": "Chase more forest measurements.",
+        "effects": {
+          "priority": "science",
+          "science_bonus": 1,
+          "power_w": 1
+        }
+      },
+      {
+        "label": "Cost",
+        "detail": "Keep resources for the next team.",
+        "effects": {
+          "priority": "cost",
+          "cost_m": -0.05,
+          "science_bonus": -1
+        }
+      }
+    ]
+  },
+  "P5": {
+    "title": "T-Minus",
+    "npc": "Director Aisyah",
+    "prompt": "Check power, battery, antenna, instruments, mass, orbit, budget and schedule.",
+    "choices": [
+      {
+        "label": "Go",
+        "detail": "Proceed when every requirement is green.",
+        "effects": {}
+      },
+      {
+        "label": "Hold one month",
+        "detail": "Use the month to reduce load and improve reliability.",
+        "effects": {
+          "months": 1,
+          "cost_m": 0.04,
+          "power_w": -1,
+          "reliability_bonus": 0.01
+        }
+      }
+    ],
+    "hint": "A hold cannot remove a hard requirement. Revise the relevant department choice."
+  },
+  "EV8": {
+    "title": "Q2 · Heavy Clouds",
+    "npc": "Dr. Siti",
+    "prompt": "Too many clouds. Try thermal.",
+    "choices": [
+      {
+        "label": "Switch sensors",
+        "detail": "Use thermal if fitted; otherwise wait for a clear pass.",
+        "effects": {}
+      },
+      {
+        "label": "Keep optical imaging",
+        "detail": "Cloud reduces the science return.",
+        "effects": {
+          "science_bonus": -3
+        }
+      }
+    ],
+    "quarter": 2,
+    "puzzle": "switch_sensors",
+    "hint": "Thermal is useful when the optical view is cloudy."
+  },
+  "EV6": {
+    "title": "Q3 · Station Outage",
+    "npc": "Operator Ling",
+    "prompt": "Dish is down. Switch fast!",
+    "choices": [
+      {
+        "label": "Reroute the pass",
+        "detail": "Use the backup dish or recover on the next pass.",
+        "effects": {}
+      },
+      {
+        "label": "Wait at Kuching",
+        "detail": "Lose downlink time.",
+        "effects": {
+          "data_pct": -12
+        }
+      }
+    ],
+    "quarter": 3,
+    "puzzle": "reroute",
+    "hint": "A backup station preserves more of this quarter’s data."
+  },
+  "C4": {
+    "title": "Q4 · Rain at the Dish",
+    "npc": "Operator Ling",
+    "prompt": "Rain is coming. Watch the needle!",
+    "choices": [
+      {
+        "label": "Adapt the downlink",
+        "detail": "Track the signal and slow down when rain grows.",
+        "effects": {}
+      },
+      {
+        "label": "Hold maximum rate",
+        "detail": "Rain can corrupt the data.",
+        "effects": {
+          "data_pct": -8
+        }
+      }
+    ],
+    "quarter": 4,
+    "puzzle": "rain_fade",
+    "hint": "Keep the needle green. Ka-band is most sensitive to rain."
+  },
+  "EV3": {
+    "title": "Q5 · Long Eclipse",
+    "npc": "Chief Jabu",
+    "prompt": "Protect the battery through a longer night.",
+    "choices": [
+      {
+        "label": "Triage the loads",
+        "detail": "Pause science to protect the spacecraft.",
+        "effects": {}
+      },
+      {
+        "label": "Keep all instruments on",
+        "detail": "A small battery may run flat.",
+        "effects": {
+          "power_w": 3
+        }
+      }
+    ],
+    "quarter": 5,
+    "puzzle": "power_triage",
+    "hint": "Switch off science loads before the battery reaches zero."
+  },
+  "EV9": {
+    "title": "Q6 · Instrument Glitch",
+    "npc": "Dr. Siti",
+    "prompt": "Repeat the reset sequence and recover the forest imager.",
+    "choices": [
+      {
+        "label": "Reset carefully",
+        "detail": "Recover the instrument in order.",
+        "effects": {}
+      },
+      {
+        "label": "Skip the reset",
+        "detail": "Lose science and spacecraft health.",
+        "effects": {
+          "science_bonus": -5,
+          "life_years": -0.3
+        }
+      }
+    ],
+    "quarter": 6,
+    "puzzle": "reset_sequence",
+    "hint": "Read the pattern before pressing the buttons."
+  },
+  "EV5": {
+    "title": "Q7 · Debris Warning",
+    "npc": "Chief Jabu",
+    "prompt": "Steer away for twenty seconds. No thrusters means no evasive burn.",
+    "choices": [
+      {
+        "label": "Avoid the debris",
+        "detail": "Thrusters can change the orbit; otherwise track the near miss.",
+        "effects": {}
+      },
+      {
+        "label": "Continue observations",
+        "detail": "Save science time but increase collision risk.",
+        "effects": {
+          "debris_risk": true
+        }
+      }
+    ],
+    "quarter": 7,
+    "puzzle": "debris_dodge",
+    "hint": "Move into clear space early. Thrusters are insurance."
+  },
+  "EV4": {
+    "title": "Q8 · Battery Heating",
+    "npc": "Chief Jabu",
+    "prompt": "Drag loads off. Stay under the red line.",
+    "choices": [
+      {
+        "label": "Cool down",
+        "detail": "Shed payload load and protect the battery.",
+        "effects": {}
+      },
+      {
+        "label": "Keep full power",
+        "detail": "Heat shortens battery life.",
+        "effects": {
+          "battery_wh": -12,
+          "life_years": -0.4
+        }
+      }
+    ],
+    "quarter": 8,
+    "puzzle": "cool_down",
+    "hint": "Reduce payload load before the temperature reaches red."
+  }
+}

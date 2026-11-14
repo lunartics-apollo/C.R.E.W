@@ -26,18 +26,31 @@ var hover_energy := 0.0
 var telemetry: Label
 var telemetry_tick := -1
 var skip_hint: Label
+var preflight: Control
+var transmission: Control
+var presentation := BriefingSettings.new()
+var seen_before_link: Array[int] = []
+var link_camera: Tween
+var camera_before_link := Vector2.ZERO
+var zoom_before_link := Vector2.ONE
 
 func _ready() -> void:
 	world = get_parent().get_parent().get_node('World')
+	world.campaign = Campaign.new()
+	reduced_motion = presentation.reduced_motion
+	selected_mission = world.campaign.next_mission()
 	world.set_process(false)
 	world.set_process_unhandled_input(false)
 	world.get_node('HUD').hide()
 	_build_interface()
+	_change_mission(0)
 	_start_intro()
 	play_button.grab_focus()
 	queue_redraw()
 
 func _process(delta: float) -> void:
+	if is_instance_valid(preflight) or is_instance_valid(transmission) or starting:
+		return
 	if not reduced_motion:
 		time += delta
 	if starting:
@@ -49,12 +62,14 @@ func _process(delta: float) -> void:
 	var tick := int(time * 4.0)
 	if tick != telemetry_tick:
 		telemetry_tick = tick
-		telemetry.text = 'SIM / %s / %s' % ['LAUNCH' if starting else 'READY', 'LUNAR' if selected_mission == 1 else 'EARTH']
+		telemetry.text = 'FOREST WATCH / %s' % ['DESIGN', 'REVIEW', 'OPERATE'][selected_mission]
 	skip_hint.visible = not intro_done or starting
 	skip_hint.text = 'ESC  SKIP LAUNCH' if starting else 'SPACE / ESC  SKIP INTRO'
 	queue_redraw()
 
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(preflight) or is_instance_valid(transmission):
+		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE and starting:
 			_finish_transition()
@@ -73,6 +88,8 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 
 func _draw() -> void:
+	if is_instance_valid(preflight) or is_instance_valid(transmission) or starting:
+		return
 	# A layered sky and a hand-drawn launchpad, kept at the game's native resolution.
 	var zoom := 1.0 + (0.14 * smoothstep(0.0, 2.2, launch_elapsed) if starting and not reduced_motion else 0.0)
 	var offset := -camera_drift * 2.0 + Vector2(376, 165) * (1.0 - zoom)
@@ -199,10 +216,10 @@ func _draw_rocket(r: Vector2) -> void:
 	draw_texture_rect_region(rocket_sheet, Rect2(r, ROCKET_FRAME), Rect2(Vector2(ROCKET_FRAME.x * frame, 0), ROCKET_FRAME))
 
 func _build_interface() -> void:
-	_label(self, 'A UNIVERSE OF POSSIBILITIES', Vector2(24, 27), 8, '#aacbbf')
+	_label(self, 'OUR FORESTS. OUR FUTURE.', Vector2(24, 27), 8, '#aacbbf')
 	_label(self, 'C.R.E.W', Vector2(21, 41), 25, '#fff4dc')
-	_label(self, 'COSMIC RECONNAISSANCE &', Vector2(24, 72), 8, '#f2c78d')
-	_label(self, 'EXPEDITIONARY WING', Vector2(24, 83), 8, '#f2c78d')
+	_label(self, 'BORNEO FOREST WATCH', Vector2(24, 72), 8, '#f2c78d')
+	_label(self, 'SARAWAK / ONE CUBESAT / TWO YEARS', Vector2(24, 83), 7, '#f2c78d')
 	_label(self, 'SELECT MISSION', Vector2(25, 105), 8, '#aacbbf')
 	var status := _label(self, 'READY', Vector2(155, 106), 7, '#a8d1b8')
 	status.name = 'MissionStatus'
@@ -215,7 +232,7 @@ func _build_interface() -> void:
 	add_child(info)
 	mission_number = _label(info, '01', Vector2(0, 0), 9, '#f0c68c')
 	mission_number.name = 'MissionNumber'
-	mission_label = _label(info, 'EARTH WATCH', Vector2(21, 0), 9, '#fff4dc')
+	mission_label = _label(info, 'DESIGN', Vector2(21, 0), 9, '#fff4dc')
 	mission_label.name = 'MissionName'
 	var prev := _small_button('MissionPrev', '‹', Vector2(145, 118))
 	prev.pressed.connect(func(): _change_mission(-1))
@@ -245,7 +262,7 @@ func _build_interface() -> void:
 	box.size = Vector2(158, 87)
 	box.add_theme_constant_override('separation', 4)
 	add_child(box)
-	play_button = _button(box, 'Play', 'START MISSION', true)
+	play_button = _button(box, 'Play', 'LET EXPLORE', true)
 	play_button.pressed.connect(_start_mission)
 	var controls := _button(box, 'Controls', 'HOW TO PLAY', false)
 	controls.pressed.connect(_show_controls)
@@ -287,17 +304,26 @@ func _arrow_style(background: String, border: String) -> StyleBoxFlat:
 	return style
 
 func _change_mission(direction: int) -> void:
-	selected_mission = posmod(selected_mission + direction, 2)
+	selected_mission = posmod(selected_mission + direction, Campaign.MISSIONS.size())
 	if mission_tween and mission_tween.is_running(): mission_tween.kill()
 	if progress_tween and progress_tween.is_running(): progress_tween.kill()
-	mission_number.text = '01' if selected_mission == 0 else '02'
-	mission_label.text = 'EARTH WATCH' if selected_mission == 0 else 'LUNAR RECON'
+	mission_number.text = '%02d' % (selected_mission + 1)
+	mission_label.text = Campaign.MISSIONS[selected_mission].name
+	var progress: Campaign = world.campaign
+	var locked := selected_mission > 0 and (not progress.completed.has(selected_mission - 1) or not progress.locked())
+	if selected_mission == 1 and progress.forest.state.launch_resolved:
+		locked = not progress.forest.state.launch_success or progress.completed.has(1)
+	play_button.disabled = locked
+	play_button.text = 'NEW PROJECT' if selected_mission == 0 and progress.forest.state.launch_resolved else 'LET EXPLORE'
+	if selected_mission == 0 and progress.completed.has(0) and not progress.forest.state.launch_resolved:
+		play_button.text = 'REVISE DESIGN'
+	get_node('MissionStatus').text = 'LOCKED' if locked else ('DONE' if progress.completed.has(selected_mission) else 'READY')
 	mission_number.position.x = 0
 	mission_label.position.x = 21
 	mission_number.modulate.a = 1.0
 	mission_label.modulate.a = 1.0
 	if reduced_motion:
-		mission_progress.size.x = 77.0 * (selected_mission + 1)
+		mission_progress.size.x = (154.0 / 3.0) * (selected_mission + 1)
 	else:
 		mission_number.position.x = 4 * direction
 		mission_label.position.x = 21 + 7 * direction
@@ -309,7 +335,7 @@ func _change_mission(direction: int) -> void:
 		mission_tween.tween_property(mission_label, 'position:x', 21.0, 0.24).set_delay(0.04)
 		mission_tween.tween_property(mission_label, 'modulate:a', 1.0, 0.18).set_delay(0.04)
 		progress_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		progress_tween.tween_property(mission_progress, 'size:x', 77.0 * (selected_mission + 1), 0.28)
+		progress_tween.tween_property(mission_progress, 'size:x', (154.0 / 3.0) * (selected_mission + 1), 0.28)
 	telemetry_tick = -1
 
 func _button(parent: Node, node_name: String, caption: String, primary: bool) -> Button:
@@ -347,27 +373,99 @@ func _focus_style() -> StyleBoxFlat:
 	return style
 
 func _start_mission() -> void:
+	if starting or is_instance_valid(preflight) or is_instance_valid(transmission) or play_button.disabled:
+		return
+	_skip_intro()
+	seen_before_link.assign(presentation.seen)
+	for child in get_children():
+		if child is CanvasItem:
+			child.hide()
+	transmission = preload('res://scripts/transmission.gd').new()
+	transmission.setup(world.campaign, selected_mission, presentation)
+	transmission.accepted.connect(_accept_transmission)
+	transmission.declined.connect(_decline_transmission)
+	add_child(transmission)
+	camera_before_link = world.camera.position
+	zoom_before_link = world.camera.zoom
+	if not reduced_motion:
+		link_camera = create_tween().set_parallel(true)
+		link_camera.tween_property(world.camera, 'position', world.map.spots['upload_flight_plan'].pos + Vector2(0, 25), 0.8).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		link_camera.tween_property(world.camera, 'zoom', Vector2(2, 2), 0.8).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	queue_redraw()
+
+func _close_transmission() -> void:
+	if link_camera != null and link_camera.is_valid():
+		link_camera.kill()
+	if is_instance_valid(transmission):
+		remove_child(transmission)
+		transmission.queue_free()
+		transmission = null
+	reduced_motion = presentation.reduced_motion
+	get_node('OptionsPanel/Motion').text = 'REDUCED MOTION: ON' if reduced_motion else 'REDUCED MOTION: OFF'
+
+func _decline_transmission() -> void:
+	selected_mission = transmission.stage
+	_close_transmission()
+	world.camera.position = camera_before_link
+	world.camera.zoom = zoom_before_link
+	world.camera.reset_smoothing()
+	world.camera.force_update_scroll()
+	for child in get_children():
+		if child is CanvasItem and child != controls_panel and child != options_panel:
+			child.show()
+	_change_mission(0)
+	play_button.grab_focus()
+	queue_redraw()
+
+func _accept_transmission(stage: int) -> void:
+	selected_mission = stage
+	_close_transmission()
+	_begin_preflight()
+
+func _begin_preflight() -> void:
+	# A project is restarted only after explicit authorization, never on preview.
+	if selected_mission == 0 and world.campaign.forest.state.launch_resolved:
+		if not world.campaign.restart_project():
+			for child in get_children():
+				if child is CanvasItem and child != controls_panel and child != options_panel:
+					child.show()
+			get_node('MissionStatus').text = 'SAVE ERROR'
+			return
+	var from: Vector2 = world.camera.position
+	world.gather_at_mess_table()
+	var target: Vector2 = world.camera.position
+	preflight = preload('res://scripts/preflight.gd').new()
+	preflight.setup(world.campaign, selected_mission, world)
+	preflight.confirmed.connect(_launch_selected)
+	add_child(preflight)
+	if selected_mission in seen_before_link and world.campaign.character >= 0:
+		preflight.show_selection()
+	elif not reduced_motion:
+		world.camera.position = from
+		world.camera.force_update_scroll()
+		link_camera = create_tween()
+		link_camera.tween_property(world.camera, 'position', target, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	queue_redraw()
+
+func _launch_selected() -> void:
 	if starting:
 		return
+	if link_camera != null and link_camera.is_valid():
+		link_camera.kill()
 	_skip_intro()
 	starting = true
 	world.set_mission(selected_mission)
+	world.start_chapter()
 	for child in get_node('Menu').get_children():
 		child.disabled = true
 	get_node('MissionPrev').disabled = true
 	get_node('MissionNext').disabled = true
 	controls_panel.hide()
 	options_panel.hide()
-	if not reduced_motion:
-		var interface_tween := create_tween().set_parallel(true)
-		for child in get_children():
-			if child is CanvasItem and child != telemetry and child != skip_hint:
-				interface_tween.tween_property(child, 'modulate:a', 0.0, 0.45).set_trans(Tween.TRANS_SINE)
-	transition_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	if not reduced_motion:
-		transition_tween.tween_interval(2.2)
-	transition_tween.tween_property(self, 'modulate:a', 0.0, 0.2 if reduced_motion else 0.8)
+	transition_tween = create_tween()
+	transition_tween.tween_interval(0.2)
 	transition_tween.tween_callback(_finish_transition)
+	queue_redraw()
 
 func _finish_transition() -> void:
 	if transition_tween and transition_tween.is_running():
@@ -419,7 +517,7 @@ func _build_controls_panel() -> void:
 	controls_panel.visible = false
 	add_child(controls_panel)
 	var info := Label.new()
-	info.text = '   HOW TO PLAY\n\n   WASD / Arrow keys   Move\n   E / Space / Enter        Interact\n\n   Visit each station to prepare\n   and launch your satellite.'
+	info.text = '   BORNEO FOREST WATCH\n\n   WASD / Arrow keys   Move\n   E / Space / Enter        Interact\n\n   Design / Review & Launch / Operate\n   Watch Sarawak. Return the data.'
 	info.add_theme_font_size_override('font_size', 10)
 	info.add_theme_color_override('font_color', Color('#fff0ce'))
 	controls_panel.add_child(info)
@@ -443,7 +541,7 @@ func _build_options_panel() -> void:
 	var panel := Panel.new()
 	panel.name = 'OptionsPanel'
 	panel.position = Vector2(246, 59)
-	panel.size = Vector2(218, 150)
+	panel.size = Vector2(218, 174)
 	panel.add_theme_stylebox_override('panel', _style('#182f38f7', '#a8c8b6'))
 	panel.visible = false
 	add_child(panel)
@@ -454,10 +552,12 @@ func _build_options_panel() -> void:
 	motion.name = 'Motion'
 	motion.position = Vector2(12, 45)
 	motion.size = Vector2(194, 22)
-	motion.text = 'REDUCED MOTION: OFF'
+	motion.text = 'REDUCED MOTION: ON' if reduced_motion else 'REDUCED MOTION: OFF'
 	motion.add_theme_font_size_override('font_size', 9)
 	motion.pressed.connect(func():
 		reduced_motion = not reduced_motion
+		presentation.reduced_motion = reduced_motion
+		presentation.save()
 		motion.text = 'REDUCED MOTION: ON' if reduced_motion else 'REDUCED MOTION: OFF'
 	)
 	panel.add_child(motion)
@@ -472,9 +572,24 @@ func _build_options_panel() -> void:
 		quality.text = 'EFFECTS QUALITY: LOW' if low_quality else 'EFFECTS QUALITY: HIGH'
 	)
 	panel.add_child(quality)
+	var mode := Button.new()
+	mode.name = 'Mode'
+	mode.position = Vector2(12, 99)
+	mode.size = Vector2(194, 22)
+	mode.add_theme_font_size_override('font_size', 9)
+	mode.text = 'MODE: ' + world.campaign.forest.state.mode.to_upper()
+	mode.pressed.connect(func():
+		var modes := ['cadet', 'engineer', 'sandbox']
+		var previous: String = world.campaign.forest.state.mode
+		world.campaign.forest.state.mode = modes[posmod(modes.find(previous) + 1, 3)]
+		if not world.campaign.save():
+			world.campaign.forest.state.mode = previous
+		mode.text = 'MODE: ' + world.campaign.forest.state.mode.to_upper()
+	)
+	panel.add_child(mode)
 	var close := Button.new()
 	close.name = 'Close'
-	close.position = Vector2(140, 112)
+	close.position = Vector2(140, 139)
 	close.size = Vector2(66, 23)
 	close.text = 'BACK'
 	close.add_theme_font_size_override('font_size', 9)

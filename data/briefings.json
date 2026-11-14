@@ -1,0 +1,126 @@
+{
+  "speakers": {
+    "aisyah": {"name": "Director Aisyah", "role": "Mission Control Lead", "channel": "MISSION CONTROL"},
+    "hamdan": {"name": "Minister Hamdan", "role": "Opening & Closing Address", "channel": "MISSION ADDRESS"},
+    "jabu": {"name": "Chief Jabu", "role": "Engineering & Assembly", "channel": "ENGINEERING"},
+    "ling": {"name": "Operator Ling", "role": "Ground Station Communications", "channel": "KUCHING GROUND"},
+    "siti": {"name": "Dr. Siti", "role": "Forest Imaging & Science", "channel": "FOREST SCIENCE"}
+  },
+  "stages": [
+    {
+      "title": "Design",
+      "channel": "MISSION DEFINITION",
+      "objectives": [
+        "Plan one CubeSat to watch Sarawak's rainforest.",
+        "Make department decisions with the four crew specialists.",
+        "Complete Rocket Fit, One Orbit, Pass Planner and Payload Bay.",
+        "Keep budget, mass and 24-month readiness within their limits."
+      ],
+      "summary": [
+        "Define > Design > Review > Launch > Operate > Report.",
+        "Fit a forest imager; cover Sarawak; return at least 70% of data.",
+        "Design for two years in orbit, within 2.5 M and the spacecraft mass limit.",
+        "Be ready within 24 months. Nadia plans, Daniel builds, Mei Ling connects, Aina studies.",
+        "Every choice costs something. Work together; mistakes teach us.",
+        "Maps and spacecraft graphics are mission schematics, not live observations."
+      ],
+      "hazards": [
+        "Science needs power, mass and downlink time; leave room for all three.",
+        "Cloud cover can reduce useful forest images.",
+        "Opening or replaying this briefing does not change your saved design."
+      ],
+      "segments": [
+        {"id": "design_hamdan_forests", "speaker": "hamdan", "text": "Our forests are our future. A CubeSat. Shoebox size. It will watch our forests from space.", "expression": "smile", "intel": "map"},
+        {"id": "design_hamdan_team", "speaker": "hamdan", "text": "We have two years and a small budget. We need a team. Not astronauts. Planners. Engineers. You.", "expression": "serious", "intel": "satellite"},
+        {"id": "design_aisyah_welcome", "speaker": "aisyah", "text": "Welcome. Two years. 2.5 million. One forest-watching CubeSat for Sarawak. Let's make each choice count.", "expression": "smile", "intel": "timeline"},
+        {"id": "design_aisyah_rules", "speaker": "aisyah", "text": "Talk to each other. All green before launch. Every choice costs something. And mistakes teach us.", "expression": "serious", "intel": "requirements"},
+        {"id": "design_jabu_handover", "speaker": "jabu", "text": "Daniel, check mass, power and battery together. A good spacecraft survives the nights as well as the days.", "expression": "thinking", "intel": "power"},
+        {"id": "design_ling_handover", "speaker": "ling", "text": "Mei Ling, give the data a way home. Our target is at least 70% returned. Plan your ground-station passes.", "expression": "talk", "intel": "passes"},
+        {"id": "design_siti_handover", "speaker": "siti", "text": "Aina, bring a forest imager. We need useful views of Sarawak, with a plan for clouds. No pressure. Only science.", "expression": "smile", "intel": "map"},
+        {"id": "design_aisyah_crew", "speaker": "aisyah", "text": "Nadia, keep us within 2.5 M and 24 months. Meet the crew, make department choices, then solve the four Core puzzles.", "expression": "sign_off", "intel": "requirements"}
+      ]
+    },
+    {
+      "title": "Review & Launch",
+      "channel": "INTEGRATION REVIEW",
+      "objectives": [
+        "Review your saved design and its live requirement checks.",
+        "Resolve power, mass, orbit, budget and downlink conflicts.",
+        "Choose Go or Hold, then complete the eight ordered launch checks.",
+        "Authorize the actual launch only at its gameplay checkpoint."
+      ],
+      "summary": [
+        "Now it all has to fit together. No wrong answer. Just a different mission.",
+        "Check power versus science, mass versus communications, and orbit versus imaging needs.",
+        "Match data production to downlink capacity; protect budget and schedule margins.",
+        "Check in order: Power > Battery > Antenna > Instruments > Mass > Orbit > Budget > Schedule.",
+        "Go commits the review decision; Hold gives you a route to revise.",
+        "Accepting this briefing starts review. It does not ignite a rocket or bypass the checklist."
+      ],
+      "hazards": [
+        "A red requirement needs revision before an authorized launch.",
+        "An imager can produce more data than your radio can return.",
+        "Launch can fail. Keep the lesson and begin a fresh attempt without blame."
+      ],
+      "segments": [
+        {"id": "review_aisyah_integrate", "speaker": "aisyah", "text": "Now it all has to fit together. Your saved design is on the board. Let's check what each choice means for the others.", "expression": "serious", "intel": "requirements"},
+        {"id": "review_jabu_margins", "speaker": "jabu", "text": "Power versus science. Mass versus communications. Check the battery too; daylight is only half our story.", "expression": "thinking", "intel": "power"},
+        {"id": "review_siti_orbit", "speaker": "siti", "text": "Orbit changes what we can image, and how long we stay up. Keep Sarawak and our two-year life in view.", "expression": "serious", "intel": "map"},
+        {"id": "review_ling_capacity", "speaker": "ling", "text": "Data made is not data returned. Check downlink capacity against the imager and protect that 70% target.", "expression": "warning", "intel": "passes"},
+        {"id": "review_aisyah_tradeoffs", "speaker": "aisyah", "text": "No wrong answer. Just a different mission. Keep budget and schedule in range, then choose Go or Hold.", "expression": "smile", "intel": "timeline"},
+        {"id": "review_aisyah_checklist", "speaker": "aisyah", "text": "Eight checks: Power, Battery, Antenna, Instruments, Mass, Orbit, Budget, Schedule. In that order.", "expression": "serious", "intel": "requirements"},
+        {"id": "review_aisyah_authorize", "speaker": "aisyah", "text": "Accept takes you to review. Launch waits for its real checkpoint. If we need to revise, better here than in orbit.", "expression": "sign_off", "intel": "satellite"}
+      ]
+    },
+    {
+      "title": "Operations & Report",
+      "channel": "ORBITAL OPERATIONS",
+      "objectives": [
+        "Operate the already-deployed forest-watch CubeSat.",
+        "Respond to seven quarterly events, Q2 through Q8.",
+        "Protect power, orbital life and useful data return.",
+        "Review actual results, requirement checks and one next-attempt lesson."
+      ],
+      "summary": [
+        "Signal acquisition and first light over Sarawak begin operations; this stage does not launch another satellite.",
+        "Q2 heavy cloud: Aina adjusts science. Q3 station outage: Mei Ling protects communications.",
+        "Q4 rain at the dish: Mei Ling handles Rain Fade. Q5 long eclipse: Daniel triages power.",
+        "Q6 instrument glitch: Aina follows the reset sequence. Q7 debris warning: Daniel plays Debris Dodge.",
+        "Q8 battery heating: Daniel manages cooling and loads.",
+        "Final reports use saved decisions, puzzle tiers, requirement numbers and the mission outcome.",
+        "Forest previews are labelled illustrations or simulations, not live satellite imagery."
+      ],
+      "hazards": [
+        "Cloud and rain can cut useful science and downlink capacity.",
+        "Long eclipses and battery heating threaten available power.",
+        "Debris risk depends on your actual design and response.",
+        "Keep the spacecraft alive while returning useful forest data."
+      ],
+      "segments": [
+        {"id": "ops_ling_first_light", "speaker": "ling", "text": "Signal acquired. First light over Sarawak. Our CubeSat is already up; now we keep it alive and bring useful data home.", "expression": "smile", "intel": "map"},
+        {"id": "ops_siti_q2", "speaker": "siti", "text": "Q2: heavy cloud. Aina, adjust the imaging plan. Clear views matter more than a full tank of cloudy pictures.", "expression": "thinking", "intel": "satellite"},
+        {"id": "ops_ling_q3", "speaker": "ling", "text": "Q3: station outage. Mei Ling, protect the data and choose how to recover our ground link.", "expression": "warning", "intel": "passes"},
+        {"id": "ops_ling_q4", "speaker": "ling", "text": "Q4: rain at the dish. Mei Ling, Rain Fade is yours. Watch the weather and keep the downlink working.", "expression": "serious", "intel": "passes"},
+        {"id": "ops_jabu_q5", "speaker": "jabu", "text": "Q5: a long eclipse. Daniel, triage the loads and protect the battery. The night does not take requests.", "expression": "warning", "intel": "power"},
+        {"id": "ops_siti_q6", "speaker": "siti", "text": "Q6: instrument glitch. Aina, follow the reset sequence so we can return to useful forest imaging.", "expression": "serious", "intel": "satellite"},
+        {"id": "ops_jabu_q7", "speaker": "jabu", "text": "Q7: debris warning. Daniel, prepare for Debris Dodge. Check our options and steer early if the design allows it.", "expression": "warning", "intel": "satellite"},
+        {"id": "ops_aisyah_q8", "speaker": "aisyah", "text": "Q8: battery heating. Daniel, manage cooling and loads. Then we'll review what flew, what worked and what we learned.", "expression": "sign_off", "intel": "timeline"}
+      ]
+    }
+  ],
+  "endings": {
+    "E1": {"speaker": "hamdan", "expression": "smile"},
+    "E2": {"speaker": "hamdan", "expression": "smile"},
+    "E3": {"speaker": "hamdan", "expression": "thinking"},
+    "E4": {"speaker": "hamdan", "expression": "serious"},
+    "E5": {"speaker": "hamdan", "expression": "serious"},
+    "E6": {"speaker": "hamdan", "expression": "serious"},
+    "E7": {"speaker": "hamdan", "expression": "serious"},
+    "E8": {"speaker": "hamdan", "expression": "thinking"}
+  },
+  "acknowledgments": [
+    {"id": "accept_design", "speaker": "aisyah", "text": "Authorized. Meet the crew at the Mess Hall table. Your forest-watch design starts together.", "expression": "sign_off", "intel": "requirements"},
+    {"id": "accept_review", "speaker": "aisyah", "text": "Authorized for review. Bring your saved design to the crew. Go or Hold and the launch checks still come next.", "expression": "sign_off", "intel": "requirements"},
+    {"id": "accept_operations", "speaker": "ling", "text": "Operations link ready. Our CubeSat is already in orbit. The crew will help you bring its data home.", "expression": "sign_off", "intel": "passes"}
+  ]
+}

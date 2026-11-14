@@ -1,0 +1,46 @@
+extends SceneTree
+
+func _initialize() -> void:
+	call_deferred("run")
+
+func run() -> void:
+	var script = load("res://scripts/campaign.gd")
+	assert(script != null, "Campaign implementation exists")
+	var campaign = script.new("user://campaign_test.json")
+	campaign.character = -1
+	campaign.completed.clear()
+	assert(campaign.select_character(2))
+	assert(campaign.locked())
+	assert(not campaign.select_character(1))
+	campaign.finish_mission(0)
+	campaign.finish_mission(0)
+	assert(campaign.completed.size() == 1, "Replay only counts once")
+	var restored = script.new("user://campaign_test.json")
+	assert(restored.character == 2 and restored.locked())
+	restored.finish_mission(1)
+	assert(restored.locked())
+	restored.finish_mission(2)
+	assert(not restored.locked())
+	assert(restored.restart_project())
+	assert(restored.character == -1 and not restored.locked(), "Completing all stages allows a different role on the next project")
+	assert(restored.select_character(1))
+	assert(restored.completed.is_empty() and restored.locked())
+	assert(not restored.select_character(-1))
+	restored.character = -1
+	restored.forest.state.mode = "engineer"
+	assert(restored.save())
+	var mode_only = script.new("user://campaign_test.json")
+	assert(mode_only.forest.state.mode == "engineer", "Difficulty persists before role selection")
+	var invalid := FileAccess.open("user://campaign_test.json", FileAccess.WRITE)
+	invalid.store_string('{"story_version":2,"character":1,"completed":[0,0,2,"1",99,-1]}')
+	invalid.close()
+	var validated = script.new("user://campaign_test.json")
+	assert(validated.completed.size() == 2 and validated.locked())
+	invalid = FileAccess.open("user://campaign_test.json", FileAccess.WRITE)
+	invalid.store_string('{"character":"nova","completed":[0,1,2]}')
+	invalid.close()
+	validated = script.new("user://campaign_test.json")
+	assert(validated.character == -1 and validated.completed.is_empty())
+	DirAccess.remove_absolute("user://campaign_test.json")
+	print("Campaign persistence, duplicate completion and three-mission unlock passed")
+	quit()

@@ -1,0 +1,318 @@
+{
+  "chapter": "STAGE 3 / 3",
+  "title": "OPERATIONS & REPORT",
+  "start_day": 3,
+  "start_time": "08:00",
+  "start_crew": "kai",
+  "items": {},
+  "cast": {
+    "hamdan": "Minister Hamdan",
+    "aisyah": "Director Aisyah",
+    "jabu": "Chief Jabu",
+    "ling": "Operator Ling",
+    "siti": "Dr. Siti"
+  },
+  "briefing": [
+    [
+      0,
+      "Two years. One CubeSat. Let's make the plan fit."
+    ],
+    [
+      1,
+      "I'll keep the bus, power and mass inside their limits."
+    ],
+    [
+      3,
+      "I'll plan the passes so at least 70% of our data gets home."
+    ],
+    [
+      2,
+      "I'll choose the imager and plan coverage of Sarawak."
+    ],
+    [
+      0,
+      "2.5 million, ready in 24 months. We decide together."
+    ]
+  ],
+  "chatter": {
+    "nova": [
+      "A reserve is a plan for surprises.",
+      "Let's check what the other departments need."
+    ],
+    "orion": [
+      "Weigh it twice. Then write it down.",
+      "The battery has to carry the night."
+    ],
+    "juno": [
+      "Healthy leaf, dry leaf. That is our question.",
+      "A clear target is worth waiting for."
+    ],
+    "kai": [
+      "A beautiful image still has to get home.",
+      "Clouds above, rain at the dish. We plan for both."
+    ]
+  },
+  "beats": [
+    {
+      "id": "signal_acquired",
+      "objective": "Acquire the first satellite signal",
+      "trigger": {
+        "type": "start"
+      },
+      "dialogue": [
+        [
+          "ling",
+          "We have a signal!"
+        ],
+        [
+          "aisyah",
+          "Our satellite is alive. Now the real work begins."
+        ],
+        [
+          "kai",
+          "One pass at a time. We will keep the data moving."
+        ]
+      ],
+      "positions": {
+        "nova": "upload_flight_plan",
+        "orion": "divert_power",
+        "juno": "calibrate_camera",
+        "kai": "align_antenna"
+      }
+    },
+    {
+      "id": "first_light",
+      "objective": "Aina: review First Light in the lab",
+      "trigger": {
+        "type": "use",
+        "spot": "calibrate_camera",
+        "hold": 1.5
+      },
+      "dialogue": [
+        [
+          "siti",
+          "First Light: our target is a forest river in Sarawak."
+        ],
+        [
+          "juno",
+          "This is a simulated mission preview, not imagery captured by a real satellite."
+        ],
+        [
+          "siti",
+          "A real report needs an image source line. Now, check our science plan."
+        ]
+      ],
+      "actor": "juno"
+    },
+    {
+      "id": "ev8",
+      "objective": "Q2 \u00e2\u20ac\u201d Aina: respond to heavy clouds",
+      "trigger": {
+        "type": "use",
+        "spot": "calibrate_camera",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "siti",
+          "Too many clouds. Try thermal if the payload supports it."
+        ],
+        [
+          "juno",
+          "We can adapt the observations and record what we could not see."
+        ]
+      ],
+      "actor": "juno",
+      "decision": "EV8"
+    },
+    {
+      "id": "ev6",
+      "objective": "Q3 \u00e2\u20ac\u201d Mei Ling: reroute the downlink",
+      "trigger": {
+        "type": "use",
+        "spot": "align_antenna",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "ling",
+          "Dish is down. Switch fast!"
+        ],
+        [
+          "kai",
+          "Check the backup link before this pass ends."
+        ]
+      ],
+      "actor": "kai",
+      "decision": "EV6"
+    },
+    {
+      "id": "c4",
+      "objective": "Q4 \u00e2\u20ac\u201d Mei Ling: handle rain fade",
+      "trigger": {
+        "type": "use",
+        "spot": "download_telemetry",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "ling",
+          "Rain is coming. Watch the needle!"
+        ],
+        [
+          "kai",
+          "Ka-band wobbles most. Keep the signal in the green."
+        ]
+      ],
+      "actor": "kai",
+      "decision": "C4"
+    },
+    {
+      "id": "ev3",
+      "objective": "Q5 \u00e2\u20ac\u201d Daniel: manage the long eclipse",
+      "trigger": {
+        "type": "use",
+        "spot": "divert_power",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "jabu",
+          "A long night. What can wait until sunrise?"
+        ],
+        [
+          "orion",
+          "Keep the battery above zero. Science loads may have to pause."
+        ]
+      ],
+      "actor": "orion",
+      "decision": "EV3"
+    },
+    {
+      "id": "ev9",
+      "objective": "Q6 \u00e2\u20ac\u201d Aina: reset the instrument",
+      "trigger": {
+        "type": "use",
+        "spot": "calibrate_camera",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "siti",
+          "An instrument glitch. Read the sequence before you press anything."
+        ],
+        [
+          "juno",
+          "I'll follow the pattern and log the interruption."
+        ]
+      ],
+      "actor": "juno",
+      "decision": "EV9"
+    },
+    {
+      "id": "ev5",
+      "objective": "Q7 \u00e2\u20ac\u201d Daniel: respond to the debris warning",
+      "trigger": {
+        "type": "use",
+        "spot": "fix_wiring",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "jabu",
+          "Debris warning. Check whether the spacecraft can manoeuvre."
+        ],
+        [
+          "orion",
+          "Thrusters give us a way to move. Without them, a near miss still carries risk."
+        ]
+      ],
+      "actor": "orion",
+      "decision": "EV5"
+    },
+    {
+      "id": "ev4",
+      "objective": "Q8 \u00e2\u20ac\u201d Daniel: cool the battery",
+      "trigger": {
+        "type": "use",
+        "spot": "divert_power",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "jabu",
+          "The battery is heating. Watch the red line."
+        ],
+        [
+          "orion",
+          "Take loads off and let it cool. Then check what we can safely restore."
+        ]
+      ],
+      "actor": "orion",
+      "decision": "EV4"
+    },
+    {
+      "id": "last_pass",
+      "objective": "Mei Ling: close the last planned pass",
+      "trigger": {
+        "type": "use",
+        "spot": "download_telemetry",
+        "hold": 1.5
+      },
+      "dialogue": [
+        [
+          "ling",
+          "That was the last pass of the plan."
+        ],
+        [
+          "kai",
+          "Count what reached home. Keep the missing data in the report too."
+        ],
+        [
+          "nova",
+          "Mission Control is ready for the results."
+        ]
+      ],
+      "actor": "kai"
+    },
+    {
+      "id": "mission_report",
+      "objective": "Present the mission report in Mission Control",
+      "trigger": {
+        "type": "use",
+        "spot": "upload_flight_plan",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "aisyah",
+          "Show the requirements, exact results and each role's decisions."
+        ],
+        [
+          "nova",
+          "Then explain why it happened. One clear lesson, one thing to try next."
+        ],
+        [
+          "siti",
+          "Any showcase image needs its source. Our simulation does not claim a real capture."
+        ],
+        [
+          "hamdan",
+          "Every mission leaves us something to learn."
+        ],
+        [
+          "kai",
+          "Sarawak's sky is waiting."
+        ]
+      ],
+      "actor": "nova",
+      "positions": {
+        "orion": "mission_control",
+        "juno": "mission_control",
+        "kai": "mission_control"
+      },
+      "checkpoint": "report",
+      "ending": true
+    }
+  ]
+}

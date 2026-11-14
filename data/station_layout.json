@@ -1,0 +1,2032 @@
+{
+  "_comment": "Single source of truth for the C.R.E.W. ground station. scripts/make_world.py draws assets/space_center.png from it and scripts/station_map.gd loads it for collision, rooms, interaction spots and pathfinding. Rects are [x, y, w, h]; room rects include the wall face (face px tall) drawn along their top edge.",
+  "size": [
+    1920,
+    1440
+  ],
+  "fence": [
+    72,
+    60,
+    1776,
+    1308
+  ],
+  "wall": 18,
+  "face": 42,
+  "rooms": {
+    "comms": {
+      "name": "GROUND STATION",
+      "rect": [
+        258,
+        180,
+        270,
+        270
+      ],
+      "floor": "#5d6a73",
+      "accent": "#7cc5d9"
+    },
+    "mission_control": {
+      "name": "MISSION CONTROL",
+      "rect": [
+        546,
+        180,
+        450,
+        270
+      ],
+      "floor": "#56636f",
+      "accent": "#7cc5d9"
+    },
+    "security": {
+      "name": "SECURITY",
+      "rect": [
+        1014,
+        180,
+        240,
+        270
+      ],
+      "floor": "#5b5f6b",
+      "accent": "#e0a458"
+    },
+    "quarters": {
+      "name": "CREW QUARTERS",
+      "rect": [
+        1272,
+        180,
+        258,
+        270
+      ],
+      "floor": "#8a6f5a",
+      "accent": "#e8c07d"
+    },
+    "corridor": {
+      "name": "MAIN CORRIDOR",
+      "rect": [
+        258,
+        468,
+        1272,
+        126
+      ],
+      "floor": "#9a958a",
+      "accent": "#e8c07d"
+    },
+    "medbay": {
+      "name": "MED BAY",
+      "rect": [
+        258,
+        612,
+        294,
+        300
+      ],
+      "floor": "#b9c7c4",
+      "accent": "#5fb59b"
+    },
+    "mess_hall": {
+      "name": "MESS HALL",
+      "rect": [
+        570,
+        612,
+        480,
+        300
+      ],
+      "floor": "#a7896b",
+      "accent": "#e8c07d"
+    },
+    "lab": {
+      "name": "ASSEMBLY & SCIENCE",
+      "rect": [
+        1068,
+        612,
+        462,
+        300
+      ],
+      "floor": "#8fa1a3",
+      "accent": "#5fb59b"
+    },
+    "power": {
+      "name": "POWER & THERMAL",
+      "rect": [
+        258,
+        930,
+        342,
+        270
+      ],
+      "floor": "#5f5a52",
+      "accent": "#e6c84f"
+    },
+    "storage": {
+      "name": "STORAGE",
+      "rect": [
+        618,
+        930,
+        372,
+        270
+      ],
+      "floor": "#7a6c58",
+      "accent": "#e0a458"
+    },
+    "life_support": {
+      "name": "LIFE SUPPORT",
+      "rect": [
+        1008,
+        930,
+        522,
+        270
+      ],
+      "floor": "#6a7f80",
+      "accent": "#7cc5d9"
+    }
+  },
+  "doors": [
+    {
+      "rect": [
+        363,
+        435,
+        60,
+        81
+      ],
+      "between": [
+        "comms",
+        "corridor"
+      ]
+    },
+    {
+      "rect": [
+        741,
+        435,
+        60,
+        81
+      ],
+      "between": [
+        "mission_control",
+        "corridor"
+      ]
+    },
+    {
+      "rect": [
+        1104,
+        435,
+        60,
+        81
+      ],
+      "between": [
+        "security",
+        "corridor"
+      ]
+    },
+    {
+      "rect": [
+        1371,
+        435,
+        60,
+        81
+      ],
+      "between": [
+        "quarters",
+        "corridor"
+      ]
+    },
+    {
+      "rect": [
+        375,
+        579,
+        60,
+        81
+      ],
+      "between": [
+        "corridor",
+        "medbay"
+      ]
+    },
+    {
+      "rect": [
+        750,
+        579,
+        120,
+        81
+      ],
+      "between": [
+        "corridor",
+        "mess_hall"
+      ]
+    },
+    {
+      "rect": [
+        1269,
+        579,
+        60,
+        81
+      ],
+      "between": [
+        "corridor",
+        "lab"
+      ]
+    },
+    {
+      "rect": [
+        375,
+        897,
+        60,
+        81
+      ],
+      "between": [
+        "medbay",
+        "power"
+      ]
+    },
+    {
+      "rect": [
+        774,
+        897,
+        72,
+        81
+      ],
+      "between": [
+        "mess_hall",
+        "storage"
+      ]
+    },
+    {
+      "rect": [
+        1269,
+        897,
+        60,
+        81
+      ],
+      "between": [
+        "lab",
+        "life_support"
+      ]
+    },
+    {
+      "rect": [
+        543,
+        780,
+        36,
+        54
+      ],
+      "between": [
+        "medbay",
+        "mess_hall"
+      ]
+    },
+    {
+      "rect": [
+        1041,
+        780,
+        36,
+        54
+      ],
+      "between": [
+        "mess_hall",
+        "lab"
+      ]
+    },
+    {
+      "rect": [
+        591,
+        1080,
+        36,
+        54
+      ],
+      "between": [
+        "power",
+        "storage"
+      ]
+    },
+    {
+      "rect": [
+        981,
+        1080,
+        36,
+        54
+      ],
+      "between": [
+        "storage",
+        "life_support"
+      ]
+    },
+    {
+      "rect": [
+        225,
+        528,
+        42,
+        54
+      ],
+      "between": [
+        "corridor",
+        "outside"
+      ]
+    },
+    {
+      "rect": [
+        1521,
+        528,
+        42,
+        54
+      ],
+      "between": [
+        "corridor",
+        "outside"
+      ]
+    },
+    {
+      "rect": [
+        774,
+        1191,
+        72,
+        39
+      ],
+      "between": [
+        "storage",
+        "outside"
+      ]
+    }
+  ],
+  "obstacles": [
+    {
+      "rect": [
+        778,
+        758,
+        64,
+        44
+      ],
+      "kind": "meeting_table"
+    },
+    {
+      "rect": [
+        707,
+        228,
+        128,
+        24
+      ],
+      "kind": "console"
+    },
+    {
+      "rect": [
+        1078,
+        227,
+        112,
+        20
+      ],
+      "kind": "monitor_desk"
+    },
+    {
+      "rect": [
+        1297,
+        250,
+        40,
+        66
+      ],
+      "kind": "bunk"
+    },
+    {
+      "rect": [
+        1465,
+        250,
+        40,
+        66
+      ],
+      "kind": "bunk"
+    },
+    {
+      "rect": [
+        280,
+        236,
+        30,
+        56
+      ],
+      "kind": "server_rack"
+    },
+    {
+      "rect": [
+        465,
+        1004,
+        60,
+        34
+      ],
+      "kind": "generator"
+    },
+    {
+      "rect": [
+        653,
+        1000,
+        44,
+        30
+      ],
+      "kind": "crates"
+    },
+    {
+      "rect": [
+        906,
+        1123,
+        48,
+        40
+      ],
+      "kind": "crates"
+    },
+    {
+      "rect": [
+        1411,
+        988,
+        64,
+        40
+      ],
+      "kind": "tanks"
+    },
+    {
+      "rect": [
+        285,
+        665,
+        36,
+        20
+      ],
+      "kind": "med_bed"
+    },
+    {
+      "rect": [
+        285,
+        725,
+        36,
+        20
+      ],
+      "kind": "med_bed"
+    },
+    {
+      "rect": [
+        1682,
+        714,
+        56,
+        34
+      ],
+      "kind": "launch_pad"
+    },
+    {
+      "rect": [
+        928,
+        1274,
+        38,
+        22
+      ],
+      "kind": "car"
+    },
+    {
+      "rect": [
+        1018,
+        1274,
+        38,
+        22
+      ],
+      "kind": "car"
+    },
+    {
+      "rect": [
+        520,
+        1274,
+        38,
+        22
+      ],
+      "kind": "car"
+    },
+    {
+      "rect": [
+        600,
+        700,
+        72,
+        24
+      ],
+      "kind": "dining_table"
+    },
+    {
+      "rect": [
+        928,
+        852,
+        72,
+        24
+      ],
+      "kind": "dining_table"
+    },
+    {
+      "rect": [
+        470,
+        512,
+        22,
+        18
+      ],
+      "kind": "vending"
+    },
+    {
+      "rect": [
+        1000,
+        512,
+        22,
+        18
+      ],
+      "kind": "vending"
+    },
+    {
+      "rect": [
+        1040,
+        662,
+        22,
+        18
+      ],
+      "kind": "vending"
+    },
+    {
+      "rect": [
+        1297,
+        340,
+        40,
+        66
+      ],
+      "kind": "bunk"
+    },
+    {
+      "rect": [
+        1465,
+        340,
+        40,
+        66
+      ],
+      "kind": "bunk"
+    },
+    {
+      "rect": [
+        600,
+        300,
+        40,
+        18
+      ],
+      "kind": "desk"
+    },
+    {
+      "rect": [
+        600,
+        370,
+        40,
+        18
+      ],
+      "kind": "desk"
+    },
+    {
+      "rect": [
+        668,
+        370,
+        40,
+        18
+      ],
+      "kind": "desk"
+    },
+    {
+      "rect": [
+        860,
+        400,
+        40,
+        18
+      ],
+      "kind": "desk"
+    },
+    {
+      "rect": [
+        440,
+        236,
+        60,
+        18
+      ],
+      "kind": "desk"
+    },
+    {
+      "rect": [
+        480,
+        360,
+        30,
+        56
+      ],
+      "kind": "server_rack"
+    },
+    {
+      "rect": [
+        1022,
+        232,
+        42,
+        24
+      ],
+      "kind": "locker"
+    },
+    {
+      "rect": [
+        1100,
+        380,
+        50,
+        18
+      ],
+      "kind": "desk"
+    },
+    {
+      "rect": [
+        1150,
+        662,
+        50,
+        16
+      ],
+      "kind": "shelf"
+    },
+    {
+      "rect": [
+        1380,
+        800,
+        44,
+        30
+      ],
+      "kind": "satellite"
+    },
+    {
+      "rect": [
+        1120,
+        820,
+        48,
+        22
+      ],
+      "kind": "table"
+    },
+    {
+      "rect": [
+        285,
+        785,
+        36,
+        20
+      ],
+      "kind": "med_bed"
+    },
+    {
+      "rect": [
+        460,
+        664,
+        42,
+        24
+      ],
+      "kind": "locker"
+    },
+    {
+      "rect": [
+        430,
+        1090,
+        60,
+        34
+      ],
+      "kind": "generator"
+    },
+    {
+      "rect": [
+        270,
+        1170,
+        70,
+        14
+      ],
+      "kind": "pipes"
+    },
+    {
+      "rect": [
+        880,
+        990,
+        60,
+        16
+      ],
+      "kind": "shelf"
+    },
+    {
+      "rect": [
+        640,
+        1110,
+        44,
+        30
+      ],
+      "kind": "crates"
+    },
+    {
+      "rect": [
+        640,
+        990,
+        60,
+        16
+      ],
+      "kind": "shelf"
+    },
+    {
+      "rect": [
+        1110,
+        988,
+        120,
+        14
+      ],
+      "kind": "pipes"
+    },
+    {
+      "rect": [
+        1440,
+        1120,
+        64,
+        40
+      ],
+      "kind": "tanks"
+    },
+    {
+      "rect": [
+        1200,
+        1100,
+        50,
+        18
+      ],
+      "kind": "desk"
+    },
+    {
+      "rect": [
+        300,
+        410,
+        42,
+        18
+      ],
+      "kind": "cabinet"
+    },
+    {
+      "rect": [
+        276,
+        330,
+        48,
+        18
+      ],
+      "kind": "workstation"
+    },
+    {
+      "rect": [
+        396,
+        240,
+        30,
+        22
+      ],
+      "kind": "battery"
+    },
+    {
+      "rect": [
+        456,
+        330,
+        36,
+        16
+      ],
+      "kind": "bookcase"
+    },
+    {
+      "rect": [
+        612,
+        410,
+        64,
+        20
+      ],
+      "kind": "workstation"
+    },
+    {
+      "rect": [
+        924,
+        378,
+        56,
+        16
+      ],
+      "kind": "cabinet"
+    },
+    {
+      "rect": [
+        612,
+        240,
+        62,
+        24
+      ],
+      "kind": "sofa"
+    },
+    {
+      "rect": [
+        924,
+        240,
+        42,
+        16
+      ],
+      "kind": "bookcase"
+    },
+    {
+      "rect": [
+        924,
+        282,
+        48,
+        18
+      ],
+      "kind": "workstation"
+    },
+    {
+      "rect": [
+        1032,
+        410,
+        42,
+        16
+      ],
+      "kind": "cabinet"
+    },
+    {
+      "rect": [
+        1032,
+        282,
+        46,
+        22
+      ],
+      "kind": "sofa"
+    },
+    {
+      "rect": [
+        1182,
+        306,
+        40,
+        18
+      ],
+      "kind": "workstation"
+    },
+    {
+      "rect": [
+        660,
+        528,
+        48,
+        16
+      ],
+      "kind": "sofa"
+    },
+    {
+      "rect": [
+        468,
+        554,
+        48,
+        16
+      ],
+      "kind": "sofa"
+    },
+    {
+      "rect": [
+        1140,
+        554,
+        34,
+        14
+      ],
+      "kind": "cabinet"
+    },
+    {
+      "rect": [
+        492,
+        872,
+        28,
+        16
+      ],
+      "kind": "medical_cart"
+    },
+    {
+      "rect": [
+        276,
+        872,
+        42,
+        18
+      ],
+      "kind": "cabinet"
+    },
+    {
+      "rect": [
+        480,
+        810,
+        28,
+        16
+      ],
+      "kind": "medical_cart"
+    },
+    {
+      "rect": [
+        276,
+        834,
+        48,
+        22
+      ],
+      "kind": "sofa"
+    },
+    {
+      "rect": [
+        588,
+        738,
+        76,
+        18
+      ],
+      "kind": "kitchen_counter"
+    },
+    {
+      "rect": [
+        684,
+        872,
+        62,
+        18
+      ],
+      "kind": "kitchen_counter"
+    },
+    {
+      "rect": [
+        978,
+        810,
+        42,
+        16
+      ],
+      "kind": "bookcase"
+    },
+    {
+      "rect": [
+        978,
+        714,
+        42,
+        16
+      ],
+      "kind": "cabinet"
+    },
+    {
+      "rect": [
+        1398,
+        872,
+        66,
+        20
+      ],
+      "kind": "workstation"
+    },
+    {
+      "rect": [
+        1086,
+        714,
+        56,
+        18
+      ],
+      "kind": "cabinet"
+    },
+    {
+      "rect": [
+        1374,
+        672,
+        28,
+        16
+      ],
+      "kind": "medical_cart"
+    },
+    {
+      "rect": [
+        1206,
+        872,
+        34,
+        22
+      ],
+      "kind": "battery"
+    },
+    {
+      "rect": [
+        1110,
+        872,
+        48,
+        16
+      ],
+      "kind": "shelf"
+    },
+    {
+      "rect": [
+        372,
+        1160,
+        38,
+        24
+      ],
+      "kind": "battery"
+    },
+    {
+      "rect": [
+        276,
+        1104,
+        38,
+        24
+      ],
+      "kind": "air_filter"
+    },
+    {
+      "rect": [
+        444,
+        1160,
+        42,
+        18
+      ],
+      "kind": "cabinet"
+    },
+    {
+      "rect": [
+        276,
+        1056,
+        48,
+        18
+      ],
+      "kind": "workstation"
+    },
+    {
+      "rect": [
+        660,
+        1160,
+        56,
+        18
+      ],
+      "kind": "shelf"
+    },
+    {
+      "rect": [
+        918,
+        1080,
+        42,
+        18
+      ],
+      "kind": "cabinet"
+    },
+    {
+      "rect": [
+        918,
+        1032,
+        44,
+        24
+      ],
+      "kind": "crates"
+    },
+    {
+      "rect": [
+        1242,
+        1160,
+        46,
+        26
+      ],
+      "kind": "air_filter"
+    },
+    {
+      "rect": [
+        1074,
+        1160,
+        36,
+        22
+      ],
+      "kind": "battery"
+    },
+    {
+      "rect": [
+        1170,
+        1160,
+        48,
+        18
+      ],
+      "kind": "cabinet"
+    },
+    {
+      "rect": [
+        1026,
+        990,
+        50,
+        18
+      ],
+      "kind": "workstation"
+    },
+    {
+      "rect": [
+        1458,
+        1080,
+        38,
+        24
+      ],
+      "kind": "air_filter"
+    },
+    {
+      "rect": [
+        1380,
+        228,
+        42,
+        16
+      ],
+      "kind": "bookcase"
+    },
+    {
+      "rect": [
+        1350,
+        285,
+        70,
+        22
+      ],
+      "kind": "sofa"
+    },
+    {
+      "rect": [
+        666,
+        810,
+        50,
+        22
+      ],
+      "kind": "sofa"
+    }
+  ],
+  "trees": [
+    [
+      126,
+      126
+    ],
+    [
+      210,
+      900
+    ],
+    [
+      138,
+      1170
+    ],
+    [
+      375,
+      1320
+    ],
+    [
+      660,
+      114
+    ],
+    [
+      960,
+      105
+    ],
+    [
+      1200,
+      111
+    ],
+    [
+      1770,
+      138
+    ],
+    [
+      1794,
+      1230
+    ],
+    [
+      1626,
+      1290
+    ],
+    [
+      1320,
+      1326
+    ],
+    [
+      138,
+      705
+    ],
+    [
+      1815,
+      420
+    ],
+    [
+      1620,
+      270
+    ]
+  ],
+  "props": {
+    "dish": {
+      "pos": [
+        156,
+        375
+      ],
+      "solid": [
+        146,
+        363,
+        20,
+        12
+      ]
+    },
+    "workbench": {
+      "pos": [
+        1299,
+        717
+      ],
+      "solid": [
+        1283,
+        705,
+        32,
+        12
+      ]
+    },
+    "fuel_tanks": {
+      "pos": [
+        1725,
+        960
+      ],
+      "solid": [
+        1713,
+        946,
+        26,
+        14
+      ]
+    }
+  },
+  "rocket": [
+    1710,
+    730
+  ],
+  "spawns": [
+    [
+      1370,
+      250
+    ],
+    [
+      1432,
+      250
+    ],
+    [
+      1360,
+      428
+    ],
+    [
+      1446,
+      436
+    ]
+  ],
+  "spots": [
+    {
+      "id": "align_antenna",
+      "name": "Align Antenna",
+      "room": "comms",
+      "pos": [
+        456,
+        300
+      ]
+    },
+    {
+      "id": "download_telemetry",
+      "name": "Pass Planning Console",
+      "room": "comms",
+      "pos": [
+        348,
+        279
+      ]
+    },
+    {
+      "id": "plot_trajectory",
+      "name": "Mission Planning Table",
+      "room": "mission_control",
+      "pos": [
+        771,
+        282
+      ]
+    },
+    {
+      "id": "upload_flight_plan",
+      "name": "Integration Review Console",
+      "room": "mission_control",
+      "pos": [
+        933,
+        339
+      ]
+    },
+    {
+      "id": "swipe_badge",
+      "name": "Swipe ID Badge",
+      "room": "security",
+      "pos": [
+        1209,
+        372
+      ]
+    },
+    {
+      "id": "log_journal",
+      "name": "Log Crew Journal",
+      "room": "quarters",
+      "pos": [
+        1440,
+        405
+      ]
+    },
+    {
+      "id": "health_scan",
+      "name": "Submit Health Scan",
+      "room": "medbay",
+      "pos": [
+        456,
+        780
+      ]
+    },
+    {
+      "id": "restock_medkits",
+      "name": "Medical Cabinet",
+      "room": "medbay",
+      "pos": [
+        351,
+        864
+      ],
+      "effects": {
+        "health": 45
+      },
+      "verb": "Use a med kit",
+      "icon": "medkit"
+    },
+    {
+      "id": "refill_water",
+      "name": "Water Cooler",
+      "room": "mess_hall",
+      "pos": [
+        996,
+        678
+      ],
+      "effects": {
+        "energy": 8,
+        "health": 5
+      },
+      "verb": "Drink water",
+      "icon": "water"
+    },
+    {
+      "id": "calibrate_camera",
+      "name": "Forest Imager",
+      "room": "lab",
+      "pos": [
+        1446,
+        705
+      ]
+    },
+    {
+      "id": "assemble_panels",
+      "name": "Assemble Solar Panels",
+      "room": "lab",
+      "pos": [
+        1299,
+        739
+      ]
+    },
+    {
+      "id": "fix_wiring",
+      "name": "Fix Wiring",
+      "room": "power",
+      "pos": [
+        327,
+        1020
+      ]
+    },
+    {
+      "id": "divert_power",
+      "name": "Divert Power",
+      "room": "power",
+      "pos": [
+        534,
+        1149
+      ]
+    },
+    {
+      "id": "toolbox_shelf",
+      "name": "Tool Shelf",
+      "room": "storage",
+      "pos": [
+        750,
+        1059
+      ]
+    },
+    {
+      "id": "clean_filter",
+      "name": "Clean Air Filter",
+      "room": "life_support",
+      "pos": [
+        1083,
+        1035
+      ]
+    },
+    {
+      "id": "check_recycler",
+      "name": "Check Water Recycler",
+      "room": "life_support",
+      "pos": [
+        1320,
+        1149
+      ]
+    },
+    {
+      "id": "fuel_rocket",
+      "name": "Fuel the Rocket",
+      "room": "outside",
+      "pos": [
+        1725,
+        982
+      ]
+    },
+    {
+      "id": "inspect_rocket",
+      "name": "Inspect Rocket Hull",
+      "room": "outside",
+      "pos": [
+        1670,
+        773
+      ]
+    },
+    {
+      "id": "repair_dish",
+      "name": "Kuching Dish",
+      "room": "outside",
+      "pos": [
+        156,
+        407
+      ]
+    },
+    {
+      "id": "weather_station",
+      "name": "Read Weather Station",
+      "room": "outside",
+      "pos": [
+        690,
+        1320
+      ]
+    },
+    {
+      "id": "coffee_machine",
+      "name": "Coffee Machine",
+      "room": "mess_hall",
+      "pos": [
+        618,
+        870
+      ],
+      "effects": {
+        "energy": 35
+      },
+      "verb": "Drink coffee",
+      "icon": "coffee"
+    },
+    {
+      "id": "bunk",
+      "name": "Your Bunk",
+      "room": "quarters",
+      "pos": [
+        1401,
+        378
+      ],
+      "effects": {
+        "energy": 70
+      },
+      "hours": 2,
+      "verb": "Take a nap",
+      "icon": "sleep"
+    },
+    {
+      "id": "launch_console",
+      "name": "Launch Console",
+      "room": "mission_control",
+      "pos": [
+        840,
+        282
+      ]
+    },
+    {
+      "id": "food_counter",
+      "name": "Food Counter",
+      "room": "mess_hall",
+      "pos": [
+        900,
+        678
+      ],
+      "effects": {
+        "food": 60
+      },
+      "verb": "Eat a meal",
+      "icon": "meal"
+    }
+  ],
+  "posts": {
+    "nova": "lab",
+    "orion": "mission_control",
+    "juno": "medbay",
+    "kai": "comms"
+  },
+  "lamps": [
+    [
+      177,
+      519
+    ],
+    [
+      177,
+      597
+    ],
+    [
+      1575,
+      519
+    ],
+    [
+      1671,
+      645
+    ],
+    [
+      1671,
+      855
+    ],
+    [
+      1578,
+      1050
+    ],
+    [
+      762,
+      1245
+    ],
+    [
+      858,
+      1245
+    ]
+  ],
+  "decor": [
+    {
+      "kind": "plant",
+      "pos": [
+        507,
+        432
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        567,
+        432
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        978,
+        432
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        1239,
+        432
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        1512,
+        432
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        297,
+        588
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        1491,
+        588
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        534,
+        678
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        588,
+        678
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        1032,
+        888
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        1089,
+        888
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        1512,
+        678
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        279,
+        1182
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        639,
+        1182
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        1035,
+        1182
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "rug",
+      "pos": [
+        1401,
+        294
+      ],
+      "size": [
+        52,
+        40
+      ],
+      "color": "#9c4f46"
+    },
+    {
+      "kind": "rug",
+      "pos": [
+        810,
+        783
+      ],
+      "size": [
+        132,
+        82
+      ],
+      "color": "#6d5a8c"
+    },
+    {
+      "kind": "rug",
+      "pos": [
+        450,
+        780
+      ],
+      "size": [
+        40,
+        40
+      ],
+      "color": "#5fa08c"
+    },
+    {
+      "kind": "bin",
+      "pos": [
+        645,
+        669
+      ],
+      "solid": [
+        6,
+        5
+      ]
+    },
+    {
+      "kind": "bin",
+      "pos": [
+        1089,
+        678
+      ],
+      "solid": [
+        6,
+        5
+      ]
+    },
+    {
+      "kind": "board",
+      "pos": [
+        615,
+        474
+      ]
+    },
+    {
+      "kind": "board",
+      "pos": [
+        1230,
+        474
+      ]
+    },
+    {
+      "kind": "bench",
+      "pos": [
+        138,
+        840
+      ],
+      "solid": [
+        22,
+        6
+      ]
+    },
+    {
+      "kind": "bench",
+      "pos": [
+        1785,
+        375
+      ],
+      "solid": [
+        22,
+        6
+      ]
+    },
+    {
+      "kind": "flowers",
+      "pos": [
+        135,
+        483
+      ]
+    },
+    {
+      "kind": "flowers",
+      "pos": [
+        135,
+        630
+      ]
+    },
+    {
+      "kind": "flowers",
+      "pos": [
+        1785,
+        450
+      ]
+    },
+    {
+      "kind": "flag",
+      "pos": [
+        930,
+        1230
+      ],
+      "solid": [
+        4,
+        4
+      ]
+    },
+    {
+      "kind": "rug",
+      "pos": [
+        1134,
+        320
+      ],
+      "size": [
+        90,
+        50
+      ],
+      "color": "#4f6b8a"
+    },
+    {
+      "kind": "rug",
+      "pos": [
+        1300,
+        830
+      ],
+      "size": [
+        120,
+        70
+      ],
+      "color": "#3f7a6a"
+    },
+    {
+      "kind": "rug",
+      "pos": [
+        770,
+        330
+      ],
+      "size": [
+        110,
+        60
+      ],
+      "color": "#7a4f46"
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        1140,
+        908
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        270,
+        444
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        1520,
+        1192
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        980,
+        1192
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        690,
+        588
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "plant",
+      "pos": [
+        1200,
+        588
+      ],
+      "solid": [
+        10,
+        6
+      ]
+    },
+    {
+      "kind": "bench",
+      "pos": [
+        300,
+        1290
+      ],
+      "solid": [
+        22,
+        6
+      ]
+    },
+    {
+      "kind": "bench",
+      "pos": [
+        1300,
+        1240
+      ],
+      "solid": [
+        22,
+        6
+      ]
+    },
+    {
+      "kind": "flowers",
+      "pos": [
+        1600,
+        400
+      ]
+    },
+    {
+      "kind": "flowers",
+      "pos": [
+        1600,
+        470
+      ]
+    }
+  ],
+  "grounds": {
+    "road_y": 1377,
+    "paths": [
+      [
+        780,
+        1218,
+        60,
+        162
+      ],
+      [
+        90,
+        534,
+        144,
+        42
+      ],
+      [
+        1554,
+        534,
+        105,
+        42
+      ],
+      [
+        1605,
+        534,
+        42,
+        495
+      ],
+      [
+        138,
+        387,
+        42,
+        153
+      ]
+    ],
+    "parking": [
+      480,
+      1251,
+      1140,
+      1356
+    ],
+    "apron": [
+      1605,
+      630,
+      1833,
+      1050
+    ],
+    "gate": [
+      780,
+      840
+    ],
+    "scan_pad": [
+      456,
+      780
+    ],
+    "labels": [
+      [
+        1617,
+        645,
+        "LAUNCH COMPLEX",
+        "#2b2524"
+      ],
+      [
+        495,
+        1233,
+        "VISITOR PARKING",
+        "#e9e2cf"
+      ]
+    ]
+  }
+}

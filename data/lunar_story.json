@@ -1,0 +1,249 @@
+{
+  "chapter": "STAGE 2 / 3",
+  "title": "REVIEW & LAUNCH",
+  "start_day": 2,
+  "start_time": "08:00",
+  "start_crew": "nova",
+  "items": {},
+  "cast": {
+    "hamdan": "Minister Hamdan",
+    "aisyah": "Director Aisyah",
+    "jabu": "Chief Jabu",
+    "ling": "Operator Ling",
+    "siti": "Dr. Siti"
+  },
+  "briefing": [
+    [
+      0,
+      "Two years. One CubeSat. Let's make the plan fit."
+    ],
+    [
+      1,
+      "I'll keep the bus, power and mass inside their limits."
+    ],
+    [
+      3,
+      "I'll plan the passes so at least 70% of our data gets home."
+    ],
+    [
+      2,
+      "I'll choose the imager and plan coverage of Sarawak."
+    ],
+    [
+      0,
+      "2.5 million, ready in 24 months. We decide together."
+    ]
+  ],
+  "chatter": {
+    "nova": [
+      "A reserve is a plan for surprises.",
+      "Let's check what the other departments need."
+    ],
+    "orion": [
+      "Weigh it twice. Then write it down.",
+      "The battery has to carry the night."
+    ],
+    "juno": [
+      "Healthy leaf, dry leaf. That is our question.",
+      "A clear target is worth waiting for."
+    ],
+    "kai": [
+      "A beautiful image still has to get home.",
+      "Clouds above, rain at the dish. We plan for both."
+    ]
+  },
+  "beats": [
+    {
+      "id": "review_briefing",
+      "objective": "Begin the integration review",
+      "trigger": {
+        "type": "start"
+      },
+      "dialogue": [
+        [
+          "aisyah",
+          "Now it all has to fit together. Three conflict cards, one team."
+        ],
+        [
+          "nova",
+          "We can change the plan. Nobody has to defend a mistake."
+        ]
+      ],
+      "positions": {
+        "nova": "mission_control",
+        "orion": "mission_control",
+        "juno": "mission_control",
+        "kai": "mission_control"
+      }
+    },
+    {
+      "id": "r1",
+      "objective": "Resolve the power and science conflict",
+      "trigger": {
+        "type": "use",
+        "spot": "plot_trajectory",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "orion",
+          "An instrument can be useful and still need more power than we have."
+        ],
+        [
+          "juno",
+          "Let's compare the science gain with the eclipse load."
+        ]
+      ],
+      "actor": "orion",
+      "decision": "R1"
+    },
+    {
+      "id": "r2",
+      "objective": "Resolve the mass and communications conflict",
+      "trigger": {
+        "type": "use",
+        "spot": "upload_flight_plan",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "kai",
+          "More radio capacity can consume our mass margin."
+        ],
+        [
+          "jabu",
+          "Fix the clash on paper before it becomes hardware."
+        ]
+      ],
+      "actor": "kai",
+      "decision": "R2"
+    },
+    {
+      "id": "r3",
+      "objective": "Resolve the orbit and science conflict",
+      "trigger": {
+        "type": "use",
+        "spot": "plot_trajectory",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "juno",
+          "The orbit we want and the orbit we can buy may differ."
+        ],
+        [
+          "aisyah",
+          "Find a workable compromise. Check cost and data as well."
+        ]
+      ],
+      "actor": "juno",
+      "decision": "R3"
+    },
+    {
+      "id": "p4",
+      "objective": "Nadia: set the mission priority",
+      "trigger": {
+        "type": "use",
+        "spot": "upload_flight_plan",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "nova",
+          "Science, safety or cost. Which gets the deciding token?"
+        ],
+        [
+          "aisyah",
+          "No wrong answer. Just a different mission."
+        ],
+        [
+          "siti",
+          "A second imager is a request, not a requirement. Check the whole mission first."
+        ]
+      ],
+      "actor": "nova",
+      "decision": "P4"
+    },
+    {
+      "id": "integration_verdict",
+      "objective": "Submit the integrated plan for review",
+      "trigger": {
+        "type": "use",
+        "spot": "upload_flight_plan",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "aisyah",
+          "We check the imager, Sarawak coverage and 70% data return."
+        ],
+        [
+          "aisyah",
+          "Then two-year life, budget, mass and the 24-month schedule."
+        ],
+        [
+          "aisyah",
+          "If a requirement needs work, we name the problem and revise together."
+        ]
+      ],
+      "actor": "nova",
+      "checkpoint": "review"
+    },
+    {
+      "id": "p5",
+      "objective": "Nadia: choose Go or Hold",
+      "trigger": {
+        "type": "use",
+        "spot": "launch_console",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "aisyah",
+          "Mission Control? Go, or hold one month to improve the weakest point."
+        ],
+        [
+          "nova",
+          "Before launch: power, battery, antenna, instruments, mass, orbit, budget, schedule."
+        ],
+        [
+          "orion",
+          "Amber means close to a limit. We read every item."
+        ]
+      ],
+      "actor": "nova",
+      "decision": "P5"
+    },
+    {
+      "id": "forest_launch",
+      "objective": "Confirm the countdown at Mission Control",
+      "trigger": {
+        "type": "use",
+        "spot": "launch_console",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "aisyah",
+          "Mission Control? All roles, confirm Go."
+        ],
+        [
+          "nova",
+          "The countdown begins. Reliability gives us odds, never a promise."
+        ],
+        [
+          "aisyah",
+          "Whatever happens, we will learn from it together."
+        ]
+      ],
+      "actor": "nova",
+      "positions": {
+        "orion": "mission_control",
+        "juno": "mission_control",
+        "kai": "mission_control"
+      },
+      "checkpoint": "launch",
+      "ending": true
+    }
+  ]
+}
