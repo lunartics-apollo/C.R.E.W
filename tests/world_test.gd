@@ -1,0 +1,30 @@
+extends SceneTree
+
+func _initialize() -> void:
+	var world_script = load("res://scripts/world.gd")
+	if world_script == null:
+		printerr("FAIL: world script is missing")
+		quit(1)
+		return
+	var world = world_script.new()
+	assert(world.station_at(Vector2(225, 255)) == "MISSION CONTROL")
+	assert(world.station_at(Vector2(480, 260)) == "SPACECRAFT LAB")
+	assert(world.station_at(Vector2(735, 270)) == "LAUNCH PAD")
+	assert(world.station_at(Vector2(10, 10)) == "")
+	assert(world.is_blocked(Vector2(220, 160)))
+	assert(not world.is_blocked(Vector2(480, 430)))
+	world.player_pos = Vector2(735, 270)
+	world._interact()
+	assert(world.stage == 0)
+	world.player_pos = Vector2(225, 255)
+	world._interact()
+	assert(world.stage == 1)
+	world.player_pos = Vector2(480, 260)
+	world._interact()
+	assert(world.stage == 2)
+	world.player_pos = Vector2(735, 270)
+	world._interact()
+	assert(world.stage == 3)
+	world.free()
+	print("World interaction and collision checks passed")
+	quit()
