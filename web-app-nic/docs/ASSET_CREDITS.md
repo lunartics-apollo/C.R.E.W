@@ -2,7 +2,7 @@
 
 | Asset | Source | License |
 |---|---|---|
-| All pixel art (scenes, CubeSat, rocket, hornbill, director portrait, icons) | Original, generated procedurally in code (`src/game/textures.ts`, `src/ui/components/Commander.tsx`) | Project |
+| All pixel art (scenes, CubeSat, rocket, director portrait, icons) | Original, generated procedurally in code (`src/game/textures.ts`, `src/ui/components/Commander.tsx`) | Project |
 | Sound effects and ambient pad | Original, synthesised at runtime with Web Audio (`src/audio/sfx.ts`) | Project |
 | Coastlines / country outlines | Natural Earth 1:50m and 1:110m via `world-atlas@2`, extracted by `scripts/build-geo.mjs` | Public domain |
 | Rajang river line, town positions | Hand-placed approximations (`src/data/rajang.ts`) | Project |
