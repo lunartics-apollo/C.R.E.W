@@ -21,7 +21,7 @@
   --sans: "Space Grotesk", system-ui, sans-serif;
 
   /* Type roles: --display = headings, buttons, numbers · --mono = small labels · --sans = all paragraphs */
-  --fs-hero: clamp(4.2rem, 20vw, 23rem);
+  --fs-hero: clamp(3.6rem, 19vw, 23rem);
   --fs-h2: clamp(2.6rem, 8vw, 7.5rem);
   --fs-h3: clamp(1.6rem, 2.6vw, 2.4rem);
   --fs-lead: clamp(1.9rem, 4.8vw, 4.6rem);
@@ -270,7 +270,7 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
   line-height: 1.06; letter-spacing: -.025em;
   max-width: 1200px;
 }
-.hl { font-style: normal; padding: 0 .12em; white-space: nowrap; }
+.hl { font-style: normal; padding: 0 .12em; white-space: normal; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .hl--amber { background: var(--amber); }
 .hl--green { background: var(--green); }
 .briefing__grid {
@@ -422,4 +422,12 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Small screens: keep everything inside the viewport ---------- */
+html, body { overflow-x: clip; }
+@media (max-width: 760px) {
+  .statement, .briefing__body, .big, h1, h2, h3, p { overflow-wrap: anywhere; }
+  .hero__title { max-width: 100%; }
+  .hero__ctas .btn--xl { width: 100%; max-width: 100%; }
 }
