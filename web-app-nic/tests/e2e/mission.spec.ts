@@ -10,7 +10,6 @@ test('a fresh player can complete Mission Rajang without login', async ({ page }
   // Opening: the director talks first, then the Sarawak map, then the briefing (a single training mode).
   await page.getByRole('button', { name: 'Skip' }).last().click();
   await page.getByRole('button', { name: /^Continue/ }).click();
-  await page.getByRole('button', { name: /Select Rajang River/ }).click();
   await page.getByRole('button', { name: /^Continue/ }).click();
   await page.getByRole('button', { name: /Accept mission/ }).click();
 

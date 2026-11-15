@@ -1,5 +1,5 @@
 // Menu, "Our Home: Sarawak" map, incoming transmission and mission briefing.
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import regionData from '../../data/geo/region.json';
 import { RAJANG_LINE, TOWNS } from '../../data/rajang';
 import { MISSION_RAJANG, OBJECTIVES, objectiveById } from '../../simulation/mission';
@@ -165,33 +165,23 @@ export function SarawakMap({ onRiver, found, highlightZones, priority }: { onRiv
 export function IntroScreen() {
   const t = useT();
   const goPhase = useStore((s) => s.goPhase);
-  const [found, setFound] = useState(false);
+  // There is only one river to study, so nothing to pick: the Rajang is already highlighted.
   return (
     <div className="ui-layer flex flex-col">
       <TopBar phaseKey="phase.intro" />
       <div className="scroll-thin grid flex-1 gap-3 overflow-y-auto p-3 lg:grid-cols-[1fr_360px]">
         <Panel title={t('intro.title')} className="self-start">
-          <SarawakMap onRiver={() => setFound(true)} found={found} highlightZones={found} />
+          <SarawakMap onRiver={() => undefined} found highlightZones />
           <p className="mt-2 text-xs text-dim">{t('intro.mapNote')}</p>
         </Panel>
         <div className="flex flex-col gap-3">
           <Panel title="01">
             <p className="text-sm leading-relaxed">{t('intro.body')}</p>
-            <p className={`mt-3 text-sm font-bold ${found ? 'text-green' : 'text-amber'}`}>{found ? t('intro.found') : t('intro.task')}</p>
-            {!found && (
-              <CButton size="sm" variant="ghost" className="mt-2" onClick={() => { play('success'); setFound(true); }}>
-                ⌨ {t('intro.kbd')}
-              </CButton>
-            )}
+            <p className="mt-3 text-sm font-bold text-green">{t('intro.found')}</p>
           </Panel>
-          <div className="flex gap-2">
-            <CButton variant="ghost" onClick={() => goPhase('briefing')}>
-              {t('common.skip')}
-            </CButton>
-            <CButton variant="primary" size="lg" disabled={!found} onClick={() => goPhase('briefing')} className="flex-1">
-              {t('common.continue')} ▸
-            </CButton>
-          </div>
+          <CButton variant="primary" size="lg" onClick={() => goPhase('briefing')}>
+            {t('common.continue')} ▸
+          </CButton>
         </div>
       </div>
     </div>
