@@ -230,16 +230,22 @@
   }
 
   /* =========================================================
-     Video (Google Drive) — click-to-load
+     Video — click-to-load. Plays assets/video/crew-pitch-v3.mp4 (data-video-src);
+     falls back to a Google Drive preview (data-drive-id) when there is no file.
      ========================================================= */
   const video = $(".video-wrap");
   if (video) {
+    const src = (video.dataset.videoSrc || "").trim();
     const id = (video.dataset.driveId || "").trim();
     const msg = $(".js-video-msg", video);
-    if (!id) video.dataset.cursor = "SOON";
+    if (!src && !id) video.dataset.cursor = "SOON";
     $(".video__poster", video).addEventListener("click", () => {
-      if (!id) { msg.dataset.text = "Teaser coming soon. Stand by."; scramble(msg, 700); return; }
-      video.innerHTML = `<iframe src="https://drive.google.com/file/d/${encodeURIComponent(id)}/preview" allow="autoplay; fullscreen" allowfullscreen title="C.R.E.W teaser"></iframe>`;
+      if (!src && !id) { msg.dataset.text = "Teaser coming soon. Stand by."; scramble(msg, 700); return; }
+      if (src) {
+        video.innerHTML = `<video src="${src}" controls autoplay playsinline preload="auto" title="C.R.E.W pitch video"></video>`;
+      } else {
+        video.innerHTML = `<iframe src="https://drive.google.com/file/d/${encodeURIComponent(id)}/preview" allow="autoplay; fullscreen" allowfullscreen title="C.R.E.W teaser"></iframe>`;
+      }
       delete video.dataset.cursor;
       cursorReset();
     });

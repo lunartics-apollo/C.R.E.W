@@ -20,12 +20,10 @@ python -m http.server 8000
 ## Deploy
 It is a static site: upload this folder as it is. On Vercel, run `npx vercel` from this folder (Framework: Other, no build command, output directory `.`). On GitHub Pages, serve the folder root.
 
-## Adding the teaser video (Google Drive)
-1. In Drive, right-click the video, choose **Share**, and set **General access** to *Anyone with the link*.
-2. Copy the ID from the link: `drive.google.com/file/d/`**`THIS_PART`**`/view`.
-3. Paste it into `data-drive-id=""` in `index.html` (Trailer section).
+## The pitch video
+The Trailer section plays `assets/video/crew-pitch-v3.mp4` (30 s, H.264 + AAC, about 35 MB) when you click the poster. It loads only on click. To swap the video, replace that file, or change `data-video-src` in `index.html`.
 
-Drive previews can be slow or get rate-limited for popular files. If that happens, upload to YouTube and swap the iframe src.
+If there is no `data-video-src`, the section falls back to a Google Drive preview: put the file ID (the part between `/d/` and `/view` in the share link) into `data-drive-id`.
 
 ## Content
 - **Story:** the Premier of Sarawak calls, the team meets, you build, test, launch and fly a 3U CubeSat over the Rajang River for ten days, then read a debrief. The five stages in the Mission section follow that order.
