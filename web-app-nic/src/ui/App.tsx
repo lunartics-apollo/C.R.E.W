@@ -9,10 +9,13 @@ import { BriefingScreen, IntroScreen, MenuScreen, TransmissionScreen } from './s
 import { HangarScreen } from './screens/HangarScreen';
 import { GroundScreen, LaunchPlanScreen } from './screens/PlanningScreens';
 import { MrrScreen, TestLabScreen } from './screens/ReadinessScreens';
+import { HubScreen } from './screens/HubScreen';
 import { DebriefScreen, LaunchScreen, OpsScreen } from './screens/FlightScreens';
 
 function PhaseScreen() {
   const phase = useStore((s) => s.progress?.phase);
+  const hub = useStore((s) => s.hub);
+  if (hub) return <HubScreen />;
   switch (phase) {
     case 'intro':
       return <IntroScreen />;
@@ -93,7 +96,7 @@ export function App() {
   return (
     <>
       <PhaserHost menuOpen={showMenu} />
-      {showMenu ? <MenuScreen onClose={() => setMenuOpen(false)} /> : <PhaseScreen />}
+      {showMenu ? <MenuScreen onClose={() => { useStore.getState().setHub(true); setMenuOpen(false); }} /> : <PhaseScreen />}
       <Modals />
       <Toasts />
     </>

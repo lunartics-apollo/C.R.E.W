@@ -49,6 +49,8 @@ interface State extends SaveData {
   /** Visual mission time (s) the map is animating towards / showing. Not persisted. */
   viewT: number;
   animating: boolean;
+  /** True while the player is walking around the academy campus (not persisted). */
+  hub: boolean;
 }
 
 interface Actions {
@@ -57,6 +59,7 @@ interface Actions {
   openModal(m: ModalKind | null): void;
   toast(text: string, tone?: Toast['tone']): void;
   dismissToast(id: number): void;
+  setHub(on: boolean): void;
   startMission(): void;
   startDemo(): void;
   goPhase(p: Phase): void;
@@ -164,6 +167,7 @@ export const useStore = create<Store>()((set, get) => {
     speed: 1800,
     viewT: 0,
     animating: false,
+    hub: false,
 
     hydrate(save) {
       set({ ...save, loaded: true, viewT: save.progress?.runtime?.t ?? 0 });
@@ -176,6 +180,9 @@ export const useStore = create<Store>()((set, get) => {
     },
     toast(text, tone = 'info') {
       set({ toasts: [...get().toasts.slice(-3), { id: toastId++, text, tone }] });
+    },
+    setHub(on) {
+      set({ hub: on });
     },
     dismissToast(id) {
       set({ toasts: get().toasts.filter((t) => t.id !== id) });
@@ -415,6 +422,12 @@ useStore.subscribe((s) => {
   if (lastSaved && lastSaved.settings === data.settings && lastSaved.progress === data.progress && lastSaved.archive === data.archive && lastSaved.learning === data.learning && lastSaved.achievements === data.achievements) return;
   lastSaved = data;
   scheduleSave(data);
+});
+
+// Whenever the chapter changes, send the player back out onto the campus to walk to the next building.
+useStore.subscribe((s, prev) => {
+  const phase = s.progress?.phase;
+  if (phase && phase !== 'menu' && phase !== prev.progress?.phase && !s.hub) useStore.setState({ hub: true });
 });
 
 /** Translation hook bound to the current locale. */

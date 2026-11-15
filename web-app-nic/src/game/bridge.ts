@@ -11,6 +11,8 @@ type Events = {
   labTestDone: TestId;
   launchStage: string;
   launchDone: undefined;
+  hubNear: string | null;
+  hubTry: { id: string; ok: boolean };
 };
 
 type Handler<T> = (payload: T) => void;
