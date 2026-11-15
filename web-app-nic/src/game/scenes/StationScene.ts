@@ -170,7 +170,8 @@ export class StationScene extends Phaser.Scene {
       window.removeEventListener('keydown', this.onKeyDown);
       this.unsubStore?.();
       this.input.off('pointerdown');
-      bridge.playerPos = null;
+      // Keep playerPos and the crew where they stood, so you come back to the same place after a chapter.
+      for (const n of this.npcs) bridge.crewSaved[n.id] = { x: n.sprite.x, y: n.sprite.y };
       bridge.walkTo = null;
       bridge.crew = [];
       bridge.emit('hubNear', null);
@@ -251,7 +252,8 @@ export class StationScene extends Phaser.Scene {
       const room = map.rooms.find((r) => r.id === roomId);
       if (!room) return;
       const rng = new Phaser.Math.RandomDataGenerator([`crew-${id}`]);
-      const p = this.randomPoint(room.floorRect, rng);
+      const keep = bridge.crewSaved[id];
+      const p = keep && !map.isBlocked(keep) ? keep : this.randomPoint(room.floorRect, rng);
       const sprite = this.add.sprite(p.x, p.y, `crew-${id}`, 0).setOrigin(0.5, 1);
       const shadow = this.add.ellipse(p.x, p.y, 14, 5, 0x000000, 0.3);
       this.npcs.push({ id, sprite, shadow, path: [], wait: 1 + i, facing: 'down', rng });
