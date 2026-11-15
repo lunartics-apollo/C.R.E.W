@@ -1,6 +1,6 @@
 // English mission-director dialogue. Keys are referenced by src/narrative/script.ts.
 export const enStory: Record<string, string> = {
-  'dlg.tx.1': 'Selamat datai, cadet. I’m Director Ayu — callsign KENYALANG — at the Sarawak Space Academy.',
+  'dlg.tx.1': 'Selamat datai, cadet. I’m Director Jabu at the Sarawak Space Academy.',
   'dlg.tx.2': 'The Rajang researchers need observations from orbit. But before we can see Sarawak from space, we need a spacecraft that actually works.',
   'dlg.tx.3': 'You’ll design it, test it, launch it and fly it. When things go wrong — and they will — we find out why and fix it.',
   'dlg.tx.4': 'First, pick your training mode.',

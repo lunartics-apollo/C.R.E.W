@@ -42,7 +42,7 @@ CubeSat 101 is a 2017 process handbook. It does **not** supply component wattage
 - NASA Visible Earth "Sarawak's Rajang River Delta" is linked as reference imagery. It is **not bundled** because downloading it was not authorised in this session.
 
 ## Game assumptions (fictional or simplified; check before reuse)
-- Sarawak Space Academy, Director Ayu "KENYALANG", every launch package, ground station and price.
+- Sarawak Space Academy, Director Jabu, every launch package, ground station and price.
 - The component catalog (`src/simulation/catalog.ts`). Magnitudes are realistic, but these are not product ratings.
 - Fixed bus: 0.9 kg, 0.4 U, 0.6 W. Usable frame volume: 2.7 U.
 - Package mass limits (4.0 / 4.0 / 3.6 kg) and ICD timer and inhibit rules. These are fictional per package, not universal. The 45-minute value is not claimed as universal.

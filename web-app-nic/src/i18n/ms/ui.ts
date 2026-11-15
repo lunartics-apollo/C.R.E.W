@@ -483,7 +483,7 @@ export const msUi: Record<string, string> = {
   'credits.title': 'Penghargaan',
   'credits.body': 'Reka bentuk, kod, seni piksel dan bunyi disintesis: karya asal untuk BORNEO SENTINEL. Data peta: Natural Earth (domain awam). Fon: Silkscreen, Chakra Petch, JetBrains Mono (SIL Open Font License). Dibina dengan Phaser 4, React, Zustand dan Vite.',
   'credits.nasa': 'Kandungan proses kejuruteraan diparafrasa daripada NASA CSLI “CubeSat 101” (2017). NASA tidak mengendors permainan ini.',
-  'credits.fiction': 'Akademi Angkasa Sarawak, Pengarah Ayu “Kenyalang”, pakej pelancaran dan stesen bumi adalah rekaan.',
+  'credits.fiction': 'Akademi Angkasa Sarawak, Pengarah Jabu, pakej pelancaran dan stesen bumi adalah rekaan.',
 
   'edu.title': 'Paparan Guru / Pendidik',
   'edu.note': 'Rekod pendidikan prototaip yang disimpan pada peranti ini sahaja. Bukan penilaian yang disahkan; tiada nama dikumpul.',

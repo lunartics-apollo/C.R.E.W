@@ -229,11 +229,7 @@ export function TransmissionScreen() {
               ? {t('tx.quizTake')}
             </CButton>
           </Panel>
-        ) : (
-          <CButton variant="ghost" size="sm" className="self-end" onClick={() => setReady(true)}>
-            {t('common.skip')}
-          </CButton>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -483,7 +483,7 @@ export const enUi: Record<string, string> = {
   'credits.title': 'Credits',
   'credits.body': 'Design, code, pixel art and synthesised sound: original work for BORNEO SENTINEL. Map data: Natural Earth (public domain). Fonts: Silkscreen, Chakra Petch, JetBrains Mono (SIL Open Font License). Built with Phaser 4, React, Zustand and Vite.',
   'credits.nasa': 'Engineering-process content paraphrased from NASA CSLI “CubeSat 101” (2017). NASA does not endorse this game.',
-  'credits.fiction': 'Sarawak Space Academy, Director Ayu “Kenyalang”, launch packages and ground stations are fictional.',
+  'credits.fiction': 'Sarawak Space Academy, Director Jabu, launch packages and ground stations are fictional.',
 
   'edu.title': 'Teacher / Educator View',
   'edu.note': 'Prototype educational record stored only on this device. Not a validated assessment; no names collected.',
