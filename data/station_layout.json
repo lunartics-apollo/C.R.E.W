@@ -1445,7 +1445,8 @@
         870
       ],
       "effects": {
-        "energy": 35
+        "energy": 50,
+        "food": 5
       },
       "verb": "Drink coffee",
       "icon": "coffee"
@@ -1459,10 +1460,11 @@
         378
       ],
       "effects": {
-        "energy": 70
+        "energy": 70,
+        "health": 40
       },
       "hours": 2,
-      "verb": "Take a nap",
+      "verb": "Take a nap and rest",
       "icon": "sleep"
     },
     {
@@ -1486,6 +1488,51 @@
         "food": 60
       },
       "verb": "Eat a meal",
+      "icon": "meal"
+    },
+    {
+      "id": "vending_machine_1",
+      "name": "Vending Machine",
+      "room": "corridor",
+      "pos": [
+        481,
+        542
+      ],
+      "effects": {
+        "energy": 30,
+        "food": 25
+      },
+      "verb": "Buy a snack and a drink",
+      "icon": "meal"
+    },
+    {
+      "id": "vending_machine_2",
+      "name": "Vending Machine",
+      "room": "corridor",
+      "pos": [
+        1011,
+        542
+      ],
+      "effects": {
+        "energy": 30,
+        "food": 25
+      },
+      "verb": "Buy a snack and a drink",
+      "icon": "meal"
+    },
+    {
+      "id": "vending_machine_3",
+      "name": "Vending Machine",
+      "room": "mess_hall",
+      "pos": [
+        1031,
+        676
+      ],
+      "effects": {
+        "energy": 30,
+        "food": 25
+      },
+      "verb": "Buy a snack and a drink",
       "icon": "meal"
     }
   ],

@@ -21,15 +21,20 @@ OUTLINE = (28, 22, 34, 255)
 SKIN = [(246, 200, 160), (226, 170, 128), (196, 140, 100)]
 EYE = (28, 22, 34, 255)
 
+# Each crewmate matches the broadcast cast art in assets/briefing (cast_<name>.png):
+#   nova  = Aisyah: woman in a sage-green hijab and navy uniform with gold buttons
+#   orion = Jabu:   older man, short grey hair and moustache, orange safety vest
+#   juno  = Siti:   woman with curly brown hair and glasses, cream lab coat with a green tie
+#   kai   = Ling:   black hair, teal uniform and a communications headset
 CREW = {
-    "nova":  {"hair": [(212, 96, 58), (166, 62, 40)], "suit": [(232, 132, 62), (186, 92, 40)],
-              "accent": (250, 226, 120), "style": "spiky", "skin": 0},
-    "orion": {"hair": [(52, 46, 58), (30, 26, 36)], "suit": [(78, 122, 200), (52, 84, 150)],
-              "accent": (240, 196, 80), "style": "buzz_goggles", "skin": 2},
-    "juno":  {"hair": [(150, 78, 46), (110, 54, 32)], "suit": [(236, 240, 232), (186, 198, 194)],
-              "accent": (96, 184, 120), "style": "ponytail", "skin": 1},
-    "kai":   {"hair": [(226, 222, 206), (176, 170, 156)], "suit": [(230, 192, 70), (180, 140, 40)],
-              "accent": (70, 120, 90), "style": "cap", "skin": 0},
+    "nova":  {"hair": [(142, 178, 150), (98, 134, 110)], "suit": [(46, 74, 102), (30, 52, 76)],
+              "accent": (232, 196, 90), "style": "hijab", "skin": 0},
+    "orion": {"hair": [(168, 168, 176), (122, 122, 132)], "suit": [(232, 140, 60), (184, 96, 40)],
+              "accent": (52, 70, 92), "style": "moustache", "skin": 2},
+    "juno":  {"hair": [(120, 76, 48), (84, 50, 32)], "suit": [(242, 238, 224), (196, 190, 170)],
+              "accent": (74, 150, 110), "style": "curly_glasses", "skin": 1},
+    "kai":   {"hair": [(40, 44, 58), (24, 26, 38)], "suit": [(84, 160, 170), (56, 118, 128)],
+              "accent": (228, 236, 240), "style": "headset", "skin": 0},
 }
 
 
@@ -137,6 +142,61 @@ def draw_hairstyle(d, c, facing, y0):
     elif style == "ponytail":
         tail = {"up": (8, y0 + 10, 11, y0 + 14), "right": (1, y0 + 4, 3, y0 + 10)}.get(facing, (15, y0 + 3, 17, y0 + 8))
         d.rectangle(tail, fill=hair_dark)
+    elif style == "hijab":
+        # Scarf wraps the head and chin and drapes over the shoulders; the face stays open.
+        drape = hair_dark
+        if facing == "down":
+            d.rectangle((3, y0 + 4, 5, y0 + 11), fill=hair)
+            d.rectangle((14, y0 + 4, 16, y0 + 11), fill=hair)
+            d.rectangle((5, y0 + 11, 14, y0 + 12), fill=hair)
+            d.rectangle((4, y0 + 13, 15, y0 + 15), fill=hair)
+            d.rectangle((5, y0 + 2, 14, y0 + 3), fill=hair)
+            d.rectangle((5, y0 + 13, 5, y0 + 15), fill=drape)
+        elif facing == "up":
+            d.rectangle((4, y0 + 8, 15, y0 + 15), fill=hair)
+            d.rectangle((6, y0 + 12, 13, y0 + 15), fill=drape)
+        else:
+            d.rectangle((3, y0 + 3, 9, y0 + 14), fill=hair)
+            d.rectangle((9, y0 + 11, 13, y0 + 12), fill=hair)
+            d.rectangle((4, y0 + 13, 12, y0 + 15), fill=hair)
+            d.rectangle((4, y0 + 13, 6, y0 + 15), fill=drape)
+    elif style == "moustache" and facing != "up":
+        grey = hair_dark
+        if facing == "down":
+            d.rectangle((8, y0 + 9, 11, y0 + 9), fill=grey)
+            d.rectangle((8, y0 + 3, 11, y0 + 3), fill=hair)          # brow of grey hair
+        else:
+            d.rectangle((13, y0 + 9, 15, y0 + 9), fill=grey)
+    elif style == "curly_glasses":
+        # Puffy curls around the head plus round glasses.
+        for cx, cy in ((4, y0 + 2), (7, y0 - 1), (10, y0 - 2), (13, y0 - 1), (16, y0 + 2), (3, y0 + 6), (17, y0 + 6)):
+            d.ellipse((cx - 2, cy - 2, cx + 2, cy + 2), fill=hair)
+        d.point((6, y0 + 1), fill=hair_dark)
+        d.point((12, y0 + 0), fill=hair_dark)
+        frame = (60, 44, 40, 255)
+        if facing == "down":
+            for ex in (6, 11):
+                d.rectangle((ex, y0 + 6, ex + 2, y0 + 8), outline=frame)
+            d.point((9, y0 + 7), fill=frame)
+        elif facing == "right":
+            d.rectangle((12, y0 + 6, 14, y0 + 8), outline=frame)
+            d.rectangle((8, y0 + 7, 11, y0 + 7), fill=frame)
+    elif style == "headset":
+        cup = (60, 70, 84, 255)
+        if facing == "down":
+            d.rectangle((5, y0 + 1, 14, y0 + 1), fill=cup)
+            d.rectangle((2, y0 + 5, 3, y0 + 8), fill=cup)
+            d.rectangle((16, y0 + 5, 17, y0 + 8), fill=cup)
+            d.rectangle((15, y0 + 9, 16, y0 + 9), fill=cup)
+            d.rectangle((12, y0 + 10, 14, y0 + 10), fill=cup)
+        elif facing == "up":
+            d.rectangle((5, y0 + 1, 14, y0 + 1), fill=cup)
+            d.rectangle((2, y0 + 5, 3, y0 + 8), fill=cup)
+            d.rectangle((16, y0 + 5, 17, y0 + 8), fill=cup)
+        else:
+            d.rectangle((5, y0 + 1, 12, y0 + 1), fill=cup)
+            d.rectangle((6, y0 + 5, 8, y0 + 8), fill=cup)
+            d.rectangle((13, y0 + 10, 15, y0 + 10), fill=cup)
     elif style == "cap":
         d.pieslice((3, y0 - 1, 16, y0 + 9), 180, 360, fill=rgba(c["accent"]))
         brim = {"down": (5, y0 + 4, 14, y0 + 4), "right": (12, y0 + 3, 18, y0 + 4)}.get(facing)

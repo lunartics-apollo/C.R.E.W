@@ -12,9 +12,10 @@ func run() -> void:
 	root.add_child(activity)
 	await process_frame
 	assert(activity.get_node("Choices").get_child_count() > 0)
+	assert(activity.get_node("Choices/LeadFace").texture != null, "The lead's face is shown with their line")
 	activity.choose_option(0)
 	assert(activity.puzzle_type == "rocket_fit")
-	activity.slider.value = mission.state.mass_kg
+	activity.slider.value = mission.state.mass_need_kg
 	activity.submit_puzzle()
 	assert(activity.puzzle_score >= 50, "A safe payload fits the chosen rocket")
 	activity.queue_free()
@@ -31,6 +32,8 @@ func run() -> void:
 	activity.queue_free()
 	await process_frame
 	# Exercise the actual Core puzzle controls, not just their scoring API.
+	for id in mission.DESIGN_IDS:
+		mission.choose(id, 0)
 	for id in ["E3", "C3", "S2"]:
 		activity = activity_script.new()
 		activity.setup(mission, id)
@@ -42,7 +45,7 @@ func run() -> void:
 			"C3":
 				activity.toggles.assign([true, true, true, false])
 			"S2":
-				activity.toggles.assign([true, false, true, true])
+				activity.toggles.assign([true, false, false, true])
 		activity.submit_puzzle()
 		assert(activity.puzzle_score >= 80, "A valid Core solution earns Gold: " + id)
 		activity.queue_free()

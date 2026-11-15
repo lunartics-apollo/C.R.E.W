@@ -28,7 +28,14 @@ func run_test() -> void:
 	menu._change_mission(0)
 	assert(not world.is_processing())
 	menu._skip_intro()
-	assert(menu.get_node("Menu/Play").text == "LET EXPLORE")
+	assert(menu.get_node("Menu/Play").text == "START", "A fresh game says START")
+	world.campaign.character = 0
+	world.campaign.beats["0"] = 3
+	menu._change_mission(0)
+	assert(menu.get_node("Menu/Play").text == "CONTINUE", "Saved progress says CONTINUE")
+	world.campaign.character = -1
+	world.campaign.beats.clear()
+	menu._change_mission(0)
 	assert(menu.selected_mission == 0)
 	assert(menu.get_node("MissionInfo/MissionNumber").text == "01")
 	assert(menu.get_node("MissionPrev").size == Vector2(15, 14))
@@ -42,6 +49,8 @@ func run_test() -> void:
 	assert(menu.play_button.disabled, "Finish Design before opening Review")
 	world.campaign.character = 0
 	world.campaign.completed.assign([0])
+	for id in ForestMission.DESIGN_IDS:
+		world.campaign.forest.choose(id, 0)
 	assert(world.campaign.forest.launch(0).success)
 	menu._change_mission(0)
 	assert(not menu.play_button.disabled, "A successful launch can resume until stage completion is saved")

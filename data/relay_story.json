@@ -31,7 +31,7 @@
     ],
     [
       0,
-      "2.5 million, ready in 24 months. We decide together."
+      "2.5 million, ready in 24 months. Work alone, launch together."
     ]
   ],
   "chatter": {
@@ -61,16 +61,16 @@
       },
       "dialogue": [
         [
-          "ling",
+          "kai",
           "We have a signal!"
         ],
         [
-          "aisyah",
+          "nova",
           "Our satellite is alive. Now the real work begins."
         ],
         [
-          "kai",
-          "One pass at a time. We will keep the data moving."
+          "nova",
+          "Back to your departments, everyone."
         ]
       ],
       "positions": {
@@ -82,7 +82,7 @@
     },
     {
       "id": "first_light",
-      "objective": "Aina: review First Light in the lab",
+      "objective": "Siti: review First Light in the lab",
       "trigger": {
         "type": "use",
         "spot": "calibrate_camera",
@@ -90,15 +90,15 @@
       },
       "dialogue": [
         [
-          "siti",
-          "First Light: our target is a forest river in Sarawak."
+          "juno",
+          "Look. That is Sarawak, from space."
         ],
         [
           "juno",
-          "This is a simulated mission preview, not imagery captured by a real satellite."
+          "First Light: our target is a forest river in Sarawak. This is a simulated mission preview, not imagery captured by a real satellite."
         ],
         [
-          "siti",
+          "juno",
           "A real report needs an image source line. Now, check our science plan."
         ]
       ],
@@ -106,7 +106,7 @@
     },
     {
       "id": "ev8",
-      "objective": "Q2 \u00e2\u20ac\u201d Aina: respond to heavy clouds",
+      "objective": "Q2 - Siti: respond to heavy clouds",
       "trigger": {
         "type": "use",
         "spot": "calibrate_camera",
@@ -114,12 +114,16 @@
       },
       "dialogue": [
         [
-          "siti",
-          "Too many clouds. Try thermal if the payload supports it."
+          "juno",
+          "Too many clouds. Switching to thermal."
         ],
         [
           "juno",
           "We can adapt the observations and record what we could not see."
+        ],
+        [
+          "nova",
+          "Q2 quarter log filed in Mission Control."
         ]
       ],
       "actor": "juno",
@@ -127,7 +131,7 @@
     },
     {
       "id": "ev6",
-      "objective": "Q3 \u00e2\u20ac\u201d Mei Ling: reroute the downlink",
+      "objective": "Q3 - Ling: reroute the downlink",
       "trigger": {
         "type": "use",
         "spot": "align_antenna",
@@ -135,12 +139,16 @@
       },
       "dialogue": [
         [
-          "ling",
-          "Dish is down. Switch fast!"
+          "kai",
+          "Dish is down. Switching fast!"
         ],
         [
           "kai",
           "Check the backup link before this pass ends."
+        ],
+        [
+          "nova",
+          "Q3 quarter log filed in Mission Control."
         ]
       ],
       "actor": "kai",
@@ -148,7 +156,7 @@
     },
     {
       "id": "c4",
-      "objective": "Q4 \u00e2\u20ac\u201d Mei Ling: handle rain fade",
+      "objective": "Q4 - Ling: handle rain fade",
       "trigger": {
         "type": "use",
         "spot": "download_telemetry",
@@ -156,12 +164,16 @@
       },
       "dialogue": [
         [
-          "ling",
-          "Rain is coming. Watch the needle!"
+          "kai",
+          "Rain is coming. Watching the needle!"
         ],
         [
           "kai",
           "Ka-band wobbles most. Keep the signal in the green."
+        ],
+        [
+          "nova",
+          "Q4 quarter log filed in Mission Control."
         ]
       ],
       "actor": "kai",
@@ -169,7 +181,7 @@
     },
     {
       "id": "ev3",
-      "objective": "Q5 \u00e2\u20ac\u201d Daniel: manage the long eclipse",
+      "objective": "Q5 - Jabu: manage the long eclipse",
       "trigger": {
         "type": "use",
         "spot": "divert_power",
@@ -177,12 +189,16 @@
       },
       "dialogue": [
         [
-          "jabu",
+          "orion",
           "A long night. What can wait until sunrise?"
         ],
         [
           "orion",
           "Keep the battery above zero. Science loads may have to pause."
+        ],
+        [
+          "nova",
+          "Q5 quarter log filed in Mission Control."
         ]
       ],
       "actor": "orion",
@@ -190,7 +206,7 @@
     },
     {
       "id": "ev9",
-      "objective": "Q6 \u00e2\u20ac\u201d Aina: reset the instrument",
+      "objective": "Q6 - Siti: reset the instrument",
       "trigger": {
         "type": "use",
         "spot": "calibrate_camera",
@@ -198,12 +214,16 @@
       },
       "dialogue": [
         [
-          "siti",
-          "An instrument glitch. Read the sequence before you press anything."
+          "juno",
+          "An instrument glitch. Reading the sequence before I press anything."
         ],
         [
           "juno",
           "I'll follow the pattern and log the interruption."
+        ],
+        [
+          "nova",
+          "Q6 quarter log filed in Mission Control."
         ]
       ],
       "actor": "juno",
@@ -211,7 +231,7 @@
     },
     {
       "id": "ev5",
-      "objective": "Q7 \u00e2\u20ac\u201d Daniel: respond to the debris warning",
+      "objective": "Q7 - Jabu: respond to the debris warning",
       "trigger": {
         "type": "use",
         "spot": "fix_wiring",
@@ -219,12 +239,16 @@
       },
       "dialogue": [
         [
-          "jabu",
-          "Debris warning. Check whether the spacecraft can manoeuvre."
+          "orion",
+          "Debris ahead. Steering clear!"
         ],
         [
           "orion",
           "Thrusters give us a way to move. Without them, a near miss still carries risk."
+        ],
+        [
+          "nova",
+          "Q7 quarter log filed in Mission Control."
         ]
       ],
       "actor": "orion",
@@ -232,7 +256,7 @@
     },
     {
       "id": "ev4",
-      "objective": "Q8 \u00e2\u20ac\u201d Daniel: cool the battery",
+      "objective": "Q8 - Jabu: cool the battery",
       "trigger": {
         "type": "use",
         "spot": "divert_power",
@@ -240,12 +264,16 @@
       },
       "dialogue": [
         [
-          "jabu",
-          "The battery is heating. Watch the red line."
+          "orion",
+          "The pack is running hot. Watching the red line."
         ],
         [
           "orion",
-          "Take loads off and let it cool. Then check what we can safely restore."
+          "Taking loads off and letting it cool. Then I check what we can safely restore."
+        ],
+        [
+          "nova",
+          "Q8 quarter log filed in Mission Control."
         ]
       ],
       "actor": "orion",
@@ -253,7 +281,7 @@
     },
     {
       "id": "last_pass",
-      "objective": "Mei Ling: close the last planned pass",
+      "objective": "Ling: close the last planned pass",
       "trigger": {
         "type": "use",
         "spot": "download_telemetry",
@@ -261,7 +289,7 @@
       },
       "dialogue": [
         [
-          "ling",
+          "kai",
           "That was the last pass of the plan."
         ],
         [
@@ -276,6 +304,30 @@
       "actor": "kai"
     },
     {
+      "id": "mission_lost",
+      "objective": "See what happened",
+      "only_if": "launch_failed",
+      "trigger": {
+        "type": "start"
+      },
+      "dialogue": [
+        [
+          "kai",
+          "We lost contact with the rocket. There is no satellite to operate."
+        ],
+        [
+          "nova",
+          "Launch is hard. We still have the report. Let's see what we can learn."
+        ]
+      ],
+      "positions": {
+        "nova": "upload_flight_plan",
+        "orion": "divert_power",
+        "juno": "calibrate_camera",
+        "kai": "align_antenna"
+      }
+    },
+    {
       "id": "mission_report",
       "objective": "Present the mission report in Mission Control",
       "trigger": {
@@ -285,15 +337,15 @@
       },
       "dialogue": [
         [
-          "aisyah",
-          "Show the requirements, exact results and each role's decisions."
+          "nova",
+          "Show the requirements, exact results and each lead's decisions."
         ],
         [
           "nova",
           "Then explain why it happened. One clear lesson, one thing to try next."
         ],
         [
-          "siti",
+          "juno",
           "Any showcase image needs its source. Our simulation does not claim a real capture."
         ],
         [

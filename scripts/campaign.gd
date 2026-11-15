@@ -22,14 +22,14 @@ func _init(path := "user://crew_campaign.json") -> void:
 	var data = JSON.parse_string(file.get_as_text())
 	if not data is Dictionary:
 		return
-	if data.get("mode", "") in ["cadet", "engineer", "sandbox"]:
+	if data.get("mode", "") in ["cadet", "engineer"]:
 		forest = ForestMission.new({"mode": data.mode})
 	var saved = data.get("character", -1)
 	if not (saved is float or saved is int) or saved != int(saved) or saved < 0 or saved >= CrewRoster.CREW.size():
 		return
 	character = int(saved)
-	# The old Moon/relay campaign must not unlock stages in this new story.
-	if data.get("story_version", 0) != 2:
+	# Older saves use earlier decision numbers, so they must not unlock stages.
+	if data.get("story_version", 0) != 3:
 		return
 	if data.get("forest") is Dictionary:
 		forest = ForestMission.new(data.forest)
@@ -95,12 +95,6 @@ func finish_mission(id: int) -> bool:
 	return false
 
 func next_mission() -> int:
-	if forest.state.launch_resolved and not forest.state.launch_success:
-		return 0
-	if completed.has(0) and not completed.has(1) and not forest.review().approved:
-		return 0
-	if forest.state.quarters.size() == 7 and not completed.has(2) and forest.report().ending not in ["E1", "E2"]:
-		return 0
 	for id in MISSIONS.size():
 		if not completed.has(id):
 			return id
@@ -111,7 +105,7 @@ func save() -> bool:
 	var file := FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file == null:
 		return false
-	file.store_string(JSON.stringify({"story_version": 2, "character": character, "mode": forest.state.mode, "completed": completed, "forest": forest.state, "beats": beats}))
+	file.store_string(JSON.stringify({"story_version": 3, "character": character, "mode": forest.state.mode, "completed": completed, "forest": forest.state, "beats": beats}))
 	var error := file.get_error()
 	file.close()
 	if error != OK:

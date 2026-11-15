@@ -71,15 +71,15 @@ func _draw() -> void:
 			draw_circle(Vector2(111, 64), 3, TEAL)
 			draw_line(Vector2(111, 35), Vector2(121, 23), GOLD)
 		"power":
-			var watts: float = forest.state.power_w if forest != null else 8
-			var solar: float = forest.state.solar_w if forest != null else 14
-			var battery: float = forest.state.battery_wh if forest != null else 20
+			var watts: float = forest.state.power_w if forest != null else 15
+			var solar: float = forest.state.solar_w if forest != null else 35
+			var battery: float = forest.state.battery_wh if forest != null else 40
 			text(Vector2(10, 38), "SOLAR %.0f W" % solar, TEAL)
-			text(Vector2(112, 38), "LOAD %.0f W" % watts, GOLD)
+			text(Vector2(112, 38), "LOAD %.1f W" % watts, GOLD)
 			for i in 10:
 				draw_rect(Rect2(14 + i * 18, 48, 14, 19), TEAL if i / 10.0 < watts / maxf(1, solar) else Color("#2d4850"))
 			draw_rect(Rect2(14, 78, 181, 14), TEAL, false)
-			draw_rect(Rect2(16, 80, clampf(battery / 60, 0, 1) * 177, 10), GOLD)
+			draw_rect(Rect2(16, 80, clampf(battery / 80, 0, 1) * 177, 10), GOLD)
 			text(Vector2(75, 89), "%.0f Wh" % battery, WHITE)
 		"passes":
 			for i in 4:
@@ -101,7 +101,7 @@ func _draw() -> void:
 				text(Vector2(x, 87), str(i + 1) if stage == 2 else labels[i], TEAL)
 			text(Vector2(14, 34), "Q1-Q8 / TWO YEARS" if stage == 2 else "DEFINE TO REPORT")
 		"requirements":
-			var labels := ["IMAGER ON BOARD", "COVER SARAWAK", "DATA RETURN >= 70%", "LIFE >= 2 YEARS", "BUDGET <= 2.5 M", "MASS IN LIMIT", "READY <= 24 MONTHS"]
+			var labels := ["CAMERA ON BOARD", "COVERS SARAWAK", "PHOTOS HOME 70%+", "LASTS 2 YEARS", "COST UNDER 2.5 M", "WEIGHT FITS ROCKET", "READY IN 24 MONTHS"]
 			var checks: Array = forest.requirements() if forest != null else []
 			for i in labels.size():
 				var okay: bool = checks.is_empty() or checks[i].met

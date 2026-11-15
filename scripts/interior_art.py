@@ -320,7 +320,12 @@ def export_furniture(layout, ground, output_dir):
         # Directional cast shadow and a tight contact shadow under the feet.
         shadow.rounded_rectangle((x + 4, y + 4, x + w + 9, y + h + 7), radius=5, fill=(14, 28, 32, 40))
         shadow.rounded_rectangle((x + 1, y + h - 2, x + w + 2, y + h + 3), radius=2, fill=(12, 24, 27, 55))
-        place(tile, offset, obstacle["rect"], {"name": f"Interior{i}", "source_index": i})
+        info = {"name": f"Interior{i}", "source_index": i}
+        if obstacle["kind"] == "vending":
+            # Vending machines are usable: they share the fixture id of their interaction spot.
+            vending_count = sum(1 for o in layout["obstacles"][:i] if o["kind"] == "vending") + 1
+            info["source_spot"] = f"vending_machine_{vending_count}"
+        place(tile, offset, obstacle["rect"], info)
         kind = obstacle["kind"]
         seats = []
         if kind == "meeting_table":
@@ -345,7 +350,7 @@ def export_furniture(layout, ground, output_dir):
                 "food_counter": ("food", 34, 10), "restock_medkits": ("medkit", 18, 10),
                 "toolbox_shelf": ("shelf", 26, 14)}
     for spot in layout["spots"]:
-        if spot["room"] == "outside" or spot["id"] in ("bunk", "assemble_panels", "health_scan"):
+        if spot["room"] == "outside" or spot["id"] in ("bunk", "assemble_panels", "health_scan") or spot["id"].startswith("vending_machine"):
             continue
         kind, w, h = fixtures.get(spot["id"], ("terminal", 14, 8))
         x, y = spot["pos"]

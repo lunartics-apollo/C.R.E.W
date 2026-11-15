@@ -18,6 +18,13 @@ const TYPE_SPEED := 50.0
 const STAT_KEYS := ["health", "energy", "food"]
 const STAT_COLORS := {"health": Color("#e2504a"), "energy": Color("#f2c94c"), "food": Color("#ec8a46")}
 const BAR_W := 58.0
+const STAT_BAR_W := 40.0
+## Each bar is just named, with the bar beside it. When it runs low the name blinks red and says what to do.
+const STAT_LABELS := {"health": "HEALTH", "energy": "ENERGY", "food": "FOOD"}
+const STAT_LOW_LABELS := {"health": "SLEEP!", "energy": "COFFEE!", "food": "EAT!"}
+
+signal help_requested
+signal exit_requested
 const MAP_RECT := Rect2(380, 168, 96, 84)   # minimap panel when expanded
 const MAP_HEADER := 13.0
 
@@ -25,6 +32,11 @@ var root: Control
 var card_portrait: TextureRect
 var card_name: Label
 var stat_fills := {}
+var stat_labels := {}
+var help_button: Button
+var exit_button: Button
+var view_banner: Label
+var exit_armed := false
 var crew_slots: Array[NinePatchRect] = []
 var crew_health: Array[ColorRect] = []
 var crew_needed: Array[TextureRect] = []
@@ -75,6 +87,7 @@ func _ready() -> void:
 	add_child(root)
 	_build_crew_card()
 	_build_crew_strip()
+	_build_menu_buttons()
 	_build_clock()
 	_build_objective()
 	_build_map_panel()
@@ -93,7 +106,7 @@ func _ready() -> void:
 	root.add_child(minimap)
 	_build_help()
 	_build_card()
-	mission_gauges = text(root, Vector2(4, 73), GOLD, 288)
+	mission_gauges = text(root, Vector2(4, 84), GOLD, 288)
 	mission_gauges.add_theme_font_size_override("font_size", 8)
 	mission_gauges.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -156,7 +169,7 @@ static func bar(parent: Node, pos: Vector2, width: float, color: Color) -> Color
 	return fill
 
 func _build_crew_card() -> void:
-	var panel := frame("panel_dark.png", Rect2(4, 4, 104, 38))
+	var panel := frame("panel_dark.png", Rect2(4, 4, 136, 46))
 	panel.name = "CrewCard"
 	root.add_child(panel)
 	var slot := frame("slot_selected.png", Rect2(3, 3, 32, 32))
@@ -170,14 +183,18 @@ func _build_crew_card() -> void:
 	card_name = text(panel, Vector2(39, 2), CREAM)
 	for row in STAT_KEYS.size():
 		var key: String = STAT_KEYS[row]
-		var y := 15.0 + row * 7.0
+		var y := 14.0 + row * 10.0
 		icon(panel, UI + "icons/%s_s.png" % key, Vector2(38, y - 1))
-		stat_fills[key] = bar(panel, Vector2(46, y), BAR_W - 6, STAT_COLORS[key])
+		var tag := text(panel, Vector2(48, y - 3), MUTED)
+		tag.add_theme_font_size_override("font_size", 8)
+		tag.text = STAT_LABELS[key]
+		stat_labels[key] = tag
+		stat_fills[key] = bar(panel, Vector2(88, y), STAT_BAR_W, STAT_COLORS[key])
 
 func _build_crew_strip() -> void:
 	var strip := Control.new()
 	strip.name = "CrewStrip"
-	strip.position = Vector2(4, 44)
+	strip.position = Vector2(4, 54)
 	strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(strip)
 	for i in CrewRoster.CREW.size():
@@ -273,9 +290,9 @@ func _build_dialogue() -> void:
 	dialogue_portrait.stretch_mode = TextureRect.STRETCH_SCALE
 	dialogue_portrait.size = Vector2(36, 36)
 	portrait_slot.add_child(dialogue_portrait)
-	var banner := frame("banner.png", Rect2(56, -8, 70, 15))
+	var banner := frame("banner.png", Rect2(56, -8, 96, 15))
 	dialogue_box.add_child(banner)
-	dialogue_name = centered(text(banner, Vector2(0, 4), CREAM), 70)
+	dialogue_name = centered(text(banner, Vector2(0, 4), CREAM), 96)
 	dialogue_text = text(dialogue_box, Vector2(58, 11), INK, 334)
 	dialogue_more = text(dialogue_box, Vector2(372, 46), MUTED)
 	dialogue_more.text = "E ▼"
@@ -299,21 +316,28 @@ func _build_help() -> void:
 	(help as ColorRect).color = Color("#120e16cc")
 	help.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(help)
-	var panel := frame("panel.png", Rect2(92, 34, 296, 204))
+	var panel := frame("panel.png", Rect2(56, 18, 368, 238))
 	help.add_child(panel)
-	var banner := frame("banner.png", Rect2(108, -8, 80, 15))
+	var banner := frame("banner.png", Rect2(124, -8, 120, 15))
 	panel.add_child(banner)
-	centered(text(banner, Vector2(0, 4), CREAM), 80).text = "PAUSED"
+	centered(text(banner, Vector2(0, 4), CREAM), 120).text = "HOW TO PLAY"
 	var lines := [
-		["WASD / ARROWS", "Walk"], ["E (hold)", "Talk · use · work"], ["TAB / 1-4", "Switch crewmate"],
-		["M", "Station map"], ["N", "Show / hide minimap"], ["H / ESC", "This help / resume"], ["", ""],
-		["HEART", "Health: med cabinet, Med Bay"], ["BOLT", "Energy: coffee, water, nap"],
-		["DRUMSTICK", "Food: food counter, Mess Hall"], ["", ""],
+		["GOAL", "Build, launch and run a forest satellite."],
+		["", "Talk, use glowing spots. Gold ! = go there."], ["", ""],
+		["WASD / ARROWS", "Walk"], ["E (hold)", "Talk, use and work"],
+		["TAB / 1-4", "Look at another crewmate (view only)"], ["", "Walk to return to your own crewmate."],
+		["M  /  N", "Station map  /  minimap"], ["H / ESC", "This page  /  keep playing"], ["", ""],
+		["HEALTH", "Red bar. Fix: nap in Crew Quarters, or Med Bay."],
+		["ENERGY", "Yellow bar. Fix: coffee (best), vending machine."],
+		["FOOD", "Orange bar. Fix: food counter or vending machine."],
+		["", "A low bar blinks red: SLEEP!, COFFEE! or EAT!"], ["", ""],
+		["TEAM RULE", "Work alone, launch together. Do your own jobs."],
 		["GOLD !", "Who or where the story needs"], ["RED TEXT", "Needs another crewmate or item"],
+		["EXIT", "Back to mission select (click twice)"],
 	]
 	for i in lines.size():
-		text(panel, Vector2(12, 13 + i * 13), MUTED).text = lines[i][0]
-		text(panel, Vector2(100, 13 + i * 13), INK).text = lines[i][1]
+		text(panel, Vector2(12, 13 + i * 12), MUTED).text = lines[i][0]
+		text(panel, Vector2(100, 13 + i * 12), INK).text = lines[i][1]
 	help.hide()
 
 func _build_card() -> void:
@@ -329,10 +353,8 @@ func _build_card() -> void:
 
 func set_campaign_help() -> void:
 	for label in help.find_children("*", "Label", true, false):
-		if label.text == "TAB / 1-4":
-			label.text = "CREW LOCK"
-		elif label.text == "Switch crewmate":
-			label.text = "Complete 3 missions to change"
+		if label.text == "Look at another crewmate (view only)":
+			label.text = "Look at others (view only). Your role is locked."
 
 # ── updates from world.gd ────────────────────────────────────────────────────
 ## healths: 0-1 per crewmate; needed: crew index the current beat requires (-1 = anyone).
@@ -352,9 +374,12 @@ func show_stats(stats: CrewStats) -> void:
 	var blink := int(Time.get_ticks_msec() / 250) % 2 == 0
 	for key in STAT_KEYS:
 		var value: float = stats.get(key)
-		stat_fills[key].size.x = roundf((BAR_W - 6) * value / CrewStats.MAX)
+		stat_fills[key].size.x = roundf(STAT_BAR_W * value / CrewStats.MAX)
 		var low := value < CrewStats.LOW
 		stat_fills[key].color = CREAM if low and blink else STAT_COLORS[key]
+		# The label names the bar, and says where to go when it runs low.
+		stat_labels[key].text = STAT_LOW_LABELS[key] if low else STAT_LABELS[key]
+		stat_labels[key].add_theme_color_override("font_color", (CREAM if blink else RED) if low else MUTED)
 
 func show_minimap(dots: Array, objective_pos: Vector2, follow: Vector2, room_name: String) -> void:
 	map_title.text = room_name
@@ -462,6 +487,8 @@ func show_toast(toast_texture: Texture2D, label: String) -> void:
 
 func toggle_help(on: bool) -> void:
 	help.visible = on
+	if is_instance_valid(mission_gauges):
+		mission_gauges.visible = round_ui and not on and not dialogue_box.visible
 
 func show_card(title: String, subtitle: String, hint := "") -> void:
 	card.show()
@@ -477,6 +504,9 @@ func set_round_ui(visible_now: bool) -> void:
 	round_ui = visible_now
 	for node_name in ["CrewCard", "CrewStrip", "Clock", "Objective"]:
 		root.get_node(node_name).visible = visible_now
+	for menu_button in [help_button, exit_button]:
+		if is_instance_valid(menu_button):
+			menu_button.visible = visible_now
 	_set_dialogue_mode(dialogue_box.visible)
 	if not visible_now:
 		prompt_box.hide()
@@ -504,3 +534,74 @@ func _process(delta: float) -> void:
 	else:
 		objective_card.self_modulate = Color.WHITE
 		objective_card.position.x = 300.0
+
+# ── HELP / EXIT buttons and the "viewing" banner ──────────────────────────────
+func _build_menu_buttons() -> void:
+	help_button = _small_button("HELP", Rect2(98, 55, 38, 13), func(): help_requested.emit(), "How to play (H)")
+	exit_button = _small_button("EXIT", Rect2(140, 55, 36, 13), _on_exit_pressed, "Back to mission select. Click twice. Finished steps are saved.")
+	view_banner = text(root, Vector2(180, 6), GOLD, 208, true)
+	view_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	view_banner.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	view_banner.size.x = 208
+	view_banner.add_theme_font_size_override("font_size", 8)
+	view_banner.hide()
+
+func _small_button(caption: String, rect: Rect2, action: Callable, tip: String) -> Button:
+	# The caption is a child label, so the button is exactly as small as its rectangle.
+	var b := Button.new()
+	b.text = ""
+	b.position = rect.position
+	b.size = rect.size
+	b.custom_minimum_size = rect.size
+	b.focus_mode = Control.FOCUS_NONE   # Space and Enter must never press these by accident
+	b.tooltip_text = tip
+	for state in ["normal", "hover", "pressed"]:
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color("#2b3f4a") if state == "normal" else Color("#46636a")
+		style.border_color = Color("#f2c94c") if state != "normal" else Color("#8a7464")
+		style.set_border_width_all(1)
+		style.set_corner_radius_all(2)
+		style.content_margin_left = 0
+		style.content_margin_right = 0
+		style.content_margin_top = 0
+		style.content_margin_bottom = 0
+		b.add_theme_stylebox_override(state, style)
+	var tag := Label.new()
+	tag.text = caption
+	tag.position = Vector2(0, 2)
+	tag.size = Vector2(rect.size.x, 16)
+	tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tag.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	tag.add_theme_font_size_override("font_size", 8)
+	tag.add_theme_color_override("font_color", CREAM)
+	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(tag)
+	b.set_meta("tag", tag)
+	b.mouse_entered.connect(func(): tag.add_theme_color_override("font_color", GOLD))
+	b.mouse_exited.connect(func(): tag.add_theme_color_override("font_color", RED if b == exit_button and exit_armed else CREAM))
+	b.pressed.connect(action)
+	root.add_child(b)
+	return b
+
+func _on_exit_pressed() -> void:
+	if not exit_armed:
+		exit_armed = true
+		_set_button_caption(exit_button, "SURE?", RED)
+		get_tree().create_timer(2.5).timeout.connect(_disarm_exit)
+		return
+	exit_requested.emit()
+
+func _disarm_exit() -> void:
+	exit_armed = false
+	if is_instance_valid(exit_button):
+		_set_button_caption(exit_button, "EXIT", CREAM)
+
+func _set_button_caption(b: Button, caption: String, color: Color) -> void:
+	var tag: Label = b.get_meta("tag")
+	tag.text = caption
+	tag.add_theme_color_override("font_color", color)
+
+## Shows "VIEWING JABU" while the camera looks at another crewmate; empty text hides it.
+func show_view_banner(caption: String) -> void:
+	view_banner.text = caption
+	view_banner.visible = caption != "" and round_ui

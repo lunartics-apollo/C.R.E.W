@@ -4,10 +4,10 @@ extends RefCounted
 ## only they can do (see "actor" in data/story.json).
 
 const CREW := [
-	{"id": "nova",  "name": "NADIA",    "role": "PLANNER",  "color": Color("#e8843e")},
-	{"id": "orion", "name": "DANIEL",   "role": "ENGINEER", "color": Color("#4e7ac8")},
-	{"id": "juno",  "name": "AINA",     "role": "SCIENCE",  "color": Color("#60b878")},
-	{"id": "kai",   "name": "MEI LING", "role": "COMMS",    "color": Color("#e6c046")},
+	{"id": "nova",  "name": "AISYAH",   "role": "PLANNER",  "color": Color("#e8843e")},
+	{"id": "orion", "name": "JABU",     "role": "ENGINEER", "color": Color("#4e7ac8")},
+	{"id": "juno",  "name": "SITI",     "role": "SCIENCE",  "color": Color("#60b878")},
+	{"id": "kai",   "name": "LING",     "role": "COMMS",    "color": Color("#e6c046")},
 ]
 
 const SPEAKERS := {

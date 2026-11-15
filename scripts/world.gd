@@ -45,6 +45,7 @@ var ais: Array[CrewAI] = []
 var stats: Array[CrewStats] = []
 var player: CrewMember
 var player_index := 0
+var view_index := -1      # >= 0 while looking at another crewmate (view only)
 var dialogue_queue: Array = []
 var ending_pending := false
 var hold := {}              # {"spot", "time", "effect": bool} while holding E on a spot
@@ -111,6 +112,8 @@ func _ready() -> void:
 	hud.name = "HUD"
 	add_child(hud)
 	hud.setup_minimap(map)
+	hud.help_requested.connect(_on_help_button)
+	hud.exit_requested.connect(_exit_to_menu)
 	start_chapter()
 
 # ── chapter flow ─────────────────────────────────────────────────────────────
@@ -119,6 +122,13 @@ func start_chapter() -> void:
 	at_meeting = false
 	story.reset()
 	forest = campaign.forest if campaign != null else ForestMission.new()
+	# If the rocket was lost, Operations has nothing to fly: go straight to the mission-lost scene and report.
+	var lost: bool = mission_id == 2 and forest.state.launch_resolved and not forest.state.launch_success
+	var all_beats: Array = story.data.get("beats", [])
+	if lost:
+		story.beats = all_beats.filter(func(b): return b.get("only_if", "") == "launch_failed" or b.get("id", "") == "mission_report")
+	else:
+		story.beats = all_beats.filter(func(b): return b.get("only_if", "") != "launch_failed")
 	if campaign != null and not campaign.completed.has(mission_id):
 		story.index = clampi(int(campaign.beats.get(str(mission_id), 0)), 0, story.beats.size() - 1)
 	decision_done = false
@@ -189,23 +199,26 @@ func _complete_beat() -> void:
 		_open_activity(beat.decision)
 		return
 	var checkpoint: String = beat.get("checkpoint", "")
-	if checkpoint == "review" and not forest.review().approved:
-		stage_success = false
-		_show_report()
-		return
 	if checkpoint == "launch":
 		if not checklist_done:
 			_open_activity("checklist")
 			return
-		var launch_result := forest.launch()
+		forest.launch()
 		_save_story_progress()
-		if not launch_result.success:
-			stage_success = false
-			_show_report()
-			return
 	if checkpoint == "report":
-		stage_success = forest.report().ending in ["E1", "E2"]
+		stage_success = true   # reaching the report always counts; the report explains any mistakes
 	var result := story.complete()
+	# The review is a warning, never a wall: red checks are named, then the team can still launch.
+	if checkpoint == "review":
+		var review := forest.review()
+		if review.approved:
+			result.dialogue.append(["nova", "Stamp: APPROVED FOR LAUNCH."])
+		else:
+			result.dialogue.append(["nova", "Some checks are red: " + str(review.problems[0]) + "."])
+			result.dialogue.append(["nova", "We can still launch. But expect trouble, and we will learn from it."])
+	if checkpoint == "launch" and not forest.state.launch_success:
+		result.dialogue.append(["kai", "We have lost the vehicle."])
+		result.dialogue.append(["nova", "Launch is hard. Let's see what we can learn."])
 	decision_done = false
 	checklist_done = false
 	_save_story_progress()
@@ -293,11 +306,21 @@ func _next_line() -> void:
 	var speaker_id: String = player.id if line[0] == "you" else line[0]
 	var idx := CrewRoster.index_of(speaker_id)
 	var speaker_name: String = CrewRoster.speaker_name(speaker_id)
-	var portrait: Texture2D = load(CrewRoster.portrait_path(speaker_id)) if idx >= 0 else null
+	var portrait: Texture2D = load(CrewRoster.portrait_path(speaker_id)) if idx >= 0 else _cast_portrait(speaker_id)
 	hud.show_line(speaker_name, portrait, line[1])
 	if idx >= 0:
 		characters[idx].say("...", 1.2)
 	scenery.play("station_near")
+
+## Speakers who are not crew (Minister Hamdan) use the face from their broadcast cast art.
+func _cast_portrait(speaker_id: String) -> Texture2D:
+	var path := "res://assets/briefing/cast_%s.png" % speaker_id
+	if not ResourceLoader.exists(path):
+		return null
+	var face := AtlasTexture.new()
+	face.atlas = load(path)
+	face.region = Rect2(6, 2, 84, 84)   # head and shoulders from the first (neutral) frame
+	return face
 
 func _advance_dialogue() -> void:
 	if not hud.line_finished():
@@ -325,7 +348,7 @@ func _start_ending() -> void:
 	if mission_id == 2:
 		_show_report()
 		return
-	var message := "DESIGN COMPLETE" if mission_id == 0 else "SIGNAL ACQUIRED!"
+	var message := "DESIGN COMPLETE" if mission_id == 0 else ("SIGNAL ACQUIRED!" if forest.state.launch_success else "LAUNCH LOST")
 	if not mission_recorded and campaign != null:
 		message = "SAVE FAILED - ENTER TO RETRY"
 	hud.show_card("BORNEO FOREST WATCH", message, "ENTER: mission select / Next: " + ("Review & Launch" if mission_id == 0 else "Operations & Report"))
@@ -376,6 +399,7 @@ func _control(i: int) -> void:
 		player.is_player = false
 		player.busy = false
 		player.speed_scale = 1.0
+	view_index = -1
 	player_index = i
 	player = characters[i]
 	player.is_player = true
@@ -389,8 +413,9 @@ func _control(i: int) -> void:
 
 func switch_to(i: int) -> void:
 	if campaign != null and campaign.locked():
-		if i != player_index and phase == Phase.PLAYING:
-			player.say("Crew locked: %d / 3 missions complete." % campaign.completed.size(), 2.5)
+		# The role stays locked, but the camera may look at the others (view only).
+		if phase == Phase.PLAYING and i >= 0 and i < characters.size():
+			_view_crewmate(-1 if i == player_index else i)
 		return
 	if phase != Phase.PLAYING or i == player_index or i < 0 or i >= characters.size():
 		return
@@ -418,7 +443,10 @@ func _process(delta: float) -> void:
 			if characters[i] != player:
 				ais[i].update(delta)
 	doors.update_doors(delta, characters)
-	camera.position = (map.rocket_pos if phase == Phase.ENDING and mission_id == 1 and stage_success else player.position).round()
+	if phase != Phase.PLAYING and view_index >= 0:
+		_view_crewmate(-1)
+	var camera_target: Vector2 = characters[view_index].position if view_index >= 0 else player.position
+	camera.position = (map.rocket_pos if phase == Phase.ENDING and mission_id == 1 and stage_success else camera_target).round()
 	tint.color = _tint_for(minutes)
 	lights.set_darkness(clampf((1.0 - tint.color.v) * 2.4, 0.0, 1.0))
 	_update_hud()
@@ -448,7 +476,19 @@ func _update_player(delta: float) -> void:
 	if not hold.is_empty():
 		_update_hold(delta, dir, _use_key_held())
 		return
+	if dir != Vector2.ZERO and view_index >= 0:
+		_view_crewmate(-1)   # moving brings the camera back to your own crewmate
 	player.walk(dir, delta)
+
+## View-only look at another crewmate in another room. -1 returns to your own view.
+func _view_crewmate(i: int) -> void:
+	view_index = i
+	if i < 0:
+		hud.show_view_banner("")
+		return
+	var who: Dictionary = characters[i].info
+	hud.show_view_banner("VIEWING %s (VIEW ONLY)" % who.name)
+	scenery.play("station_near")
 
 func _use_key_held() -> bool:
 	return Input.is_key_pressed(KEY_E) or Input.is_key_pressed(KEY_SPACE) or Input.is_key_pressed(KEY_ENTER)
@@ -512,10 +552,10 @@ func _tint_for(m: float) -> Color:
 func _update_hud() -> void:
 	var gauges: String
 	match player_index:
-		0: gauges = "PLAN / %.2f / 2.50 M / %.0f / 24 MONTHS" % [forest.state.cost_m, forest.state.months]
-		1: gauges = "BUS / %.1f / %.1f KG / %.0f / %.0f W / %.0f WH" % [forest.state.mass_kg, forest.state.mass_limit_kg, forest.state.power_w, forest.state.solar_w, forest.state.battery_wh]
-		2: gauges = "SCIENCE / IMAGER %s / SARAWAK %s / THERMAL %s" % ["YES" if forest.state.imager else "NO", "YES" if forest.state.sarawak else "NO", "YES" if forest.state.thermal else "NO"]
-		_: gauges = "LINK / %.0f%% DATA / %s-BAND / BACKUP %s" % [forest.state.data_pct, forest.state.radio, "YES" if forest.state.backup_station else "NO"]
+		0: gauges = "MONEY %.2f of 2.5M  TIME %.0f of 24 months" % [forest.state.cost_m + forest.state.reserve_m, forest.state.months]
+		1: gauges = "WEIGHT %.1f of %.0fkg  POWER %.0f of %.0fW  BATTERY %.0fWh" % [forest.state.mass_kg, forest.state.mass_limit_kg, forest.state.power_w, forest.state.solar_w, forest.state.battery_wh]
+		2: gauges = "CAMERA %s  SARAWAK %s  HEAT CAMERA %s" % ["YES" if forest.state.imager else "NO", "YES" if forest.state.sarawak else "NO", "YES" if forest.state.thermal else "NO"]
+		_: gauges = "PHOTOS HOME %.0f%%  RADIO %s-BAND  BACKUP DISH %s" % [forest.state.data_pct, forest.state.radio, "YES" if forest.state.backup_station else "NO"]
 	hud.show_mission_gauges(gauges)
 	var healths: Array = []
 	for s in stats:
@@ -703,7 +743,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				if hold.is_empty():
 					interact()
 			elif key == KEY_TAB:
-				switch_to(posmod(player_index + (-1 if event.shift_pressed else 1), characters.size()))
+				var current := view_index if view_index >= 0 else player_index
+				switch_to(posmod(current + (-1 if event.shift_pressed else 1), characters.size()))
 			elif key >= KEY_1 and key <= KEY_4:
 				switch_to(key - KEY_1)
 			elif key == KEY_N:
@@ -745,3 +786,13 @@ func _on_step(surface: String, at: Vector2, member: CrewMember) -> void:
 	scenery.puff(at)
 	if member == player:
 		scenery.step(surface)
+
+func _on_help_button() -> void:
+	if phase in [Phase.PLAYING, Phase.DIALOGUE, Phase.PAUSED] and not is_instance_valid(activity):
+		_toggle_pause()
+
+## EXIT button: finished steps are already saved, so just go back to mission select.
+func _exit_to_menu() -> void:
+	if campaign != null:
+		_save_story_progress()
+	get_tree().change_scene_to_file("res://scenes/menu.tscn")

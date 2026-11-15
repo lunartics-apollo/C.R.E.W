@@ -106,7 +106,7 @@ func _flush(world) -> void:
 func test_switching_and_gates() -> void:
 	var world = await _new_world()
 	check(world.phase == world.Phase.PLAYING, "intro dialogue flows into play")
-	check(world.player.id == "nova", "chapter starts as Nova")
+	check(world.player.id == "nova", "chapter starts as Aisyah (Planner)")
 	world.switch_to(1)
 	check(world.player.id == "orion", "1-4 switches crew")
 	check(not world.characters[0].is_player, "previous crewmate goes back to AI")
@@ -124,7 +124,7 @@ func test_switching_and_gates() -> void:
 	world.switch_to(0)
 	world.player.position = world.map.spots["plot_trajectory"].pos
 	world.interact()
-	check(not world.hold.is_empty(), "Nadia starts the planning activity")
+	check(not world.hold.is_empty(), "Aisyah starts the planning activity")
 	world._update_hold(10, Vector2.ZERO, true)
 	check(world.phase == world.Phase.ACTIVITY, "work opens a real decision activity")
 
@@ -142,6 +142,27 @@ func test_needs_and_fainting() -> void:
 	for i in 30:
 		world._update_hold(0.1, Vector2.ZERO, true)
 	check(s.energy > 50.0, "coffee restores energy")
+	# Coffee gives the most energy but little food; vending machines give a balance of both.
+	s.energy = 20.0
+	s.food = 20.0
+	var coffee: Dictionary = world.map.spots["coffee_machine"].effects
+	for n in 3:
+		var vend: Dictionary = world.map.spots["vending_machine_%d" % (n + 1)].effects
+		assert(coffee.energy > vend.energy and coffee.food < vend.food and vend.food > 0)
+	world.player.position = world.map.spots["vending_machine_3"].pos
+	check(world.interaction_near().get("target", "") == "vending_machine_3", "vending machine is offered")
+	world.interact()
+	for i in 30:
+		world._update_hold(0.1, Vector2.ZERO, true)
+	check(s.energy >= 49.0 and s.food >= 44.0, "vending machine restores both energy and food")
+	# A nap in the Crew Quarters restores health as well as energy.
+	s.health = 20.0
+	s.energy = 20.0
+	world.player.position = world.map.spots["bunk"].pos
+	world.interact()
+	for i in 80:
+		world._update_hold(0.1, Vector2.ZERO, true)
+	check(s.health >= 55.0 and s.energy >= 85.0, "napping in the bunk restores health and energy")
 	world.player.position = world.map.spots["food_counter"].pos
 	s.food = 10.0
 	world.interact()

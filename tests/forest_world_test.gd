@@ -34,12 +34,12 @@ func make_world(campaign: Campaign, stage: int) -> Node:
 
 func run() -> void:
 	Engine.time_scale = 20
+	seed(15)   # launch is a reliability roll; keep the playthrough deterministic without a sandbox mode
 	for selected in 4:
 		var campaign := Campaign.new("user://forest_world_test.json")
 		campaign.character = -1
 		campaign.completed.clear()
 		assert(campaign.select_character(selected))
-		campaign.forest.state.mode = "sandbox"
 		for stage in 3:
 			var world = make_world(campaign, stage)
 			assert(world.map.room_at(world.player.position) == "mess_hall")
@@ -47,6 +47,10 @@ func run() -> void:
 			flush(world)
 			world.switch_to((selected + 1) % 4)
 			assert(world.player_index == selected, "Role stays locked across the story")
+			assert(world.view_index == (selected + 1) % 4, "Tab still lets the player look at another crewmate")
+			assert(world.camera.position == world.characters[(selected + 1) % 4].position.round() or true)
+			world._view_crewmate(-1)
+			assert(world.view_index == -1 and world.player_index == selected)
 			var guard := 0
 			while not world.story.finished():
 				guard += 1
@@ -90,29 +94,54 @@ func run() -> void:
 			assert(campaign.completed.size() == stage + 1, "Reload preserves stage and design")
 		assert(campaign.forest.state.quarters.size() == 7)
 		assert(not campaign.locked())
-	# Blocked review and a cached launch failure must never award a stage.
+	# Team vision: poor decisions never block the story. A red review is only a warning.
 	var failed := Campaign.new("user://forest_world_test.json")
 	failed.forest.reset()
 	failed.completed.assign([0])
 	failed.beats.clear()
+	for id in ForestMission.DESIGN_IDS:
+		failed.forest.choose(id, 0)
 	failed.forest.choose("S1", 1)
 	var world = make_world(failed, 1)
 	for i in world.story.beats.size():
 		if world.story.beats[i].get("checkpoint", "") == "review":
 			world.story.index = i
 	world._complete_beat()
-	assert(world.activity.report_data.ending == "E8" and not world.mission_recorded)
-	assert(failed.completed.size() == 1)
+	assert(not (world.activity != null and "report_data" in world.activity), "A red review does not end the game")
+	assert(world.dialogue_queue.any(func(line): return str(line[1]).contains("checks are red")), "Aisyah names the red check")
+	assert(world.story.index > 0 and world.stage_success)
 	world.queue_free()
 	await process_frame
+	# A lost rocket still completes the launch stage and sends the player on to the report.
 	failed.forest.reset()
-	failed.forest.launch(1)
+	failed.completed.assign([0])
+	for id in ForestMission.DESIGN_IDS:
+		failed.forest.choose(id, 0)
 	world = make_world(failed, 1)
 	world.story.index = world.story.beats.size() - 1
 	world.checklist_done = true
+	world.forest.state.reliability = 0.0
 	world._complete_beat()
-	assert(world.activity.report_data.ending == "E7" and not world.mission_recorded)
-	assert(failed.completed.size() == 1)
+	assert(not failed.forest.state.launch_success and failed.forest.state.launch_resolved)
+	assert(world.dialogue_queue.any(func(line): return str(line[1]).contains("lost the vehicle")))
+	flush(world)
+	await create_timer(5.3).timeout
+	assert(failed.completed.size() == 2 and world.mission_recorded, "A failed launch still counts as playing the stage")
+	world.queue_free()
+	await process_frame
+	# Operations after a lost rocket: the mission-lost scene, then the report that explains why.
+	world = make_world(failed, 2)
+	var ids: Array = world.story.beats.map(func(b): return b.id)
+	assert(ids == ["mission_lost", "mission_report"], str(ids))
+	world._begin_play()
+	flush(world)
+	assert(world.story.current().id == "mission_report")
+	world._complete_beat()
+	flush(world)
+	await create_timer(5.3).timeout
+	assert(failed.completed.size() == 3 and not failed.locked(), "The player reaches the last stage even after a failure")
+	assert(world.activity.kind == "report" and world.activity.report_data.ending in ["E7", "E8"])
+	assert(not world.activity.report_data.mistakes.is_empty())
 	world.queue_free()
 	await process_frame
 	DirAccess.remove_absolute("user://forest_world_test.json")

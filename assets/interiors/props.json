@@ -507,7 +507,8 @@
     "offset": [
       -11.0,
       -44
-    ]
+    ],
+    "source_spot": "vending_machine_1"
   },
   {
     "name": "Interior19",
@@ -525,7 +526,8 @@
     "offset": [
       -11.0,
       -44
-    ]
+    ],
+    "source_spot": "vending_machine_2"
   },
   {
     "name": "Interior20",
@@ -543,7 +545,8 @@
     "offset": [
       -11.0,
       -44
-    ]
+    ],
+    "source_spot": "vending_machine_3"
   },
   {
     "name": "Interior21",

@@ -312,9 +312,11 @@ func _change_mission(direction: int) -> void:
 	var progress: Campaign = world.campaign
 	var locked := selected_mission > 0 and (not progress.completed.has(selected_mission - 1) or not progress.locked())
 	if selected_mission == 1 and progress.forest.state.launch_resolved:
-		locked = not progress.forest.state.launch_success or progress.completed.has(1)
+		locked = progress.completed.has(1)
 	play_button.disabled = locked
-	play_button.text = 'NEW PROJECT' if selected_mission == 0 and progress.forest.state.launch_resolved else 'LET EXPLORE'
+	# Saved progress resumes automatically; say so on the button.
+	var has_progress: bool = progress.character >= 0 and (progress.completed.size() > 0 or int(progress.beats.get(str(selected_mission), 0)) > 0)
+	play_button.text = 'NEW PROJECT' if selected_mission == 0 and progress.forest.state.launch_resolved else ('CONTINUE' if has_progress and not progress.completed.has(selected_mission) else 'START')
 	if selected_mission == 0 and progress.completed.has(0) and not progress.forest.state.launch_resolved:
 		play_button.text = 'REVISE DESIGN'
 	get_node('MissionStatus').text = 'LOCKED' if locked else ('DONE' if progress.completed.has(selected_mission) else 'READY')
@@ -579,9 +581,9 @@ func _build_options_panel() -> void:
 	mode.add_theme_font_size_override('font_size', 9)
 	mode.text = 'MODE: ' + world.campaign.forest.state.mode.to_upper()
 	mode.pressed.connect(func():
-		var modes := ['cadet', 'engineer', 'sandbox']
+		var modes := ['cadet', 'engineer']
 		var previous: String = world.campaign.forest.state.mode
-		world.campaign.forest.state.mode = modes[posmod(modes.find(previous) + 1, 3)]
+		world.campaign.forest.state.mode = modes[posmod(modes.find(previous) + 1, modes.size())]
 		if not world.campaign.save():
 			world.campaign.forest.state.mode = previous
 		mode.text = 'MODE: ' + world.campaign.forest.state.mode.to_upper()

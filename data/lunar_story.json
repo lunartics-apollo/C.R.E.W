@@ -31,7 +31,7 @@
     ],
     [
       0,
-      "2.5 million, ready in 24 months. We decide together."
+      "2.5 million, ready in 24 months. Work alone, launch together."
     ]
   ],
   "chatter": {
@@ -61,24 +61,24 @@
       },
       "dialogue": [
         [
-          "aisyah",
-          "Now it all has to fit together. Three conflict cards, one team."
+          "nova",
+          "Now it all has to fit together. I'll take it from here."
         ],
         [
           "nova",
-          "We can change the plan. Nobody has to defend a mistake."
+          "Three conflict cards. We can change the plan. Nobody has to defend a mistake."
         ]
       ],
       "positions": {
         "nova": "mission_control",
-        "orion": "mission_control",
-        "juno": "mission_control",
-        "kai": "mission_control"
+        "orion": "assemble_panels",
+        "juno": "calibrate_camera",
+        "kai": "align_antenna"
       }
     },
     {
       "id": "r1",
-      "objective": "Resolve the power and science conflict",
+      "objective": "Aisyah: resolve the power and science conflict",
       "trigger": {
         "type": "use",
         "spot": "plot_trajectory",
@@ -86,62 +86,20 @@
       },
       "dialogue": [
         [
-          "orion",
+          "nova",
           "An instrument can be useful and still need more power than we have."
         ],
         [
-          "juno",
-          "Let's compare the science gain with the eclipse load."
+          "nova",
+          "I'll compare the science gain with the eclipse load."
         ]
       ],
-      "actor": "orion",
+      "actor": "nova",
       "decision": "R1"
     },
     {
       "id": "r2",
-      "objective": "Resolve the mass and communications conflict",
-      "trigger": {
-        "type": "use",
-        "spot": "upload_flight_plan",
-        "hold": 2.0
-      },
-      "dialogue": [
-        [
-          "kai",
-          "More radio capacity can consume our mass margin."
-        ],
-        [
-          "jabu",
-          "Fix the clash on paper before it becomes hardware."
-        ]
-      ],
-      "actor": "kai",
-      "decision": "R2"
-    },
-    {
-      "id": "r3",
-      "objective": "Resolve the orbit and science conflict",
-      "trigger": {
-        "type": "use",
-        "spot": "plot_trajectory",
-        "hold": 2.0
-      },
-      "dialogue": [
-        [
-          "juno",
-          "The orbit we want and the orbit we can buy may differ."
-        ],
-        [
-          "aisyah",
-          "Find a workable compromise. Check cost and data as well."
-        ]
-      ],
-      "actor": "juno",
-      "decision": "R3"
-    },
-    {
-      "id": "p4",
-      "objective": "Nadia: set the mission priority",
+      "objective": "Aisyah: fix the mass and comms clash",
       "trigger": {
         "type": "use",
         "spot": "upload_flight_plan",
@@ -150,15 +108,53 @@
       "dialogue": [
         [
           "nova",
-          "Science, safety or cost. Which gets the deciding token?"
+          "More radio capacity can consume our mass margin."
         ],
         [
-          "aisyah",
+          "nova",
+          "Fix the clash on paper before it becomes hardware."
+        ]
+      ],
+      "actor": "nova",
+      "decision": "R2"
+    },
+    {
+      "id": "r3",
+      "objective": "Aisyah: fix the orbit and science clash",
+      "trigger": {
+        "type": "use",
+        "spot": "plot_trajectory",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "nova",
+          "The orbit we want and the orbit we can buy may differ."
+        ],
+        [
+          "nova",
+          "Science asks for a second imager. I decide that here, in Mission Control."
+        ]
+      ],
+      "actor": "nova",
+      "decision": "R3"
+    },
+    {
+      "id": "p4",
+      "objective": "Aisyah: set the mission priority",
+      "trigger": {
+        "type": "use",
+        "spot": "upload_flight_plan",
+        "hold": 2.0
+      },
+      "dialogue": [
+        [
+          "nova",
+          "Science, safety or cost. I place the token."
+        ],
+        [
+          "nova",
           "No wrong answer. Just a different mission."
-        ],
-        [
-          "siti",
-          "A second imager is a request, not a requirement. Check the whole mission first."
         ]
       ],
       "actor": "nova",
@@ -166,7 +162,7 @@
     },
     {
       "id": "integration_verdict",
-      "objective": "Submit the integrated plan for review",
+      "objective": "Aisyah: submit the integrated plan for review",
       "trigger": {
         "type": "use",
         "spot": "upload_flight_plan",
@@ -174,16 +170,16 @@
       },
       "dialogue": [
         [
-          "aisyah",
+          "nova",
           "We check the imager, Sarawak coverage and 70% data return."
         ],
         [
-          "aisyah",
+          "nova",
           "Then two-year life, budget, mass and the 24-month schedule."
         ],
         [
-          "aisyah",
-          "If a requirement needs work, we name the problem and revise together."
+          "nova",
+          "If a check is red, I name it. We can still launch. But a red check can cause trouble."
         ]
       ],
       "actor": "nova",
@@ -191,7 +187,7 @@
     },
     {
       "id": "p5",
-      "objective": "Nadia: choose Go or Hold",
+      "objective": "Everyone: choose Go or Hold",
       "trigger": {
         "type": "use",
         "spot": "launch_console",
@@ -199,24 +195,43 @@
       },
       "dialogue": [
         [
-          "aisyah",
-          "Mission Control? Go, or hold one month to improve the weakest point."
-        ],
-        [
           "nova",
-          "Before launch: power, battery, antenna, instruments, mass, orbit, budget, schedule."
+          "Time to work as one team. Hangar?"
         ],
         [
           "orion",
-          "Amber means close to a limit. We read every item."
+          "Go."
+        ],
+        [
+          "nova",
+          "Ground Station?"
+        ],
+        [
+          "kai",
+          "Go."
+        ],
+        [
+          "nova",
+          "Science Lab?"
+        ],
+        [
+          "juno",
+          "Go."
+        ],
+        [
+          "nova",
+          "And Mission Control is go. Before launch: power, battery, antenna, instruments, mass, orbit, budget, schedule."
+        ],
+        [
+          "orion",
+          "Amber means close to a limit. Any of us can step in to help fix an amber item."
         ]
       ],
-      "actor": "nova",
       "decision": "P5"
     },
     {
       "id": "forest_launch",
-      "objective": "Confirm the countdown at Mission Control",
+      "objective": "Everyone: confirm the countdown",
       "trigger": {
         "type": "use",
         "spot": "launch_console",
@@ -224,19 +239,18 @@
       },
       "dialogue": [
         [
-          "aisyah",
-          "Mission Control? All roles, confirm Go."
+          "nova",
+          "All roles, confirm Go."
         ],
         [
           "nova",
           "The countdown begins. Reliability gives us odds, never a promise."
         ],
         [
-          "aisyah",
+          "nova",
           "Whatever happens, we will learn from it together."
         ]
       ],
-      "actor": "nova",
       "positions": {
         "orion": "mission_control",
         "juno": "mission_control",

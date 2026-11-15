@@ -32,7 +32,7 @@ func run() -> void:
 	var mode_only = script.new("user://campaign_test.json")
 	assert(mode_only.forest.state.mode == "engineer", "Difficulty persists before role selection")
 	var invalid := FileAccess.open("user://campaign_test.json", FileAccess.WRITE)
-	invalid.store_string('{"story_version":2,"character":1,"completed":[0,0,2,"1",99,-1]}')
+	invalid.store_string('{"story_version":3,"character":1,"completed":[0,0,2,"1",99,-1]}')
 	invalid.close()
 	var validated = script.new("user://campaign_test.json")
 	assert(validated.completed.size() == 2 and validated.locked())

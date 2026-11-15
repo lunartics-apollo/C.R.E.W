@@ -176,7 +176,7 @@ func _available() -> bool:
 		return true
 	if campaign == null or not campaign.locked() or not campaign.completed.has(stage - 1):
 		return false
-	return stage != 1 or not campaign.forest.state.launch_resolved or (campaign.forest.state.launch_success and not campaign.completed.has(1))
+	return stage != 1 or not campaign.forest.state.launch_resolved or not campaign.completed.has(1)
 
 func _new_project() -> bool:
 	return kind != "report" and stage == 0 and campaign != null and campaign.forest.state.launch_resolved
@@ -184,6 +184,9 @@ func _new_project() -> bool:
 func _load_stage(full_replay: bool) -> void:
 	stage_data = data.stages[stage]
 	segments = stage_data.segments.duplicate(true)
+	# If the rocket was lost there is no satellite to operate, so Operations starts with the bad news.
+	if stage == 2 and kind != "report" and campaign != null and campaign.forest.state.launch_resolved and not campaign.forest.state.launch_success and stage_data.has("lost_segments"):
+		segments = stage_data.lost_segments.duplicate(true)
 	if kind == "report":
 		var metadata: Dictionary = data.endings.get(report_data.ending, {})
 		segments = [
