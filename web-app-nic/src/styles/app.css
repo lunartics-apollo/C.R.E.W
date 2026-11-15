@@ -575,3 +575,15 @@ body,
     box-shadow: none !important;
   }
 }
+
+/* key cap in use-prompts, like the Godot game's E key */
+.key-cap {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 0 0.3em;
+  text-align: center;
+  color: #2a2230;
+  background: #fff4dc;
+  border: 2px solid #1c1622;
+  box-shadow: 0 2px 0 #1c1622;
+}

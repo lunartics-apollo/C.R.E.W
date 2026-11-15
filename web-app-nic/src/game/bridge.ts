@@ -13,6 +13,7 @@ type Events = {
   launchDone: undefined;
   hubNear: string | null;
   hubTry: { id: string; ok: boolean };
+  hubRoom: string;
 };
 
 type Handler<T> = (payload: T) => void;
@@ -21,6 +22,10 @@ const listeners = new Map<keyof Events, Set<Handler<never>>>();
 export const bridge = {
   game: null as Phaser.Game | null,
   hangarHover: null as Subsystem | null,
+  /** Cadet position on the station map (base map pixels), read by the minimap. */
+  playerPos: null as { x: number; y: number } | null,
+  /** Set by the station scene: walk (with pathfinding) to a map point, e.g. from a minimap click. */
+  walkTo: null as ((x: number, y: number) => void) | null,
 
   on<K extends keyof Events>(name: K, fn: Handler<Events[K]>): () => void {
     let set = listeners.get(name);

@@ -72,7 +72,7 @@ export function TopBar({ phaseKey, right }: { phaseKey: string; right?: ReactNod
       </CButton>
       {p && p.phase !== 'intro' && (
         <CButton size="sm" variant="ghost" onClick={() => useStore.getState().setHub(true)} title={t('hub.walk')}>
-          ⌂ {t('hub.station')}
+          ⌂ {t('hub.title')}
         </CButton>
       )}
       <h1 className="font-pixel text-sm text-cyan sm:text-base">{t(phaseKey)}</h1>
