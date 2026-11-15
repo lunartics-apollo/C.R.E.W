@@ -79,6 +79,7 @@ export class StationScene extends Phaser.Scene {
   private roomId = '';
   private facing: Facing = 'down';
   private arrow: Phaser.GameObjects.Image | null = null;
+  private edgeArrow!: Phaser.GameObjects.Image;
   private brackets!: Phaser.GameObjects.Graphics;
   private doors: Door[] = [];
   private npcs: Npc[] = [];
@@ -152,6 +153,8 @@ export class StationScene extends Phaser.Scene {
 
     this.brackets = this.add.graphics().setDepth(9000);
     this.drawArrow(target);
+    // The second arrow: sits on the screen edge and points toward the objective when it is off-screen.
+    this.edgeArrow = this.add.image(0, 0, 'st-arrow').setScrollFactor(0).setDepth(9100).setVisible(false);
     this.buildNight();
     if (!this.reduced) this.hornbill();
 
@@ -379,6 +382,34 @@ export class StationScene extends Phaser.Scene {
     this.arrow = a;
   }
 
+  /** Same as the Godot HUD's off-screen objective arrow: on the screen edge, pointing at the objective, blinking. */
+  private updateEdgeArrow(target: Spot | null, time: number) {
+    const view = this.cameras.main.worldView;
+    if (!target) {
+      this.edgeArrow.setVisible(false);
+      return;
+    }
+    const sx = target.pos.x - view.x;
+    const sy = target.pos.y - view.y;
+    if (sx >= 16 && sx <= 464 && sy >= 16 && sy <= 254) {
+      this.edgeArrow.setVisible(false);
+      return;
+    }
+    const cx = 240;
+    const cy = 144;
+    const len = Math.hypot(sx - cx, sy - cy) || 1;
+    const dx = (sx - cx) / len;
+    const dy = (sy - cy) / len;
+    // Keep the arrow inside the band between the top and bottom HUD.
+    const area = { x0: 10, y0: 74, x1: 470, y1: 232 };
+    let tt = Infinity;
+    if (dx !== 0) tt = Math.min(tt, ((dx > 0 ? area.x1 : area.x0) - cx) / dx);
+    if (dy !== 0) tt = Math.min(tt, ((dy > 0 ? area.y1 : area.y0) - cy) / dy);
+    this.edgeArrow.setPosition(Math.round(cx + dx * tt), Math.round(cy + dy * tt));
+    this.edgeArrow.setRotation(Math.atan2(dy, dx) - Math.PI / 2);
+    this.edgeArrow.setVisible(Math.floor(time / 350) % 4 !== 0);
+  }
+
   /** Corner brackets round whatever is in reach: gold = the story needs it, white = optional. */
   private drawBrackets(spot: Spot | null, story: boolean, time: number) {
     const g = this.brackets;
@@ -475,6 +506,7 @@ export class StationScene extends Phaser.Scene {
     }
     const objective = map.spotForPhase(useStore.getState().progress?.phase);
     this.drawBrackets(this.near, this.near?.id === objective?.id, time);
+    this.updateEdgeArrow(objective, time);
 
     const pressed = this.useRequested;
     this.useRequested = false;
