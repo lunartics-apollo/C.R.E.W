@@ -21,7 +21,7 @@ python -m http.server 8000
 It is a static site: upload this folder as it is. On Vercel, run `npx vercel` from this folder (Framework: Other, no build command, output directory `.`). On GitHub Pages, serve the folder root.
 
 ## The pitch video
-The Trailer section plays `assets/video/crew-pitch-v3.mp4` (30 s, H.264 + AAC, about 35 MB) when you click the poster. It loads only on click. To swap the video, replace that file, or change `data-video-src` in `index.html`.
+The Trailer section plays `assets/video/crew-pitch-v3.webm` (about 14 MB) when you click the poster. It loads only on click. To swap the video, replace that file, or change `data-video-src` in `index.html`.
 
 If there is no `data-video-src`, the section falls back to a Google Drive preview: put the file ID (the part between `/d/` and `/view` in the share link) into `data-drive-id`.
 

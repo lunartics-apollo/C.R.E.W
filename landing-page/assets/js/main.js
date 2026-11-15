@@ -230,7 +230,7 @@
   }
 
   /* =========================================================
-     Video — click-to-load. Plays assets/video/crew-pitch-v3.mp4 (data-video-src);
+     Video — click-to-load. Plays assets/video/crew-pitch-v3.webm (data-video-src);
      falls back to a Google Drive preview (data-drive-id) when there is no file.
      ========================================================= */
   const video = $(".video-wrap");
