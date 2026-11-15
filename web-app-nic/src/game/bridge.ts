@@ -24,6 +24,11 @@ export const bridge = {
   hangarHover: null as Subsystem | null,
   /** Cadet position on the station map (base map pixels), read by the minimap. */
   playerPos: null as { x: number; y: number } | null,
+  playerFacing: { x: 0, y: 1 },
+  /** The other crewmates wandering the station (for the minimap). */
+  crew: [] as { x: number; y: number; id: string }[],
+  /** Station clock: runs while you walk the station (2 game minutes per second), starts at 08:00 on day 1. */
+  clock: { day: 1, minutes: 480 },
   /** Set by the station scene: walk (with pathfinding) to a map point, e.g. from a minimap click. */
   walkTo: null as ((x: number, y: number) => void) | null,
 
