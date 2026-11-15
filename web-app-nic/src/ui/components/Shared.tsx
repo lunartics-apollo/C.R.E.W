@@ -3,7 +3,7 @@ import { useEffect, type ReactNode } from 'react';
 import { findingText, remedyText } from '../../i18n';
 import { sourceById } from '../../simulation/sources';
 import type { Finding } from '../../simulation/types';
-import { budgetFor, useStore, useT } from '../../state/store';
+import { budgetFor, useStore, useT, wantsStation } from '../../state/store';
 import { CButton, StatusChip } from './Controls';
 import { play } from '../../audio/sfx';
 
@@ -70,7 +70,7 @@ export function TopBar({ phaseKey, right }: { phaseKey: string; right?: ReactNod
       <CButton size="sm" variant="ghost" onClick={() => window.dispatchEvent(new CustomEvent('bs:menu'))}>
         ☰ {t('common.menu')}
       </CButton>
-      {p && p.phase !== 'intro' && (
+      {p && wantsStation(p.phase) && (
         <CButton size="sm" variant="ghost" onClick={() => useStore.getState().setHub(true)} title={t('hub.walk')}>
           ⌂ {t('hub.title')}
         </CButton>

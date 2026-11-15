@@ -3,7 +3,7 @@ export const enStory: Record<string, string> = {
   'dlg.tx.1': 'Selamat datai, cadet. I’m Director Jabu at the Sarawak Space Academy.',
   'dlg.tx.2': 'The Rajang researchers need observations from orbit. But before we can see Sarawak from space, we need a spacecraft that actually works.',
   'dlg.tx.3': 'You’ll design it, test it, launch it and fly it. When things go wrong — and they will — we find out why and fix it.',
-  'dlg.tx.4': 'First, pick your training mode.',
+  'dlg.tx.4': 'Now let me show you where we will be working. Look at the map.',
   'dlg.brief.1': 'Every mission starts with a question. Choose what we want to learn about the Rajang — that choice will shape the whole spacecraft.',
   'dlg.brief.2': 'Notice the requirements are about data that reaches the GROUND. Pictures stuck in orbit don’t help anyone.',
   'dlg.hangar.1': 'Welcome to the workshop. This is a 3U chassis: three 10-centimetre cubes stacked together.',

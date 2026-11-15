@@ -185,10 +185,10 @@ export function IntroScreen() {
             )}
           </Panel>
           <div className="flex gap-2">
-            <CButton variant="ghost" onClick={() => goPhase('transmission')}>
+            <CButton variant="ghost" onClick={() => goPhase('briefing')}>
               {t('common.skip')}
             </CButton>
-            <CButton variant="primary" size="lg" disabled={!found} onClick={() => goPhase('transmission')} className="flex-1">
+            <CButton variant="primary" size="lg" disabled={!found} onClick={() => goPhase('briefing')} className="flex-1">
               {t('common.continue')} ▸
             </CButton>
           </div>
@@ -200,35 +200,23 @@ export function IntroScreen() {
 
 export function TransmissionScreen() {
   const t = useT();
-  const setChoices = useStore((s) => s.setChoices);
   const goPhase = useStore((s) => s.goPhase);
   const openModal = useStore((s) => s.openModal);
   const [ready, setReady] = useState(false);
-  const pick = (mode: 'guided' | 'engineer') => {
-    setChoices({ mode });
-    goPhase('briefing');
-  };
   return (
     <div className="ui-layer flex flex-col">
       <TopBar phaseKey="phase.transmission" />
       <div className="scroll-thin mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-4 overflow-y-auto p-3">
         <Commander scene="transmission" onDone={() => setReady(true)} />
         {ready ? (
-          <Panel title={t('tx.chooseMode')} className="rise-in">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <button type="button" className="part-card p-4 text-left" onClick={() => { play('click'); pick('guided'); }}>
-                <div className="font-pixel text-amber">{t('common.guided')}</div>
-                <p className="mt-1 text-sm text-muted">{t('tx.guidedDesc')}</p>
-              </button>
-              <button type="button" className="part-card p-4 text-left" onClick={() => { play('click'); pick('engineer'); }}>
-                <div className="font-pixel text-cyan">{t('common.engineer')}</div>
-                <p className="mt-1 text-sm text-muted">{t('tx.engineerDesc')}</p>
-              </button>
-            </div>
-            <CButton size="sm" variant="ghost" className="mt-3" onClick={() => openModal({ kind: 'quiz', which: 'pre' })}>
+          <div className="rise-in flex flex-wrap items-center justify-end gap-2">
+            <CButton size="sm" variant="ghost" onClick={() => openModal({ kind: 'quiz', which: 'pre' })}>
               ? {t('tx.quizTake')}
             </CButton>
-          </Panel>
+            <CButton variant="primary" size="lg" onClick={() => goPhase('intro')}>
+              {t('common.continue')} ▸
+            </CButton>
+          </div>
         ) : null}
       </div>
     </div>

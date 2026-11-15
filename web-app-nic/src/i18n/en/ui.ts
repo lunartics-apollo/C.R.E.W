@@ -52,8 +52,8 @@ export const enUi: Record<string, string> = {
   'common.sample': 'Sample',
   'common.empty': 'empty',
 
-  'phase.intro': '01 · Our Home: Sarawak',
-  'phase.transmission': '02 · Incoming Transmission',
+  'phase.intro': '02 · Our Home: Sarawak',
+  'phase.transmission': '01 · Incoming Transmission',
   'phase.briefing': '03 · Mission Briefing',
   'phase.hangar': '04 · Engineering Workshop',
   'phase.launchPlan': '06 · Launch & Orbit Planning',

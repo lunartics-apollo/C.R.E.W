@@ -52,8 +52,8 @@ export const msUi: Record<string, string> = {
   'common.sample': 'Contoh',
   'common.empty': 'kosong',
 
-  'phase.intro': '01 · Tanah Air Kita: Sarawak',
-  'phase.transmission': '02 · Transmisi Masuk',
+  'phase.intro': '02 · Tanah Air Kita: Sarawak',
+  'phase.transmission': '01 · Transmisi Masuk',
   'phase.briefing': '03 · Taklimat Misi',
   'phase.hangar': '04 · Bengkel Kejuruteraan',
   'phase.launchPlan': '06 · Perancangan Pelancaran & Orbit',

@@ -7,10 +7,11 @@ test('a fresh player can complete Mission Rajang without login', async ({ page }
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
   await page.goto('/');
   await page.getByRole('button', { name: /Start Mission/ }).click();
+  // Opening: the director talks first, then the Sarawak map, then the briefing (a single training mode).
+  await page.getByRole('button', { name: 'Skip' }).last().click();
+  await page.getByRole('button', { name: /^Continue/ }).click();
   await page.getByRole('button', { name: /Select Rajang River/ }).click();
   await page.getByRole('button', { name: /^Continue/ }).click();
-  await page.getByRole('button', { name: 'Skip' }).last().click();
-  await page.getByText('Guided Cadet').click();
   await page.getByRole('button', { name: /Accept mission/ }).click();
 
   // Build: compare builds -> load Balanced, add drag sail

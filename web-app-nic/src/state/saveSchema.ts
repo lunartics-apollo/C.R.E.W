@@ -18,7 +18,7 @@ export type Phase =
   | 'ops'
   | 'debrief';
 
-export const PHASE_ORDER: readonly Phase[] = ['intro', 'transmission', 'briefing', 'hangar', 'launchPlan', 'ground', 'testlab', 'mrr', 'launch', 'ops', 'debrief'];
+export const PHASE_ORDER: readonly Phase[] = ['transmission', 'intro', 'briefing', 'hangar', 'launchPlan', 'ground', 'testlab', 'mrr', 'launch', 'ops', 'debrief'];
 
 export type Locale = 'en' | 'ms';
 
@@ -109,7 +109,7 @@ export const EMPTY_LEARNING: LearningRecord = { objectivesSeen: [], conceptsOpen
 
 export function newProgress(choices: MissionChoices, seed = 2027): GameProgress {
   return {
-    phase: 'intro',
+    phase: 'transmission',
     choices,
     design: emptyDesign(),
     undo: [],
