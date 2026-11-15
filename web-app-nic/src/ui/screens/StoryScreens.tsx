@@ -162,32 +162,6 @@ export function SarawakMap({ onRiver, found, highlightZones, priority }: { onRiv
   );
 }
 
-export function IntroScreen() {
-  const t = useT();
-  const goPhase = useStore((s) => s.goPhase);
-  // There is only one river to study, so nothing to pick: the Rajang is already highlighted.
-  return (
-    <div className="ui-layer flex flex-col">
-      <TopBar phaseKey="phase.intro" />
-      <div className="scroll-thin grid flex-1 gap-3 overflow-y-auto p-3 lg:grid-cols-[1fr_360px]">
-        <Panel title={t('intro.title')} className="self-start">
-          <SarawakMap onRiver={() => undefined} found highlightZones />
-          <p className="mt-2 text-xs text-dim">{t('intro.mapNote')}</p>
-        </Panel>
-        <div className="flex flex-col gap-3">
-          <Panel title="01">
-            <p className="text-sm leading-relaxed">{t('intro.body')}</p>
-            <p className="mt-3 text-sm font-bold text-green">{t('intro.found')}</p>
-          </Panel>
-          <CButton variant="primary" size="lg" onClick={() => goPhase('briefing')}>
-            {t('common.continue')} ▸
-          </CButton>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function TransmissionScreen() {
   const t = useT();
   const goPhase = useStore((s) => s.goPhase);
@@ -196,8 +170,8 @@ export function TransmissionScreen() {
     <div className="ui-layer flex flex-col">
       <TopBar phaseKey="phase.transmission" />
       <div className="scroll-thin mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-4 overflow-y-auto p-3">
-        {/* The director's own Continue (on his last line) takes you to the Sarawak map: one button, no second one. */}
-        <Commander scene="transmission" onDone={() => goPhase('intro')} />
+        {/* The director's own Continue (on his last line) takes you to the team meeting: one button, no second one. */}
+        <Commander scene="transmission" onDone={() => goPhase('meeting')} />
         <div className="flex justify-end">
           <CButton size="sm" variant="ghost" onClick={() => openModal({ kind: 'quiz', which: 'pre' })}>
             ? {t('tx.quizTake')}

@@ -12,6 +12,8 @@ import type { Phase } from '../state/saveSchema';
 
 export function sceneForPhase(phase: Phase | 'menu'): 'sky' | 'hangar' | 'launch' | 'orbit' | 'station' {
   switch (phase) {
+    case 'meeting':
+      return 'station';
     case 'hangar':
     case 'testlab':
     case 'mrr':

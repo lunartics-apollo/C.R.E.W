@@ -1,9 +1,11 @@
 // Bahasa Melayu — dialog Pengarah Misi (draf; perlu semakan penutur asli).
 export const msStory: Record<string, string> = {
-  'dlg.tx.1': 'Selamat datai, kadet. Saya Pengarah Jabu di Akademi Angkasa Sarawak.',
-  'dlg.tx.2': 'Penyelidik Rajang memerlukan cerapan dari orbit. Tetapi sebelum kita boleh melihat Sarawak dari angkasa, kita perlukan kapal angkasa yang benar-benar berfungsi.',
-  'dlg.tx.3': 'Anda akan mereka, menguji, melancar dan menerbangkannya. Apabila sesuatu tidak kena — dan pasti akan berlaku — kita cari puncanya dan baikinya.',
-  'dlg.tx.4': 'Sekarang, saya tunjukkan tempat kita akan bekerja. Lihat peta ini.',
+  'dlg.tx.1': 'Selamat datai, kadet. Saya Premier Hamdan, Premier Sarawak.',
+  'dlg.tx.2': 'Sarawak merancang melancarkan satelit pertamanya menjelang 2030. Hari ini, kita bermula dengan kecil.',
+  'dlg.tx.3': 'Sebuah CubeSat. Sebesar kotak kasut.',
+  'dlg.tx.4': 'Penyelidik Rajang perlu melihat sungai itu dari orbit. Tetapi dahulu, kita perlukan kapal angkasa yang berfungsi.',
+  'dlg.tx.5': 'Anda akan mereka bentuk, menguji, melancarkan dan menerbangkannya. Apabila sesuatu tidak kena, cari puncanya, dan baiki.',
+  'dlg.tx.6': 'Sekarang pergi ke panel misi untuk butiran lanjut.',
   'dlg.brief.1': 'Setiap misi bermula dengan soalan. Pilih apa yang kita mahu tahu tentang Rajang — pilihan itu akan membentuk seluruh kapal angkasa.',
   'dlg.brief.2': 'Perhatikan keperluan ini tentang data yang sampai ke BUMI. Gambar yang tersekat di orbit tidak membantu sesiapa.',
   'dlg.hangar.1': 'Selamat datang ke bengkel. Ini casis 3U: tiga kiub 10 sentimeter yang disusun bersama.',

@@ -2,18 +2,24 @@
 export type Expression = 'neutral' | 'happy' | 'concerned' | 'surprised' | 'serious';
 export type Gesture = 'none' | 'point' | 'thumbs';
 
+/** Who is on the monitor. Premier Hamdan speaks only in the prologue; Director Jabu guides the rest of the game. */
+export type Speaker = 'hamdan' | 'jabu';
+
 export interface Line {
   readonly key: string;
+  readonly who?: Speaker;
   readonly expr: Expression;
   readonly gesture?: Gesture;
 }
 
 export const SCRIPT: Record<string, readonly Line[]> = {
   transmission: [
-    { key: 'dlg.tx.1', expr: 'happy' },
-    { key: 'dlg.tx.2', expr: 'serious', gesture: 'point' },
-    { key: 'dlg.tx.3', expr: 'neutral' },
-    { key: 'dlg.tx.4', expr: 'happy' },
+    { key: 'dlg.tx.1', who: 'hamdan', expr: 'happy' },
+    { key: 'dlg.tx.2', who: 'hamdan', expr: 'serious' },
+    { key: 'dlg.tx.3', who: 'hamdan', expr: 'neutral' },
+    { key: 'dlg.tx.4', who: 'hamdan', expr: 'neutral' },
+    { key: 'dlg.tx.5', who: 'hamdan', expr: 'serious' },
+    { key: 'dlg.tx.6', who: 'hamdan', expr: 'happy' },
   ],
   briefing: [
     { key: 'dlg.brief.1', expr: 'neutral', gesture: 'point' },

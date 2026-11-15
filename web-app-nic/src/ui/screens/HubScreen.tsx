@@ -75,6 +75,22 @@ export function HubScreen() {
           <div className="font-pixel text-[0.58rem] tracking-widest text-cyan">{t('hub.objective')}</div>
           <div className="mt-1 text-sm text-ink">{phase ? t(`hub.obj.${phase}`) : ''}</div>
         </div>
+        {phase === 'briefing' && (
+          <div className="panel px-3 py-2" aria-live="polite">
+            <div className="font-pixel text-[0.58rem] tracking-widest text-cyan">{t('hub.tut.title')}</div>
+            <ol className="mt-1 flex flex-col gap-1 text-sm">
+              {(['move', 'go', 'use'] as const).map((step) => {
+                const active = step === 'use' ? here : step === 'go' ? !here : !here && !room.startsWith('MISSION');
+                return (
+                  <li key={step} className={active ? 'text-yellow' : 'text-dim'}>
+                    {active ? '▸ ' : '· '}
+                    {t(`hub.tut.${step}`)}
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        )}
       </div>
 
       {/* top-right: menu */}

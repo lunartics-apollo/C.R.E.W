@@ -40,9 +40,7 @@ const rect = (a: readonly number[]): Rect => ({ x: a[0]!, y: a[1]!, w: a[2]!, h:
 const inRect = (r: Rect, p: Vec) => p.x >= r.x && p.y >= r.y && p.x < r.x + r.w && p.y < r.y + r.h;
 
 /** Where each chapter happens on the station: [spot id, short hint]. */
-export const PHASE_SPOT: Record<Exclude<Phase, 'menu'>, string> = {
-  intro: 'plot_trajectory',
-  transmission: 'plot_trajectory',
+export const PHASE_SPOT: Partial<Record<Phase, string>> = {
   briefing: 'plot_trajectory',
   hangar: 'assemble_panels',
   launchPlan: 'launch_console',
@@ -120,8 +118,8 @@ export class StationMap {
   }
 
   spotForPhase(phase: Phase | undefined): Spot | null {
-    if (!phase || phase === 'menu') return null;
-    return this.spots.get(PHASE_SPOT[phase]) ?? null;
+    const id = phase ? PHASE_SPOT[phase] : undefined;
+    return id ? (this.spots.get(id) ?? null) : null;
   }
 
   private cellBlocked(cx: number, cy: number): boolean {

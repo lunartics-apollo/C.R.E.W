@@ -32,6 +32,8 @@ interface Npc {
   wait: number;
   facing: Facing;
   rng: Phaser.Math.RandomDataGenerator;
+  /** Sitting at the meeting table: stays put until the meeting ends. */
+  hold: boolean;
 }
 
 const SHEETS: Record<string, { file: string; w: number; h: number; frames: number; fps: number }> = {
@@ -41,6 +43,13 @@ const SHEETS: Record<string, { file: string; w: number; h: number; frames: numbe
   rocket: { file: 'map/rocket_spritesheet.png', w: 44, h: 80, frames: 2, fps: 2 },
 };
 const CREW = ['orion', 'juno', 'kai'] as const;
+// Scene 2: the team meeting at the Mess Hall table (the Godot map's meeting table is at 778,758 64x44).
+const SEATS: Record<string, { x: number; y: number; face: Facing; flip: boolean }> = {
+  aisyah: { x: 810, y: 813, face: 'up', flip: false },
+  orion: { x: 760, y: 790, face: 'right', flip: false }, // Jabu
+  juno: { x: 862, y: 790, face: 'right', flip: true }, // Siti
+  kai: { x: 810, y: 752, face: 'down', flip: false }, // Ling
+};
 // Same table as the Godot world: hour -> tint colour, blended between neighbours.
 const NIGHT_TINT: [number, number][] = [
   [0, 0x4d5a8c],
@@ -86,6 +95,8 @@ export class StationScene extends Phaser.Scene {
   private tint!: Phaser.GameObjects.Rectangle;
   private nightLights: { img: Phaser.GameObjects.Image; base: number }[] = [];
   private reduced = false;
+  private meeting = false;
+  private unsubMeeting: (() => void) | null = null;
   private unsubStore: (() => void) | null = null;
   private useRequested = false;
   private onKeyDown = (e: KeyboardEvent) => {
@@ -116,6 +127,14 @@ export class StationScene extends Phaser.Scene {
     this.path = [];
     this.autoUse = null;
     this.roomId = '';
+    this.meeting = useStore.getState().progress?.phase === 'meeting';
+    if (this.meeting) {
+      // A new game: start the day at 08:00 with everyone where the story puts them.
+      bridge.clock.day = 1;
+      bridge.clock.minutes = 480;
+      bridge.crewSaved = {};
+      bridge.playerPos = null;
+    }
     this.doors = [];
     this.npcs = [];
     this.nightLights = [];
@@ -135,9 +154,11 @@ export class StationScene extends Phaser.Scene {
     // The cadet (Aisyah's sprite from the Godot game) starts in the main corridor.
     const target = map.spotForPhase(useStore.getState().progress?.phase);
     const saved = bridge.playerPos;
-    const start = saved && !map.isBlocked(saved) ? { ...saved } : { ...map.spawn };
+    const seat = SEATS['aisyah']!;
+    const start = this.meeting ? { x: seat.x, y: seat.y } : saved && !map.isBlocked(saved) ? { ...saved } : { ...map.spawn };
     this.shadow = this.add.ellipse(start.x, start.y, 14, 5, 0x000000, 0.3);
-    this.cadet = this.add.sprite(start.x, start.y, 'cadet', 0).setOrigin(0.5, 1);
+    this.cadet = this.add.sprite(start.x, start.y, 'cadet', this.meeting ? 5 : 0).setOrigin(0.5, 1);
+    if (this.meeting) this.facing = seat.face;
     for (const [dir, row] of Object.entries({ down: 0, up: 1, right: 2 })) {
       for (const sheet of ['cadet', ...CREW.map((c) => `crew-${c}`)]) {
         const key = `${sheet}-walk-${dir}`;
@@ -156,7 +177,16 @@ export class StationScene extends Phaser.Scene {
     // The second arrow: sits on the screen edge and points toward the objective when it is off-screen.
     this.edgeArrow = this.add.image(0, 0, 'st-arrow').setScrollFactor(0).setDepth(9100).setVisible(false);
     this.buildNight();
-    if (!this.reduced) this.hornbill();
+    if (!this.reduced && !this.meeting) this.hornbill();
+    // When the meeting dialogue ends, the crew leave the table for their own stations.
+    this.unsubMeeting = bridge.on('meetingEnd', () => {
+      for (const n of this.npcs) {
+        const room = stationMap().rooms.find((r) => r.id === layout.posts[n.id as keyof typeof layout.posts]);
+        n.hold = false;
+        n.wait = 4 + n.rng.frac() * 4;
+        if (room) n.path = stationMap().findPath({ x: n.sprite.x, y: n.sprite.y }, this.randomPoint(room.floorRect, n.rng));
+      }
+    });
 
     const kb = this.input.keyboard!;
     this.keys = kb.addKeys({ up: 'UP', down: 'DOWN', left: 'LEFT', right: 'RIGHT', w: 'W', a: 'A', s: 'S', d: 'D' }) as StationScene['keys'];
@@ -167,11 +197,15 @@ export class StationScene extends Phaser.Scene {
       this.path = stationMap().findPath({ x: this.cadet.x, y: this.cadet.y }, { x, y });
     };
     this.unsubStore = useStore.subscribe((s, prev) => {
-      if (s.progress?.phase !== prev.progress?.phase) this.drawArrow(map.spotForPhase(s.progress?.phase));
+      if (s.progress?.phase !== prev.progress?.phase) {
+        this.meeting = s.progress?.phase === 'meeting';
+        this.drawArrow(map.spotForPhase(s.progress?.phase));
+      }
     });
     this.events.once('shutdown', () => {
       window.removeEventListener('keydown', this.onKeyDown);
       this.unsubStore?.();
+      this.unsubMeeting?.();
       this.input.off('pointerdown');
       // Keep playerPos and the crew where they stood, so you come back to the same place after a chapter.
       for (const n of this.npcs) bridge.crewSaved[n.id] = { x: n.sprite.x, y: n.sprite.y };
@@ -256,10 +290,12 @@ export class StationScene extends Phaser.Scene {
       if (!room) return;
       const rng = new Phaser.Math.RandomDataGenerator([`crew-${id}`]);
       const keep = bridge.crewSaved[id];
-      const p = keep && !map.isBlocked(keep) ? keep : this.randomPoint(room.floorRect, rng);
-      const sprite = this.add.sprite(p.x, p.y, `crew-${id}`, 0).setOrigin(0.5, 1);
+      const seat = SEATS[id]!;
+      const p = this.meeting ? { x: seat.x, y: seat.y } : keep && !map.isBlocked(keep) ? keep : this.randomPoint(room.floorRect, rng);
+      const sprite = this.add.sprite(p.x, p.y, `crew-${id}`, this.meeting ? { down: 0, up: 5, right: 10 }[seat.face] : 0).setOrigin(0.5, 1);
+      if (this.meeting) sprite.setFlipX(seat.flip);
       const shadow = this.add.ellipse(p.x, p.y, 14, 5, 0x000000, 0.3);
-      this.npcs.push({ id, sprite, shadow, path: [], wait: 1 + i, facing: 'down', rng });
+      this.npcs.push({ id, sprite, shadow, path: [], wait: 1 + i, facing: this.meeting ? seat.face : 'down', rng, hold: this.meeting });
     });
   }
 
@@ -277,6 +313,11 @@ export class StationScene extends Phaser.Scene {
     for (const n of this.npcs) {
       const roomId = layout.posts[n.id as keyof typeof layout.posts];
       const room = map.rooms.find((r) => r.id === roomId)!;
+      if (n.hold) {
+        n.sprite.setDepth(n.sprite.y);
+        n.shadow.setPosition(n.sprite.x, n.sprite.y - 1).setDepth(n.sprite.y - 1);
+        continue;
+      }
       if (!n.path.length) {
         n.wait -= dt;
         if (n.wait <= 0) {
@@ -432,6 +473,7 @@ export class StationScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- input
   private onTap(p: Phaser.Input.Pointer) {
+    if (this.meeting) return;
     const map = stationMap();
     const dest = { x: p.worldX, y: p.worldY };
     // Tapping a spot walks to it and uses it on arrival.
@@ -443,14 +485,15 @@ export class StationScene extends Phaser.Scene {
   override update(time: number, dtMs: number) {
     const map = stationMap();
     const dt = Math.min(dtMs, 50) / 1000;
-    bridge.clock.minutes += dt * MINUTES_PER_SECOND;
+    if (!this.meeting) bridge.clock.minutes += dt * MINUTES_PER_SECOND; // the clock starts at 08:00 when you take control
     if (bridge.clock.minutes >= 1440) {
       bridge.clock.minutes -= 1440;
       bridge.clock.day += 1;
     }
     const k = this.keys;
-    let dx = (k.right.isDown || k.d.isDown ? 1 : 0) - (k.left.isDown || k.a.isDown ? 1 : 0);
-    let dy = (k.down.isDown || k.s.isDown ? 1 : 0) - (k.up.isDown || k.w.isDown ? 1 : 0);
+    let dx = this.meeting ? 0 : (k.right.isDown || k.d.isDown ? 1 : 0) - (k.left.isDown || k.a.isDown ? 1 : 0);
+    let dy = this.meeting ? 0 : (k.down.isDown || k.s.isDown ? 1 : 0) - (k.up.isDown || k.w.isDown ? 1 : 0);
+    if (this.meeting) this.path = [];
     if (dx || dy) {
       this.path = [];
       this.autoUse = null;
@@ -508,7 +551,7 @@ export class StationScene extends Phaser.Scene {
     this.drawBrackets(this.near, this.near?.id === objective?.id, time);
     this.updateEdgeArrow(objective, time);
 
-    const pressed = this.useRequested;
+    const pressed = this.useRequested && !this.meeting;
     this.useRequested = false;
     if (this.near && (pressed || (this.autoUse?.id === this.near.id && this.path.length === 0))) {
       this.autoUse = null;

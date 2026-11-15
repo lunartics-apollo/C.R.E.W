@@ -424,9 +424,9 @@ useStore.subscribe((s) => {
   scheduleSave(data);
 });
 
-/** The Sarawak story (intro, transmission, briefing) plays straight through; the station walk starts at the workshop. */
+/** The prologue (Premier's call, then the team meeting) plays as scenes; from the briefing on you walk the station. */
 export function wantsStation(phase: Phase): boolean {
-  return phase !== 'menu' && phase !== 'intro' && phase !== 'transmission' && phase !== 'briefing';
+  return phase !== 'menu' && phase !== 'intro' && phase !== 'transmission' && phase !== 'meeting';
 }
 
 // Whenever the chapter changes, send the player back out onto the campus to walk to the next building.

@@ -6,8 +6,9 @@ export const SAVE_VERSION = 1;
 
 export type Phase =
   | 'menu'
-  | 'intro'
+  | 'intro' // legacy: the old Sarawak map screen, migrated to 'transmission' when a save loads
   | 'transmission'
+  | 'meeting'
   | 'briefing'
   | 'hangar'
   | 'launchPlan'
@@ -18,7 +19,7 @@ export type Phase =
   | 'ops'
   | 'debrief';
 
-export const PHASE_ORDER: readonly Phase[] = ['transmission', 'intro', 'briefing', 'hangar', 'launchPlan', 'ground', 'testlab', 'mrr', 'launch', 'ops', 'debrief'];
+export const PHASE_ORDER: readonly Phase[] = ['transmission', 'meeting', 'briefing', 'hangar', 'launchPlan', 'ground', 'testlab', 'mrr', 'launch', 'ops', 'debrief'];
 
 export type Locale = 'en' | 'ms';
 
@@ -149,6 +150,7 @@ export function migrate(raw: unknown): SaveData {
   if (isObj(progressRaw) && isObj(progressRaw['design']) && isObj(progressRaw['choices'])) {
     const base = newProgress(progressRaw['choices'] as unknown as MissionChoices);
     progress = { ...base, ...(progressRaw as unknown as Partial<GameProgress>) } as GameProgress;
+    if ((progress.phase as string) === 'intro') progress = { ...progress, phase: 'transmission' };
   }
   const learning = isObj(raw['learning']) ? { ...EMPTY_LEARNING, ...(raw['learning'] as Partial<LearningRecord>) } : EMPTY_LEARNING;
   return {

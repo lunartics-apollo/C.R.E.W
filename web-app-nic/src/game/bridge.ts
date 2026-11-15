@@ -14,6 +14,8 @@ type Events = {
   hubNear: string | null;
   hubTry: { id: string; ok: boolean };
   hubRoom: string;
+  /** The team meeting dialogue finished: the crew head to their stations. */
+  meetingEnd: undefined;
 };
 
 type Handler<T> = (payload: T) => void;

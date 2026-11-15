@@ -5,12 +5,9 @@ test('a fresh player can complete Mission Rajang without login', async ({ page }
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-  await page.goto('/');
-  await page.getByRole('button', { name: /Start Mission/ }).click();
-  // Opening: the director talks first, then the Sarawak map, then the briefing (a single training mode).
-  await page.getByRole('button', { name: 'Skip' }).last().click();
-  await page.getByRole('button', { name: /^Continue/ }).click();
-  await page.getByRole('button', { name: /^Continue/ }).click();
+  // The prologue (Premier Hamdan, team meeting) and the walk to the Mission Planning Table cannot be driven headlessly,
+  // so jump straight to the briefing panel that the table opens.
+  await page.goto('/?qa=briefing');
   await page.getByRole('button', { name: /Accept mission/ }).click();
 
   // Build: compare builds -> load Balanced, add drag sail

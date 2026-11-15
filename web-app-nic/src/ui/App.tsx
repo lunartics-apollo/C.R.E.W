@@ -5,7 +5,8 @@ import { configureAudio, unlockAudio } from '../audio/sfx';
 import { useStore, wantsStation } from '../state/store';
 import { Modals } from './Modals';
 import { Toasts } from './components/Shared';
-import { BriefingScreen, IntroScreen, MenuScreen, TransmissionScreen } from './screens/StoryScreens';
+import { BriefingScreen, MenuScreen, TransmissionScreen } from './screens/StoryScreens';
+import { MeetingScreen } from './screens/MeetingScreen';
 import { HangarScreen } from './screens/HangarScreen';
 import { GroundScreen, LaunchPlanScreen } from './screens/PlanningScreens';
 import { MrrScreen, TestLabScreen } from './screens/ReadinessScreens';
@@ -17,10 +18,10 @@ function PhaseScreen() {
   const hub = useStore((s) => s.hub);
   if (hub) return <HubScreen />;
   switch (phase) {
-    case 'intro':
-      return <IntroScreen />;
     case 'transmission':
       return <TransmissionScreen />;
+    case 'meeting':
+      return <MeetingScreen />;
     case 'briefing':
       return <BriefingScreen />;
     case 'hangar':
@@ -79,6 +80,18 @@ export function App() {
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
   }, []);
+
+  // ?qa=briefing jumps to the mission briefing screen (used by the end-to-end test, which cannot walk the station).
+  useEffect(() => {
+    if (!loaded) return;
+    if (new URLSearchParams(window.location.search).get('qa') === 'briefing') {
+      const st = useStore.getState();
+      st.startMission();
+      st.goPhase('briefing');
+      st.setHub(false);
+      setMenuOpen(false);
+    }
+  }, [loaded]);
 
   // ?demo=1 opens the Judge Demo directly.
   useEffect(() => {

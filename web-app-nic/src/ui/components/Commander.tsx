@@ -1,18 +1,20 @@
-// Mission director "Director Jabu", using the Godot game's Jabu art: a monitor with a blinking, talking portrait,
-// expressions and gestures, plus a typed, skippable dialogue box.
+// Speaker monitor using the Godot game's cast art: Premier Hamdan in the prologue, Director Jabu for the rest of the game.
+// A blinking, talking portrait with expressions, plus a typed, skippable dialogue box.
 import { useEffect, useRef, useState } from 'react';
-import { SCRIPT, type Expression, type Gesture, type Line } from '../../narrative/script';
+import { SCRIPT, type Expression, type Gesture, type Line, type Speaker } from '../../narrative/script';
 import { play } from '../../audio/sfx';
 import { useStore, useT } from '../../state/store';
 
-// Director Jabu, drawn from the Godot game's cast sheet (assets/briefing/cast_jabu.png):
+// Drawn from the Godot game's cast sheets (assets/briefing/cast_<id>.png):
 // 4 mouth frames across, 9 expressions down, each cell 96 x 112 with the face at (6, 2, 84, 84).
 const CAST_ROW: Record<Expression, number> = { neutral: 0, happy: 3, concerned: 6, surprised: 5, serious: 4 };
 const CAST_BLINK_ROW = 1;
+const NAME: Record<Speaker, string> = { hamdan: 'Premier Hamdan', jabu: 'Director Jabu' };
+const LABEL: Record<Speaker, string> = { hamdan: 'PREMIER HAMDAN', jabu: 'DIR. JABU' };
 // Row 7 (raised finger) is deliberately never used: at this size it can read as a rude gesture.
 const CAST_THUMBS_ROW = 3; // smiling
 
-function Portrait({ expr, talking, gesture, size = 112 }: { expr: Expression; talking: boolean; gesture: Gesture; size?: number }) {
+function Portrait({ who, expr, talking, gesture, size = 112 }: { who: Speaker; expr: Expression; talking: boolean; gesture: Gesture; size?: number }) {
   const [blink, setBlink] = useState(false);
   const [mouth, setMouth] = useState(0);
   const reduced = useStore((s) => s.settings.reducedMotion);
@@ -36,11 +38,11 @@ function Portrait({ expr, talking, gesture, size = 112 }: { expr: Expression; ta
   return (
     <div
       role="img"
-      aria-label="Director Jabu"
+      aria-label={NAME[who]}
       style={{
         width: size,
         height: size,
-        backgroundImage: "url('/ui/cast/jabu.png')",
+        backgroundImage: `url('/ui/cast/${who}.png')`,
         backgroundRepeat: 'no-repeat',
         backgroundSize: `${384 * k}px ${1008 * k}px`,
         backgroundPosition: `-${(6 + mouth * 96) * k}px -${(2 + row * 112) * k}px`,
@@ -131,16 +133,16 @@ export function Commander({ scene, onDone, compact = false, autoHide = false }: 
   if (!line || hidden) return null;
   const last = idx >= lines.length - 1 && !typing;
   return (
-    <div className={`panel flex gap-3 p-3 rise-in ${compact ? 'items-center' : ''}`} role="dialog" aria-label="Director Jabu" aria-live="polite">
+    <div className={`panel flex gap-3 p-3 rise-in ${compact ? 'items-center' : ''}`} role="dialog" aria-label={NAME[line.who ?? 'jabu']} aria-live="polite">
       <div className="crt crt-glare flicker relative shrink-0 border border-line" style={{ width: compact ? 76 : 120, height: compact ? 76 : 120 }}>
         <div className="scanbar" />
         <div className="absolute inset-0 flex items-end justify-center">
-          <Portrait expr={line.expr} talking={typing} gesture={line.gesture ?? 'none'} size={compact ? 76 : 116} />
+          <Portrait who={line.who ?? 'jabu'} expr={line.expr} talking={typing} gesture={line.gesture ?? 'none'} size={compact ? 76 : 116} />
         </div>
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="mb-1 flex items-center justify-between gap-2">
-          <span className="engraved">DIR. JABU</span>
+          <span className="engraved">{LABEL[line.who ?? 'jabu']}</span>
           <SignalBars active={typing} />
         </div>
         <p className={`text-[0.95rem] leading-snug ${typing ? 'caret' : ''}`}>{full.slice(0, shown)}</p>
