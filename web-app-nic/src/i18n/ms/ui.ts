@@ -76,7 +76,7 @@ export const msUi: Record<string, string> = {
   'hub.obj.ground': 'Pergi ke Ground Station dan selaraskan antena.',
   'hub.obj.testlab': 'Pergi ke Power & Thermal dan uji CubeSat anda sebelum pelancaran.',
   'hub.obj.mrr': 'Pergi ke Mission Control untuk semakan Go / No-Go.',
-  'hub.obj.launch': 'Pergi ke Mission Control dan mulakan kiraan detik di Launch Console. Hari ini hari pelancaran!',
+  'hub.obj.launch': 'Pergi ke Mission Control. Pasukan sedang berkumpul di sana. Mulakan kiraan detik di Launch Console.',
   'hub.obj.ops': 'Pergi ke Ground Station dan terbangkan satelit anda.',
   'hub.obj.debrief': 'Pergi ke Mission Control untuk membaca taklimat anda.',
 
@@ -102,6 +102,10 @@ export const msUi: Record<string, string> = {
   'meet.6': 'Saya akan berada di Kawalan Misi jika anda perlukan saya.',
   'meet.7': 'Saya ke Med Bay. Jumpa nanti.',
   'meet.8': 'Stesen Bumi. Hubungi saya apabila radio sudah sedia.',
+  'launchtalk.1': 'Semakan selesai. Satelit sudah GO. Semua orang ada di sini, jadi mari kita lancarkan bersama-sama.',
+  'launchtalk.2': 'Radio sudah sedia. Saya akan mendengar isyarat pertama.',
+  'launchtalk.3': 'Dan saya akan menunggu gambar pertama hutan itu.',
+  'launchtalk.4': 'Baiklah pasukan. Kita mulakan kiraan detik.',
   'phase.menu': 'Menu utama',
 
   'intro.title': 'Tanah Air Kita: Sarawak',

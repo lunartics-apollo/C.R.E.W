@@ -31,6 +31,11 @@ export const bridge = {
   crew: [] as { x: number; y: number; id: string }[],
   /** Where each crewmate stood when you last left the station, so they are still there when you come back. */
   crewSaved: {} as Record<string, { x: number; y: number }>,
+  /** True while a crew dialogue is on screen: the cadet cannot walk or use anything. */
+  lockInput: false,
+  /** Launch day: the crew have gathered at Mission Control / the short pre-launch talk has been played. */
+  crewGathered: false,
+  launchTalked: false,
   /** Station clock: runs while you walk the station (2 game minutes per second), starts at 08:00 on day 1. */
   clock: { day: 1, minutes: 480 },
   /** Set by the station scene: walk (with pathfinding) to a map point, e.g. from a minimap click. */

@@ -34,6 +34,8 @@ interface Npc {
   rng: Phaser.Math.RandomDataGenerator;
   /** Sitting at the meeting table: stays put until the meeting ends. */
   hold: boolean;
+  /** Walking to the launch-day gathering spot at Mission Control. */
+  gather: boolean;
 }
 
 const SHEETS: Record<string, { file: string; w: number; h: number; frames: number; fps: number }> = {
@@ -44,6 +46,12 @@ const SHEETS: Record<string, { file: string; w: number; h: number; frames: numbe
 };
 const CREW = ['orion', 'juno', 'kai'] as const;
 // Scene 2: the team meeting at the Mess Hall table (the Godot map's meeting table is at 778,758 64x44).
+// Launch day: after Approve launch, the whole crew gathers round the Launch Console in Mission Control (console spot 840,282).
+const GATHER: Record<string, { x: number; y: number }> = {
+  orion: { x: 802, y: 316 }, // Jabu
+  kai: { x: 878, y: 316 }, // Ling
+  juno: { x: 840, y: 338 }, // Siti
+};
 const SEATS: Record<string, { x: number; y: number; face: Facing; flip: boolean }> = {
   aisyah: { x: 810, y: 813, face: 'up', flip: false },
   orion: { x: 760, y: 790, face: 'right', flip: false }, // Jabu
@@ -96,6 +104,9 @@ export class StationScene extends Phaser.Scene {
   private nightLights: { img: Phaser.GameObjects.Image; base: number }[] = [];
   private reduced = false;
   private meeting = false;
+  private get locked() {
+    return this.meeting || bridge.lockInput;
+  }
   private unsubMeeting: (() => void) | null = null;
   private unsubStore: (() => void) | null = null;
   private useRequested = false;
@@ -173,6 +184,9 @@ export class StationScene extends Phaser.Scene {
     cam.centerOn(start.x, start.y);
 
     this.brackets = this.add.graphics().setDepth(9000);
+    // Launch day: everyone walks to Mission Control for the countdown.
+    if (useStore.getState().progress?.phase === 'launch' && !bridge.crewGathered) this.gatherCrew();
+    else if (useStore.getState().progress?.phase === 'launch') this.placeGathered();
     this.drawArrow(target);
     // The second arrow: sits on the screen edge and points toward the objective when it is off-screen.
     this.edgeArrow = this.add.image(0, 0, 'st-arrow').setScrollFactor(0).setDepth(9100).setVisible(false);
@@ -198,6 +212,10 @@ export class StationScene extends Phaser.Scene {
     this.unsubStore = useStore.subscribe((s, prev) => {
       if (s.progress?.phase !== prev.progress?.phase) {
         this.meeting = s.progress?.phase === 'meeting';
+        if (s.progress?.phase !== 'launch') {
+          bridge.crewGathered = false;
+          bridge.launchTalked = false;
+        }
         this.drawArrow(map.spotForPhase(s.progress?.phase));
       }
     });
@@ -294,8 +312,32 @@ export class StationScene extends Phaser.Scene {
       const sprite = this.add.sprite(p.x, p.y, `crew-${id}`, this.meeting ? { down: 0, up: 5, right: 10 }[seat.face] : 0).setOrigin(0.5, 1);
       if (this.meeting) sprite.setFlipX(seat.flip);
       const shadow = this.add.ellipse(p.x, p.y, 14, 5, 0x000000, 0.3);
-      this.npcs.push({ id, sprite, shadow, path: [], wait: 1 + i, facing: this.meeting ? seat.face : 'down', rng, hold: this.meeting });
+      this.npcs.push({ id, sprite, shadow, path: [], wait: 1 + i, facing: this.meeting ? seat.face : 'down', rng, hold: this.meeting, gather: false });
     });
+  }
+
+  /** The crew leave wherever they are and walk to their place round the Launch Console. */
+  private gatherCrew() {
+    bridge.crewGathered = true;
+    for (const n of this.npcs) {
+      const to = GATHER[n.id];
+      if (!to) continue;
+      n.hold = false;
+      n.gather = true;
+      n.path = stationMap().findPath({ x: n.sprite.x, y: n.sprite.y }, to);
+    }
+  }
+
+  /** Coming back to the station on launch day after the crew have already gathered: they are standing there. */
+  private placeGathered() {
+    for (const n of this.npcs) {
+      const to = GATHER[n.id];
+      if (!to) continue;
+      n.sprite.setPosition(to.x, to.y);
+      n.hold = true;
+      n.facing = 'up';
+      n.sprite.setFrame(5);
+    }
   }
 
   private randomPoint(area: { x: number; y: number; w: number; h: number }, rng: Phaser.Math.RandomDataGenerator): Vec {
@@ -312,7 +354,14 @@ export class StationScene extends Phaser.Scene {
     for (const n of this.npcs) {
       const roomId = layout.posts[n.id as keyof typeof layout.posts];
       const room = map.rooms.find((r) => r.id === roomId)!;
-      if (n.hold) {
+      if (n.gather && !n.path.length) {
+        n.gather = false;
+        n.hold = true;
+        n.facing = 'up';
+        n.sprite.anims.stop();
+        n.sprite.setFrame(5);
+      }
+      if (n.hold && !n.path.length) {
         n.sprite.setDepth(n.sprite.y);
         n.shadow.setPosition(n.sprite.x, n.sprite.y - 1).setDepth(n.sprite.y - 1);
         continue;
@@ -449,7 +498,7 @@ export class StationScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- input
   private onTap(p: Phaser.Input.Pointer) {
-    if (this.meeting) return;
+    if (this.locked) return;
     const map = stationMap();
     const dest = { x: p.worldX, y: p.worldY };
     // Tapping a spot walks to it and uses it on arrival.
@@ -467,9 +516,9 @@ export class StationScene extends Phaser.Scene {
       bridge.clock.day += 1;
     }
     const k = this.keys;
-    let dx = this.meeting ? 0 : (k.right.isDown || k.d.isDown ? 1 : 0) - (k.left.isDown || k.a.isDown ? 1 : 0);
-    let dy = this.meeting ? 0 : (k.down.isDown || k.s.isDown ? 1 : 0) - (k.up.isDown || k.w.isDown ? 1 : 0);
-    if (this.meeting) this.path = [];
+    let dx = this.locked ? 0 : (k.right.isDown || k.d.isDown ? 1 : 0) - (k.left.isDown || k.a.isDown ? 1 : 0);
+    let dy = this.locked ? 0 : (k.down.isDown || k.s.isDown ? 1 : 0) - (k.up.isDown || k.w.isDown ? 1 : 0);
+    if (this.locked) this.path = [];
     if (dx || dy) {
       this.path = [];
       this.autoUse = null;
@@ -527,7 +576,7 @@ export class StationScene extends Phaser.Scene {
     this.drawBrackets(this.near, this.near?.id === objective?.id, time);
     this.updateEdgeArrow(objective, time);
 
-    const pressed = this.useRequested && !this.meeting;
+    const pressed = this.useRequested && !this.locked;
     this.useRequested = false;
     if (this.near && (pressed || (this.autoUse?.id === this.near.id && this.path.length === 0))) {
       this.autoUse = null;

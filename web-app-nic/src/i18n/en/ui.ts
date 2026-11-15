@@ -76,7 +76,7 @@ export const enUi: Record<string, string> = {
   'hub.obj.ground': 'Go to the Ground Station and align the antenna.',
   'hub.obj.testlab': 'Go to Power & Thermal and test your CubeSat before launch.',
   'hub.obj.mrr': 'Go to Mission Control for the Go / No-Go review.',
-  'hub.obj.launch': 'Go to Mission Control and start the countdown at the Launch Console. It is launch day!',
+  'hub.obj.launch': 'Go to Mission Control. The crew are gathering there. Start the countdown at the Launch Console.',
   'hub.obj.ops': 'Go to the Ground Station and fly your satellite.',
   'hub.obj.debrief': 'Go to Mission Control to read your debrief.',
 
@@ -102,6 +102,10 @@ export const enUi: Record<string, string> = {
   'meet.6': 'I’ll be in Mission Control if you need me.',
   'meet.7': 'Med Bay for me. See you later.',
   'meet.8': 'Ground Station. Call me when the radio is ready.',
+  'launchtalk.1': 'Review done. The satellite is GO. Everyone is here, so let’s launch together.',
+  'launchtalk.2': 'Radio is ready. I’ll be listening for the first signal.',
+  'launchtalk.3': 'And I’ll be watching for the first picture of the forest.',
+  'launchtalk.4': 'Alright team. Starting the countdown.',
   'phase.menu': 'Main menu',
 
   'intro.title': 'Our Home: Sarawak',

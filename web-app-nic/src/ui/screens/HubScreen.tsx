@@ -7,6 +7,10 @@ import { useStore, useT } from '../../state/store';
 import { play } from '../../audio/sfx';
 import { CButton } from '../components/Controls';
 import { StationMinimap } from '../components/StationMinimap';
+import { CrewDialogue, type Who } from '../components/CrewDialogue';
+
+// Launch day: the short talk the crew have round the Launch Console before the countdown.
+const LAUNCH_TALK: readonly Who[] = ['jabu', 'ling', 'siti', 'aisyah'];
 
 export function HubScreen() {
   const t = useT();
@@ -15,6 +19,7 @@ export function HubScreen() {
   const [near, setNear] = useState<string | null>(null);
   const [room, setRoom] = useState('');
   const [fullMap, setFullMap] = useState(false);
+  const [talking, setTalking] = useState(false);
   const [clock, setClock] = useState(bridge.clock.minutes);
   const map = stationMap();
   const next = map.spotForPhase(phase);
@@ -25,6 +30,7 @@ export function HubScreen() {
     const offNear = bridge.on('hubNear', (id) => setNear(id));
     const offRoom = bridge.on('hubRoom', (name) => setRoom(name));
     const offTry = bridge.on('hubTry', ({ id, ok }) => {
+      if (ok && phase === 'launch' && !bridge.launchTalked) return;
       if (ok) {
         play('click');
         useStore.getState().setHub(false);
@@ -59,6 +65,20 @@ export function HubScreen() {
   const hh = Math.floor(clock / 60) % 24;
   const mm = Math.floor(clock % 60);
   const clockText = `DAY ${bridge.clock.day}  ${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+
+  // Launch day: reaching the Launch Console plays the crew's short talk once, before you can start the countdown.
+  useEffect(() => {
+    if (phase === 'launch' && near === 'launch_console' && !bridge.launchTalked && !talking) {
+      bridge.lockInput = true;
+      setTalking(true);
+    }
+  }, [phase, near, talking]);
+  useEffect(
+    () => () => {
+      bridge.lockInput = false;
+    },
+    [],
+  );
 
   const use = () => {
     if (near) bridge.emit('hubTry', { id: near, ok: near === next?.id });
@@ -122,6 +142,20 @@ export function HubScreen() {
             <StationMinimap mode="full" width={Math.min(640, window.innerWidth - 32)} height={Math.round((Math.min(640, window.innerWidth - 32) * 1440) / 1920)} onWalk={(x, y) => { bridge.walkTo?.(x, y); setFullMap(false); }} />
             <div className="text-xs text-muted">Click a place to walk there. M or Esc to close.</div>
           </div>
+        </div>
+      )}
+
+      {talking && (
+        <div className="pointer-events-auto absolute inset-x-0 bottom-3 z-20 mx-auto w-full max-w-3xl px-3">
+          <CrewDialogue
+            keyPrefix="launchtalk."
+            speakers={LAUNCH_TALK}
+            onFinish={() => {
+              bridge.launchTalked = true;
+              bridge.lockInput = false;
+              setTalking(false);
+            }}
+          />
         </div>
       )}
 
