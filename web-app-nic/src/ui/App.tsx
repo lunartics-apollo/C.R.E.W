@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { PhaserHost } from '../game/PhaserHost';
 import { configureAudio, unlockAudio } from '../audio/sfx';
-import { useStore } from '../state/store';
+import { useStore, wantsStation } from '../state/store';
 import { Modals } from './Modals';
 import { Toasts } from './components/Shared';
 import { BriefingScreen, IntroScreen, MenuScreen, TransmissionScreen } from './screens/StoryScreens';
@@ -96,7 +96,7 @@ export function App() {
   return (
     <>
       <PhaserHost menuOpen={showMenu} />
-      {showMenu ? <MenuScreen onClose={() => { useStore.getState().setHub(true); setMenuOpen(false); }} /> : <PhaseScreen />}
+      {showMenu ? <MenuScreen onClose={() => { const ph = useStore.getState().progress?.phase; useStore.getState().setHub(!!ph && wantsStation(ph)); setMenuOpen(false); }} /> : <PhaseScreen />}
       <Modals />
       <Toasts />
     </>

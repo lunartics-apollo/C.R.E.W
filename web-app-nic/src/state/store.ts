@@ -424,10 +424,15 @@ useStore.subscribe((s) => {
   scheduleSave(data);
 });
 
+/** The Sarawak story (intro, transmission, briefing) plays straight through; the station walk starts at the workshop. */
+export function wantsStation(phase: Phase): boolean {
+  return phase !== 'menu' && phase !== 'intro' && phase !== 'transmission' && phase !== 'briefing';
+}
+
 // Whenever the chapter changes, send the player back out onto the campus to walk to the next building.
 useStore.subscribe((s, prev) => {
   const phase = s.progress?.phase;
-  if (phase && phase !== 'menu' && phase !== prev.progress?.phase && !s.hub) useStore.setState({ hub: true });
+  if (phase && wantsStation(phase) && phase !== prev.progress?.phase && !s.hub) useStore.setState({ hub: true });
 });
 
 /** Translation hook bound to the current locale. */
