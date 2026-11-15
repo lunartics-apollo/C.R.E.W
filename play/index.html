@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" class="is-loading">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play C.R.E.W — Mission Control</title>
+  <meta name="theme-color" content="#07081a">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 8 8%22 shape-rendering=%22crispEdges%22%3E%3Crect width=%228%22 height=%228%22 fill=%22%2307081a%22/%3E%3Crect x=%222%22 y=%222%22 width=%224%22 height=%224%22 fill=%22%23ffb43d%22/%3E%3Crect x=%223%22 y=%223%22 width=%222%22 height=%222%22 fill=%22%233de0ff%22/%3E%3C/svg%3E">
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="preload" href="../assets/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/space-grotesk-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/fonts.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <style>
+    html.js.is-loading body { overflow: auto; }
+    body { min-height: 100svh; display: flex; flex-direction: column; }
+    .bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px var(--gutter); border-bottom: 1px solid var(--line); }
+    .stage-wrap { flex: 1; display: grid; place-items: center; padding: 24px var(--gutter); }
+    .game { position: relative; width: min(1280px, 100%); aspect-ratio: 16 / 9; background: #000; clip-path: var(--notch); box-shadow: inset 0 0 0 3px var(--line); }
+    .game iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .game__msg { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; gap: 16px; padding: 24px; }
+    .game__msg h1 { font-family: var(--display); font-size: clamp(16px, 2.6vw, 28px); color: var(--amber); line-height: 1.4; }
+    .game__msg code { color: var(--cream); }
+    .controls { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; padding: 0 var(--gutter) 28px; }
+    .mobile-warn { display: none; text-align: center; color: var(--amber); padding: 12px var(--gutter) 0; }
+    @media (pointer: coarse) { .mobile-warn { display: block; } }
+  </style>
+</head>
+<body>
+  <canvas class="pixel-wipe" aria-hidden="true"></canvas>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="bar">
+    <a class="nav__logo" href="../" data-transition><span class="sprite" data-sprite="cubesat" data-scale="2"></span><span>C.R.E.W</span></a>
+    <span class="mono muted">Mission control</span>
+  </header>
+
+  <p class="mobile-warn mono">Best played on desktop with keyboard &amp; mouse</p>
+
+  <div class="stage-wrap">
+    <div class="game" id="game">
+      <div class="game__msg">
+        <span class="sprite" data-sprite="cubesat" data-scale="5"></span>
+        <h1>Loading mission…</h1>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn--amber" id="fs" type="button">Fullscreen</button>
+    <a class="btn" href="../" data-transition>Back to site</a>
+  </div>
+
+  <script src="../assets/js/sprites.js"></script>
+  <script src="../assets/js/pixelwipe.js"></script>
+  <script>
+    // Godot web export lives in /game (the exported HTML must be named index.html).
+    // Hosting the build elsewhere (e.g. itch.io)? Put that URL here instead.
+    const GAME_URL = "../game/index.html";
+    const box = document.getElementById("game");
+
+    fetch(GAME_URL, { method: "HEAD" })
+      .then((r) => {
+        if (!r.ok) throw new Error("missing");
+        box.innerHTML = `<iframe src="${GAME_URL}" allow="autoplay; fullscreen; gamepad" allowfullscreen title="C.R.E.W game"></iframe>`;
+        box.querySelector("iframe").focus();
+      })
+      .catch(() => {
+        box.innerHTML = `<div class="game__msg">
+          <h1>Game build not deployed yet</h1>
+          <p class="mono muted">Export the Godot project for Web into <code>/game</code></p>
+        </div>`;
+      });
+
+    document.getElementById("fs").addEventListener("click", () => {
+      const el = box.querySelector("iframe") || box;
+      (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+    });
+
+    document.documentElement.classList.remove("is-loading");
+    PixelWipe.reveal(600);
+  </script>
+</body>
+</html>

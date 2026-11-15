@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en" class="is-loading">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>C.R.E.W — Build a CubeSat for Sarawak</title>
+  <meta name="description" content="C.R.E.W is a 2.5D pixel-art space mission sim. Design, build, test and launch your own CubeSat to watch over Sarawak's coast and Borneo's forests.">
+  <meta property="og:title" content="C.R.E.W — Build a CubeSat for Sarawak">
+  <meta property="og:description" content="Design, build, test and launch your own CubeSat. Play free in your browser.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#07081a">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 8 8%22 shape-rendering=%22crispEdges%22%3E%3Crect width=%228%22 height=%228%22 fill=%22%2307081a%22/%3E%3Crect x=%222%22 y=%222%22 width=%224%22 height=%224%22 fill=%22%23ffb43d%22/%3E%3Crect x=%223%22 y=%223%22 width=%222%22 height=%222%22 fill=%22%233de0ff%22/%3E%3C/svg%3E">
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="preload" href="assets/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/space-grotesk-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/fonts.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- Boot loader -->
+  <div class="loader" aria-hidden="true">
+    <div class="loader__inner">
+      <span class="sprite loader__sat" data-sprite="cubesat" data-scale="5"></span>
+      <p class="loader__label">BOOTING C.R.E.W MISSION OS</p>
+      <div class="loader__bar"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="loader__pct"><span class="js-pct">000</span>%</p>
+    </div>
+  </div>
+  <canvas class="pixel-wipe" aria-hidden="true"></canvas>
+  <div class="cursor" aria-hidden="true"><div class="cursor__box"><span class="cursor__label"></span></div></div>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="nav">
+    <a class="nav__logo" href="#top" aria-label="C.R.E.W home"><span class="sprite" data-sprite="cubesat" data-scale="2"></span><span>C.R.E.W</span></a>
+    <nav class="nav__links" aria-label="Main">
+      <a href="#briefing" data-scramble>Briefing</a>
+      <a href="#trailer" data-scramble>Trailer</a>
+      <a href="#mission" data-scramble>Mission</a>
+    </nav>
+    <div class="nav__right">
+      <span class="nav__clock mono">KCH <span class="js-clock">--:--:--</span></span>
+      <a class="btn btn--sm btn--amber" href="play/" data-transition data-cursor="PLAY">Play</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- 1. HERO -->
+    <section class="hero">
+      <canvas class="stars" aria-hidden="true"></canvas>
+      <div class="hero__meta mono">
+        <span>Mission file 001</span>
+        <span>1.55°N &nbsp;110.34°E</span>
+        <span class="hero__status"><i class="dot"></i> Awaiting launch</span>
+      </div>
+
+      <div class="hero__art" aria-hidden="true">
+        <div class="hero__art-in">
+          <div class="hero__art-mouse">
+            <canvas class="planet" width="128" height="128"></canvas>
+            <div class="planet__tag"><span class="planet__tag-line"></span><span class="planet__tag-box mono"><b>Sarawak</b> Kuching 1.55°N</span></div>
+            <div class="orbit"><span class="orbit__sat sprite" data-sprite="cubesat" data-scale="4"></span></div>
+            <div class="orbit orbit--b"><span class="orbit__dot"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <h1 class="hero__title" aria-label="C.R.E.W">C.R.E.W</h1>
+
+      <div class="hero__bottom">
+        <p class="hero__sub">
+          <span data-scramble-in>Build your own CubeSat.</span>
+          <span data-scramble-in>Launch it to orbit.</span>
+          <span data-scramble-in class="amber">Watch over Sarawak.</span>
+        </p>
+        <div class="hero__ctas">
+          <a class="btn btn--amber btn--xl magnetic" href="play/" data-transition data-cursor="PLAY"><span class="btn__icon">&#9654;</span> Play in browser</a>
+          <a class="btn magnetic" href="#trailer" data-cursor="WATCH">Watch trailer</a>
+        </div>
+        <a class="hero__scroll mono" href="#briefing">Scroll <span>&#8595;</span></a>
+      </div>
+    </section>
+
+    <!-- 2. BRIEFING -->
+    <section class="briefing" id="briefing">
+      <div class="container">
+        <div class="label mono"><span>(01)</span> Mission briefing</div>
+        <p class="statement" data-reveal-words>
+          C.R.E.W puts you in charge of a real space mission. Design, build and launch your own CubeSat, a small watcher in orbit, to spot hazards along the <em class="hl hl--amber">Sarawak coast</em> and keep watch over <em class="hl hl--green">Borneo's forests</em>.
+        </p>
+
+        <div class="briefing__grid">
+          <p class="briefing__body" data-reveal>
+            A 2.5D pixel-art simulation with top-down, retro-RPG gameplay. Every choice you make in the lab, from payload and power to sensors and crew, decides how well your satellite performs once it's up there.
+            <span class="note mono">[ Placeholder copy — final content to be provided ]</span>
+          </p>
+          <ul class="stats">
+            <li data-reveal><b data-count="4">00</b><span class="mono">Mission stages</span></li>
+            <li data-reveal><b>2.5D</b><span class="mono">Pixel-art world</span></li>
+            <li data-reveal><b data-count="500">000</b><span class="mono">KM to orbit</span></li>
+            <li data-reveal><b data-count="0">0</b><span class="mono">Installs needed</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TRAILER -->
+    <section class="trailer" id="trailer">
+      <div class="container">
+        <div class="trailer__head">
+          <div class="label mono"><span>(02)</span> Transmission</div>
+          <h2 class="big" data-reveal>Watch the<br><span class="amber">teaser</span></h2>
+        </div>
+      </div>
+      <!-- Paste the Google Drive file ID into data-drive-id (the part between /d/ and /view in the share link). -->
+      <div class="video-wrap" data-drive-id="" data-cursor="PLAY">
+        <button class="video__poster" type="button" aria-label="Play teaser video">
+          <span class="video__noise"></span>
+          <span class="video__play"><span class="sprite" data-sprite="play" data-scale="8"></span></span>
+          <span class="video__msg mono"><span class="rec"></span> <span class="js-video-msg">Incoming transmission</span></span>
+          <span class="video__corner video__corner--tl"></span><span class="video__corner video__corner--tr"></span>
+          <span class="video__corner video__corner--bl"></span><span class="video__corner video__corner--br"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. MISSION (horizontal) -->
+    <section class="mission" id="mission">
+      <div class="mission__head container">
+        <div class="label mono"><span>(03)</span> Mission profile</div>
+        <div class="altimeter mono" aria-hidden="true">
+          <span>ALT <b class="js-alt">000</b> KM</span>
+          <div class="altimeter__bar"><div class="altimeter__fill"></div><span class="sprite altimeter__sat" data-sprite="cubesat" data-scale="1"></span></div>
+          <span>LEO</span>
+        </div>
+      </div>
+
+      <div class="mission__viewport">
+        <ol class="mission__track">
+          <li class="stage stage--intro">
+            <h2 class="big">From the<br>ground<br>to <span class="amber">orbit</span></h2>
+            <p class="mono muted">Four stages. One satellite. Let&rsquo;s fly.</p>
+          </li>
+          <li class="stage">
+            <span class="stage__num">01</span>
+            <div class="stage__shot" data-cursor="DESIGN"><span class="sprite stage__sprite" data-sprite="design" data-scale="12"></span><span class="mono shot-label">[ Screenshot 01 ]</span></div>
+            <h3>Design</h3>
+            <p>Plan your CubeSat's payload, power and sensors to fit the mission brief.</p>
+          </li>
+          <li class="stage">
+            <span class="stage__num">02</span>
+            <div class="stage__shot" data-cursor="BUILD"><span class="sprite stage__sprite" data-sprite="build" data-scale="12"></span><span class="mono shot-label">[ Screenshot 02 ]</span></div>
+            <h3>Build</h3>
+            <p>Assemble parts in the lab. Manage your crew, budget and time.</p>
+          </li>
+          <li class="stage">
+            <span class="stage__num">03</span>
+            <div class="stage__shot" data-cursor="TEST"><span class="sprite stage__sprite" data-sprite="test" data-scale="12"></span><span class="mono shot-label">[ Screenshot 03 ]</span></div>
+            <h3>Test</h3>
+            <p>Shake it, heat it, freeze it. Fix what breaks before it leaves the ground.</p>
+          </li>
+          <li class="stage">
+            <span class="stage__num">04</span>
+            <div class="stage__shot" data-cursor="LAUNCH"><span class="sprite stage__sprite" data-sprite="launch" data-scale="12"></span><span class="mono shot-label">[ Screenshot 04 ]</span></div>
+            <h3>Launch</h3>
+            <p>Send it to orbit and switch on your watcher over Sarawak's coast and forests.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 5. FINAL CTA / LAUNCH -->
+    <section class="launch">
+      <canvas class="stars" aria-hidden="true"></canvas>
+      <div class="launch__inner">
+        <p class="label mono"><span>(04)</span> Final countdown</p>
+        <p class="launch__count" aria-hidden="true">T-03</p>
+        <h2 class="big launch__title">Ready for<br><span class="amber">launch?</span></h2>
+        <p class="launch__sub">Jump into mission control. Free, in your browser.</p>
+        <div class="hero__ctas">
+          <a class="btn btn--amber btn--xl magnetic" href="play/" data-transition data-cursor="GO!"><span class="btn__icon">&#9654;</span> Start mission</a>
+          <button class="btn magnetic js-share" type="button" data-cursor="SHARE">Share with your crew</button>
+        </div>
+        <p class="share-status mono" aria-live="polite"></p>
+      </div>
+      <div class="launch__rocket" aria-hidden="true">
+        <span class="sprite" data-sprite="rocket" data-scale="8"></span>
+        <span class="sprite launch__flame" data-sprite="flame" data-scale="8"></span>
+      </div>
+      <div class="launch__pad" aria-hidden="true"></div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer__top container mono">
+      <span>Made in Sarawak, Borneo</span>
+      <span>KCH <span class="js-clock">--:--:--</span></span>
+      <a href="#top" data-scramble>Back to top &#8593;</a>
+    </div>
+    <p class="footer__big" aria-hidden="true">C.R.E.W</p>
+    <div class="footer__bottom container mono">
+      <span>&copy; <span class="js-year"></span> C.R.E.W</span>
+      <span>All systems nominal</span>
+    </div>
+  </footer>
+
+  <script src="assets/vendor/gsap.min.js"></script>
+  <script src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script src="assets/vendor/lenis.min.js"></script>
+  <script src="assets/js/borneo-map.js"></script>
+  <script src="assets/js/sprites.js"></script>
+  <script src="assets/js/pixelwipe.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
