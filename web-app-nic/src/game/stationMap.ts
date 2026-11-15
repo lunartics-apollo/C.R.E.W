@@ -43,11 +43,11 @@ const inRect = (r: Rect, p: Vec) => p.x >= r.x && p.y >= r.y && p.x < r.x + r.w 
 export const PHASE_SPOT: Partial<Record<Phase, string>> = {
   briefing: 'plot_trajectory',
   hangar: 'assemble_panels',
-  launchPlan: 'launch_console',
+  launchPlan: 'plot_trajectory', // Mission Planning Table: pick the rocket ride and orbit
   ground: 'align_antenna',
   testlab: 'divert_power',
   mrr: 'upload_flight_plan',
-  launch: 'fuel_rocket',
+  launch: 'launch_console', // Launch Console in Mission Control: Aisyah starts the T-minus countdown
   ops: 'download_telemetry',
   debrief: 'plot_trajectory',
 };

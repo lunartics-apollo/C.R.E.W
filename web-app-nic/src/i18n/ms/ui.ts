@@ -72,11 +72,11 @@ export const msUi: Record<string, string> = {
   'hub.obj.intro': 'Pergi ke Mission Control dan guna Mission Planning Table.',
   'hub.obj.transmission': 'Pergi ke Mission Control. Pengarah sedang memanggil.',
   'hub.obj.hangar': 'Pergi ke Assembly & Science dan bina CubeSat anda di meja kerja.',
-  'hub.obj.launchPlan': 'Pergi ke Mission Control dan guna Launch Console untuk memilih roket dan orbit.',
+  'hub.obj.launchPlan': 'Pergi ke Mission Control dan guna Mission Planning Table untuk memilih roket dan orbit.',
   'hub.obj.ground': 'Pergi ke Ground Station dan selaraskan antena.',
   'hub.obj.testlab': 'Pergi ke Power & Thermal dan uji CubeSat anda sebelum pelancaran.',
   'hub.obj.mrr': 'Pergi ke Mission Control untuk semakan Go / No-Go.',
-  'hub.obj.launch': 'Berjalan ke Launch Complex. Hari ini hari pelancaran!',
+  'hub.obj.launch': 'Pergi ke Mission Control dan mulakan kiraan detik di Launch Console. Hari ini hari pelancaran!',
   'hub.obj.ops': 'Pergi ke Ground Station dan terbangkan satelit anda.',
   'hub.obj.debrief': 'Pergi ke Mission Control untuk membaca taklimat anda.',
 

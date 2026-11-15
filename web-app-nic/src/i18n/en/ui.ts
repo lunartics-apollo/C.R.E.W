@@ -72,11 +72,11 @@ export const enUi: Record<string, string> = {
   'hub.obj.intro': 'Go to Mission Control and use the Mission Planning Table.',
   'hub.obj.transmission': 'Go to Mission Control. The director is calling.',
   'hub.obj.hangar': 'Go to Assembly & Science and build your CubeSat at the workbench.',
-  'hub.obj.launchPlan': 'Go to Mission Control and use the Launch Console to pick a rocket and orbit.',
+  'hub.obj.launchPlan': 'Go to Mission Control and use the Mission Planning Table to pick a rocket and orbit.',
   'hub.obj.ground': 'Go to the Ground Station and align the antenna.',
   'hub.obj.testlab': 'Go to Power & Thermal and test your CubeSat before launch.',
   'hub.obj.mrr': 'Go to Mission Control for the Go / No-Go review.',
-  'hub.obj.launch': 'Walk out to the Launch Complex. It is launch day!',
+  'hub.obj.launch': 'Go to Mission Control and start the countdown at the Launch Console. It is launch day!',
   'hub.obj.ops': 'Go to the Ground Station and fly your satellite.',
   'hub.obj.debrief': 'Go to Mission Control to read your debrief.',
 
