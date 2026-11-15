@@ -202,22 +202,17 @@ export function TransmissionScreen() {
   const t = useT();
   const goPhase = useStore((s) => s.goPhase);
   const openModal = useStore((s) => s.openModal);
-  const [ready, setReady] = useState(false);
   return (
     <div className="ui-layer flex flex-col">
       <TopBar phaseKey="phase.transmission" />
       <div className="scroll-thin mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-4 overflow-y-auto p-3">
-        <Commander scene="transmission" onDone={() => setReady(true)} />
-        {ready ? (
-          <div className="rise-in flex flex-wrap items-center justify-end gap-2">
-            <CButton size="sm" variant="ghost" onClick={() => openModal({ kind: 'quiz', which: 'pre' })}>
-              ? {t('tx.quizTake')}
-            </CButton>
-            <CButton variant="primary" size="lg" onClick={() => goPhase('intro')}>
-              {t('common.continue')} ▸
-            </CButton>
-          </div>
-        ) : null}
+        {/* The director's own Continue (on his last line) takes you to the Sarawak map: one button, no second one. */}
+        <Commander scene="transmission" onDone={() => goPhase('intro')} />
+        <div className="flex justify-end">
+          <CButton size="sm" variant="ghost" onClick={() => openModal({ kind: 'quiz', which: 'pre' })}>
+            ? {t('tx.quizTake')}
+          </CButton>
+        </div>
       </div>
     </div>
   );
