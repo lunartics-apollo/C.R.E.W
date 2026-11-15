@@ -93,16 +93,6 @@ export function makeTextures(scene: Phaser.Scene) {
       }
     }));
   });
-  // Hornbill silhouette, 2 frames (16x8 each) side by side
-  canvasTex(scene, 'hornbill', 32, 8, (c) => {
-    const f1 = ['................', '..........#.....', '.....#...###....', '....###.#####...', '###########AAAA.', '..#######.....A.', '....###.........', '................'];
-    const f2 = ['................', '................', '..........##....', '...######.###...', '###########AAAA.', '.....#........A.', '....###.........', '...#####........'];
-    [f1, f2].forEach((f, fi) => f.forEach((r, y) => [...r].forEach((ch, x) => {
-      if (ch === '.') return;
-      c.fillStyle = ch === 'A' ? '#f2b33d' : '#03060d';
-      c.fillRect(fi * 16 + x, y, 1, 1);
-    })));
-  });
   // Longboat with lantern 14x5
   canvasTex(scene, 'boat', 14, 6, (c) => {
     c.fillStyle = '#ffd86b';

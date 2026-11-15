@@ -1,7 +1,7 @@
 // The C.R.E.W. ground station from the Godot game: the cadet walks room to room (WASD / arrows / tap-to-walk
 // with A* pathfinding) to the spot where the current chapter happens. Ported from the Godot world:
 // sliding doors, day/night tint with room and lamp lights, interaction brackets, the objective arrow,
-// wandering crewmates and the hornbill fly-by.
+// and wandering crewmates.
 import Phaser from 'phaser';
 import { bridge } from '../bridge';
 import { MAP_H, MAP_W, PLAYER_SPEED, stationMap, type Spot, type Vec } from '../stationMap';
@@ -177,7 +177,6 @@ export class StationScene extends Phaser.Scene {
     // The second arrow: sits on the screen edge and points toward the objective when it is off-screen.
     this.edgeArrow = this.add.image(0, 0, 'st-arrow').setScrollFactor(0).setDepth(9100).setVisible(false);
     this.buildNight();
-    if (!this.reduced && !this.meeting) this.hornbill();
     // When the meeting dialogue ends, the crew leave the table for their own stations.
     this.unsubMeeting = bridge.on('meetingEnd', () => {
       for (const n of this.npcs) {
@@ -388,29 +387,6 @@ export class StationScene extends Phaser.Scene {
     for (const l of this.nightLights) {
       l.img.setAlpha(l.base * dark * 0.5).setVisible(dark > 0.02);
     }
-  }
-
-  /** A small hornbill flies across the screen, like at the start of a Godot mission. */
-  private hornbill() {
-    const g = this.add.graphics().setScrollFactor(0).setDepth(9500);
-    const state = { t: 0 };
-    this.tweens.add({
-      targets: state,
-      t: 7,
-      duration: 7000,
-      onUpdate: () => {
-        g.clear();
-        const x = -20 + state.t * 78;
-        const y = 60 + Math.sin(state.t * 1.6) * 9;
-        const wing = Math.sin(state.t * 12) > 0 ? -5 : 4;
-        g.fillStyle(0x172630, 1).fillTriangle(x, y + 1, x - 11, y + wing, x + 4, y - 1).fillRect(x - 3, y - 1, 10, 4).fillRect(x + 5, y - 3, 4, 5);
-        g.fillStyle(0xfff4dc, 1).fillRect(x - 7, y + 1, 5, 2);
-        g.fillStyle(0xe6b65e, 1).fillTriangle(x + 8, y - 2, x + 17, y, x + 8, y + 1);
-        g.fillStyle(0xd18042, 1).fillRect(x + 8, y - 4, 5, 2);
-        g.fillStyle(0xffffff, 1).fillRect(x + 7, y - 2, 1, 1);
-      },
-      onComplete: () => g.destroy(),
-    });
   }
 
   /** A bouncing arrow over the spot where the next chapter happens, like the Godot objective pointer. */

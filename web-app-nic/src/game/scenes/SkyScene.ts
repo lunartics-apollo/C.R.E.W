@@ -1,4 +1,4 @@
-// Parallax Sarawak night scene: rainforest ridges, the Rajang, a longboat, fireflies, a hornbill,
+// Parallax Sarawak night scene: rainforest ridges, the Rajang, a longboat, fireflies,
 // a tracking ground-station dish and our CubeSat crossing the sky on an orbit trace.
 import Phaser from 'phaser';
 import { BASE_H, BASE_W } from '../bridge';
@@ -16,7 +16,6 @@ export class SkyScene extends Phaser.Scene {
   private rocket!: Phaser.GameObjects.Graphics;
   private dim!: Phaser.GameObjects.Rectangle;
   private boat!: Phaser.GameObjects.Image;
-  private bird?: Phaser.GameObjects.Image;
   private t = 0;
   private reduced = false;
   private unsub: (() => void) | null = null;
@@ -93,13 +92,6 @@ export class SkyScene extends Phaser.Scene {
     });
     this.rocket = this.add.graphics();
     this.dim = this.add.rectangle(0, 0, BASE_W, BASE_H, 0x03060d, 0).setOrigin(0);
-    const tex = this.textures.get('hornbill');
-    if (!tex.has('f0')) {
-      tex.add('f0', 0, 0, 0, 16, 8);
-      tex.add('f1', 0, 16, 0, 16, 8);
-    }
-    this.time.addEvent({ delay: 9000, loop: true, callback: () => this.launchBird() });
-    this.time.delayedCall(2500, () => this.launchBird());
     this.unsub = useStore.subscribe((s, prev) => {
       if (s.progress?.phase !== prev.progress?.phase) this.applyPhase(s.progress?.phase ?? 'menu');
       this.reduced = s.settings.reducedMotion;
@@ -112,26 +104,6 @@ export class SkyScene extends Phaser.Scene {
     if (!this.dim?.active) return;
     const target = phase === 'menu' ? 0 : phase === 'ground' ? 0.25 : 0.45;
     this.tweens.add({ targets: this.dim, fillAlpha: target, duration: 600 });
-  }
-
-  private launchBird() {
-    if (this.reduced || !this.sys.isActive()) return;
-    this.bird?.destroy();
-    const y = 80 + Math.random() * 50;
-    const b = this.add.image(BASE_W + 20, y, 'hornbill', 'f0');
-    this.bird = b;
-    let f = 0;
-    const flap = this.time.addEvent({ delay: 220, loop: true, callback: () => b.setFrame(`f${(f = 1 - f)}`) });
-    this.tweens.add({
-      targets: b,
-      x: -30,
-      y: y - 20,
-      duration: 14000,
-      onComplete: () => {
-        flap.remove();
-        b.destroy();
-      },
-    });
   }
 
   override update(_time: number, delta: number) {
