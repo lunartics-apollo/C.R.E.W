@@ -9,7 +9,7 @@ import { useStore, useT } from '../../state/store';
 // 4 mouth frames across, 9 expressions down, each cell 96 x 112 with the face at (6, 2, 84, 84).
 const CAST_ROW: Record<Expression, number> = { neutral: 0, happy: 3, concerned: 6, surprised: 5, serious: 4 };
 const CAST_BLINK_ROW = 1;
-const CAST_POINT_ROW = 7; // finger raised
+// Row 7 (raised finger) is deliberately never used: at this size it can read as a rude gesture.
 const CAST_THUMBS_ROW = 3; // smiling
 
 function Portrait({ expr, talking, gesture, size = 112 }: { expr: Expression; talking: boolean; gesture: Gesture; size?: number }) {
@@ -31,7 +31,7 @@ function Portrait({ expr, talking, gesture, size = 112 }: { expr: Expression; ta
     const id = setInterval(() => setMouth(1 + Math.floor(Math.random() * 3)), 120);
     return () => clearInterval(id);
   }, [talking]);
-  const row = blink && !talking ? CAST_BLINK_ROW : gesture === 'point' ? CAST_POINT_ROW : gesture === 'thumbs' ? CAST_THUMBS_ROW : CAST_ROW[expr];
+  const row = blink && !talking ? CAST_BLINK_ROW : gesture === 'thumbs' ? CAST_THUMBS_ROW : CAST_ROW[expr];
   const k = size / 84;
   return (
     <div
