@@ -159,8 +159,8 @@ body,
   color: var(--dim);
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
   font-family: var(--font-pixel);
-  font-size: 9px;
-  letter-spacing: 0.14em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 .scroll-thin {
@@ -231,7 +231,7 @@ body,
 .cbtn-sm {
   min-height: 32px;
   padding: 0.35rem 0.8rem;
-  font-size: 0.62rem;
+  font-size: 0.7rem;
 }
 .cbtn-lg {
   min-height: 52px;
@@ -279,7 +279,7 @@ body,
   align-items: center;
   gap: 0.35rem;
   padding: 0.1rem 0.45rem;
-  font: 400 0.6rem var(--font-pixel);
+  font: 400 0.7rem var(--font-pixel);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 1px solid currentColor;
@@ -586,4 +586,19 @@ body,
   background: #fff4dc;
   border: 2px solid #1c1622;
   box-shadow: 0 2px 0 #1c1622;
+}
+
+/* Dragging a part must never select page text (the blue highlight), and cards are not text to select. */
+.part-card,
+.part-card *,
+.cbtn,
+.drag-ghost {
+  -webkit-user-select: none;
+  user-select: none;
+}
+body.is-dragging,
+body.is-dragging * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  cursor: grabbing !important;
 }

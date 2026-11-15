@@ -54,12 +54,12 @@ function PartCard({ c, installed, selected, onSelect, onDragStart, delta }: { c:
       data-testid={`part-${c.id}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <button type="button" className="text-left text-sm font-bold text-ink hover:text-cyan" onClick={onSelect} onPointerDown={(e) => e.stopPropagation()}>
+        <button type="button" className="text-left text-base font-bold text-ink hover:text-cyan" onClick={onSelect} onPointerDown={(e) => e.stopPropagation()}>
           {t(`part.${c.id}`)}
         </button>
-        <span className="num shrink-0 text-xs text-amber">{c.costCr} Cr</span>
+        <span className="num shrink-0 text-sm font-bold text-amber">{c.costCr} Cr</span>
       </div>
-      <div className="num mt-1 flex flex-wrap gap-x-3 text-[0.7rem] text-muted">
+      <div className="num mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-sm text-muted">
         <span>{c.massKg} kg</span>
         {c.volumeU > 0 && <span>{c.volumeU} U</span>}
         {c.idlePowerW > 0 && <span>{c.idlePowerW} W</span>}
@@ -70,7 +70,7 @@ function PartCard({ c, installed, selected, onSelect, onDragStart, delta }: { c:
         {!c.flightHeritage && <span className="text-amber">▲ {t('hangar.noHeritage')}</span>}
       </div>
       {d && base && (
-        <div className="num mt-1 text-[0.7rem] text-cyan" aria-live="polite">
+        <div className="num mt-1.5 text-sm text-cyan" aria-live="polite">
           {t('hangar.delta')}: {signed(d.metrics.massKg.value - base.metrics.massKg.value)} kg · {signed(d.metrics.orbitAverageMarginW - base.metrics.orbitAverageMarginW)} W · {signed(d.metrics.volumeU.value - base.metrics.volumeU.value)} U · {signed(d.metrics.hardwareCr - base.metrics.hardwareCr, 0)} Cr
         </div>
       )}
@@ -237,6 +237,8 @@ export function HangarScreen() {
       const st = startRef.current;
       if (!st) return;
       if (!drag && Math.hypot(e.clientX - st.x, e.clientY - st.y) < 6) return;
+      document.body.classList.add('is-dragging');
+      window.getSelection()?.removeAllRanges();
       const b = bridge.toBase(e.clientX, e.clientY);
       const layout = cubesatLayout(p.design.parts, exploded);
       const over = !!b && onSpacecraft(layout, b.x, b.y);
@@ -245,6 +247,7 @@ export function HangarScreen() {
       setDrag({ id: st.id, x: e.clientX, y: e.clientY, over });
     };
     const up = () => {
+      document.body.classList.remove('is-dragging');
       const st = startRef.current;
       startRef.current = null;
       if (drag?.over && st) {
@@ -277,7 +280,7 @@ export function HangarScreen() {
       <div className="pass-through relative grid min-h-0 flex-1 grid-cols-1 gap-2 p-2 md:grid-cols-[300px_1fr_270px]">
         {/* Catalogue */}
         <Panel title={t('hangar.catalog')} className="scroll-thin flex max-h-full min-h-0 flex-col overflow-y-auto">
-          <p className="mb-2 pl-3 text-xs text-muted">{t('hangar.drag')}</p>
+          <p className="mb-2 pl-3 text-sm text-muted">{t('hangar.drag')}</p>
           <div className="mb-2 flex flex-wrap gap-1" role="tablist">
             {SUBSYSTEMS.map((s) => (
               <button
@@ -286,16 +289,16 @@ export function HangarScreen() {
                 role="tab"
                 aria-selected={tab === s}
                 title={t(`sub.${s}`)}
-                className={`border px-2 py-1 text-xs ${tab === s ? 'border-cyan text-cyan' : p.design.parts[s] ? 'border-line text-green' : s === 'deorbit' ? 'border-line text-muted' : 'border-amber text-amber'}`}
+                className={`border px-2.5 py-1.5 text-sm font-semibold ${tab === s ? 'border-cyan text-cyan' : p.design.parts[s] ? 'border-line text-green' : s === 'deorbit' ? 'border-line text-muted' : 'border-amber text-amber'}`}
                 onClick={() => { play('click'); setTab(s); }}
               >
-                {SUB_ICON[s]} {t(`sub.${s}`).split(' ')[0]}
+                {SUB_ICON[s]} {t(`sub.${s}.tab`)}
               </button>
             ))}
           </div>
           <div className="mb-2 pl-1">
-            <div className="text-sm font-bold text-cyan">{t(`sub.${tab}`)}</div>
-            <p className="text-xs text-muted">{t(`sub.${tab}.p`)}</p>
+            <div className="text-base font-bold text-cyan">{t(`sub.${tab}`)}</div>
+            <p className="text-sm text-muted">{t(`sub.${tab}.p`)}</p>
           </div>
           <div className="flex flex-col gap-2">
             {CATALOG.filter((c) => c.subsystem === tab).map((c) => (
